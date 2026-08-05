@@ -4,6 +4,45 @@
 
 @import 'tailwindcss';
 
+/* ── Design tokens — "Pallet Ross" reference ─────────────────────────
+   Components inhe Tailwind utilities se use karte hain:
+   bg-canvas, text-ink, border-line, bg-surface, text-muted, ...
+   Dark theme [data-theme='dark'] ancestor se override hota hai. */
+@theme {
+  --color-backdrop: #E7E8E4;
+  --color-canvas: #FAFAFA;
+  --color-ink: #0f172a;
+  --color-muted: #6B7570;
+  --color-faint: #9AA3A0;
+  --color-line: #ECEDE9;
+  --color-surface: #ffffff;
+  --color-surface-2: #F4F5F2;
+
+  --color-lime: #DFF264;
+  --color-magenta: #C555F5;
+  --color-orange: #F2740B;
+  --color-wine: #7A2C25;
+
+  --radius-panel: 28px;
+  --radius-card: 26px;
+  --radius-img: 18px;
+  --radius-tile: 22px;
+}
+
+[data-theme='dark'] {
+  --color-backdrop: #070F0E;
+  --color-canvas: #0f172a;
+  --color-ink: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-faint: #64748b;
+  --color-line: #26332f;
+  --color-surface: #16211f;
+  --color-surface-2: #1a2622;
+  /* accents same rehte hain — dark pe aur pop karte hain;
+     wine ko lighten karna padta hai warna headline padh nahi aati */
+  --color-wine: #C96B60;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -71,7 +110,20 @@ body {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-.marquee-track { animation: marquee 35s linear infinite; }
+.marquee-track {
+  animation: marquee 35s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .float-anim,
+  .spin-slow,
+  .pulse-ring {
+    animation: none;
+  }
+}
 
 @keyframes wave {
   0%, 100% { transform: scaleY(0.3); }

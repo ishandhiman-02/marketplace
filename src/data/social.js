@@ -1,0 +1,71 @@
+export const STATS = [
+  { value: '16+', label: 'Premium Deals', icon: 'Tag', color: '#4f46e5' },
+  { value: 'Rs.50', label: 'Starts From', icon: 'Wallet', color: '#06b6d4' },
+  { value: '100%', label: 'Verified Accounts', icon: 'ShieldCheck', color: '#10b981' },
+  { value: '24/7', label: 'Support via DM', icon: 'MessageCircle', color: '#f59e0b' },
+];
+
+export const TRUST_ITEMS = [
+  { icon: 'ShieldCheck', text: 'Trusted by 500+ students' },
+  { icon: 'Star', text: '4.9 / 5 average rating' },
+  { icon: 'Clock', text: 'Delivery within 30 minutes' },
+  { icon: 'RefreshCw', text: 'Replacement guarantee' },
+  { icon: 'Zap', text: 'Instant activation' },
+];
+
+export const TESTIMONIALS = [
+  {
+    name: 'Arjun Mehta',
+    role: 'Engineering Student, IIT Delhi',
+    avatar: 'AM',
+    color: '#4f46e5',
+    text: 'Got Coursera Plus for just Rs.879 — the same plan costs Rs.7,000+ officially. Delivery was instant and the account works perfectly. 100% legit.',
+    rating: 5,
+    deal: 'Coursera Plus',
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Design Student, NID Ahmedabad',
+    avatar: 'PS',
+    color: '#ec4899',
+    text: 'Canva Pro for Rs.150 a year is insane value. I was skeptical at first but it worked immediately. Already recommended it to my whole batch.',
+    rating: 5,
+    deal: 'Canva Pro',
+  },
+  {
+    name: 'Rohan Verma',
+    role: 'BCA Final Year, Pune University',
+    avatar: 'RV',
+    color: '#10b981',
+    text: 'ChatGPT Plus for Rs.999 instead of Rs.1,600+ is a steal. Ordered via Instagram DM, got access in under 10 minutes. No issues at all.',
+    rating: 5,
+    deal: 'ChatGPT Plus',
+  },
+  {
+    name: 'Sneha Patel',
+    role: 'MBA Student, NMIMS Mumbai',
+    avatar: 'SP',
+    color: '#0077b5',
+    text: 'LinkedIn Premium for 3 months at Rs.777 helped me land two internship interviews. The support on Instagram was super quick and helpful.',
+    rating: 5,
+    deal: 'LinkedIn Premium',
+  },
+  {
+    name: 'Karan Singh',
+    role: 'CS Student, BITS Pilani',
+    avatar: 'KS',
+    color: '#f59e0b',
+    text: 'GitHub Student Pack for Rs.2200 — GitHub Copilot alone is worth it. Setup was smooth and I got all the benefits within the day.',
+    rating: 5,
+    deal: 'GitHub Student Pack',
+  },
+  {
+    name: 'Anjali Nair',
+    role: 'Commerce Student, DU',
+    avatar: 'AN',
+    color: '#06b6d4',
+    text: 'Netflix 4K for Rs.299 and Prime for Rs.200 — I use both daily. Ordered together and both were activated within 20 minutes. Highly recommend!',
+    rating: 5,
+    deal: 'Netflix + Prime',
+  },
+];

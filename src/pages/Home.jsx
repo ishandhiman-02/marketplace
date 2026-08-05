@@ -1,24 +1,14 @@
-import { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
-// ─── DARK MODE CONTEXT ────────────────────────────────────────────────────────
-const DarkModeContext = createContext({ dark: false, toggle: () => {} });
-function useDark() { return useContext(DarkModeContext); }
-
-import heroImg from '../assets/online_learning_dark_background.jpg';
-import codingImg from '../assets/coding_course_laptop_dark.jpg';
-import designImg from '../assets/design_course_creative_dark.jpg';
-import businessImg from '../assets/business_course_professional_dark.jpg';
-import abstractImg from '../assets/abstract_purple_blue_gradient_dark.jpg';
-
-// ─── CONFIG ─────────────────────────────────────────────────────────────────
-
-const INSTAGRAM_URL = 'https://www.instagram.com/';
-
-function openInstagram() {
-  window.open(INSTAGRAM_URL, '_blank', 'noopener,noreferrer');
-}
+import { DarkModeProvider } from '../context/DarkModeContext';
+import { useDark } from '../context/useDark';
+import { openInstagram } from '../lib/instagram';
+import { NAV_LINKS, NAV_IDS } from '../data/nav';
+import { CATEGORIES, COURSES } from '../data/products';
+import { OFFERS, DAILY_DEALS } from '../data/offers';
+import { STATS, TRUST_ITEMS, TESTIMONIALS } from '../data/social';
 
 function IgIcon({ size = 14, color = '#fff' }) {
   return (
@@ -29,301 +19,6 @@ function IgIcon({ size = 14, color = '#fff' }) {
     </svg>
   );
 }
-
-// ─── DATA ────────────────────────────────────────────────────────────────────
-
-const NAV_LINKS = ['Deals', 'Offers', 'Daily Deals', 'Contact'];
-
-const CATEGORIES = [
-  { icon: 'Tv', label: 'Streaming', count: 6, color: '#e50914' },
-  { icon: 'Music', label: 'Music', count: 1, color: '#1db954' },
-  { icon: 'Shield', label: 'VPN & Security', count: 1, color: '#4f46e5' },
-  { icon: 'Brain', label: 'AI Tools', count: 1, color: '#10b981' },
-  { icon: 'Code2', label: 'Developer Tools', count: 1, color: '#f59e0b' },
-  { icon: 'Palette', label: 'Design', count: 2, color: '#ec4899' },
-  { icon: 'BookOpen', label: 'Learning', count: 3, color: '#06b6d4' },
-  { icon: 'Briefcase', label: 'Productivity', count: 2, color: '#8b5cf6' },
-];
-
-const COURSES = [
-  {
-    id: 1,
-    title: 'Prime Video',
-    subtitle: '6 Months Access',
-    description: 'Unlimited movies, TV shows & Amazon Originals. Stream anytime, anywhere.',
-    price: 250,
-    duration: '6 Months',
-    image: abstractImg,
-    tag: 'Best Value',
-    tagColor: '#10b981',
-    category: 'Streaming',
-    icon: 'Tv',
-    color: '#00a8e0',
-  },
-  {
-    id: 2,
-    title: 'SonyLIV',
-    subtitle: '3 Months Access',
-    description: 'Premium sports, movies, web series & live TV — all in one place.',
-    price: 250,
-    duration: '3 Months',
-    image: businessImg,
-    tag: 'Hot',
-    tagColor: '#e50914',
-    category: 'Streaming',
-    icon: 'Tv',
-    color: '#e50914',
-  },
-  {
-    id: 3,
-    title: 'YouTube Premium',
-    subtitle: 'Multiple Plans',
-    description: 'Ad-free YouTube, background play, YouTube Music, and offline downloads.',
-    price: 50,
-    duration: '1 Month',
-    image: codingImg,
-    tag: 'From Rs.50',
-    tagColor: '#ff0000',
-    category: 'Streaming',
-    icon: 'Play',
-    color: '#ff0000',
-    variants: [{ label: '1 Month', price: 50 }, { label: '3 Months', price: 230 }, { label: '6 Months', price: 450 }],
-  },
-  {
-    id: 4,
-    title: 'Spotify',
-    subtitle: '3 Months Premium',
-    description: 'Listen to any song, podcast, or audiobook. No ads. Download for offline.',
-    price: 250,
-    duration: '3 Months',
-    image: abstractImg,
-    tag: 'Popular',
-    tagColor: '#1db954',
-    category: 'Music',
-    icon: 'Music',
-    color: '#1db954',
-  },
-  {
-    id: 5,
-    title: 'Jio Hotstar',
-    subtitle: '3 Months Access',
-    description: 'Live cricket, blockbuster movies, Disney content & top TV shows.',
-    price: 250,
-    duration: '3 Months',
-    image: designImg,
-    tag: 'Trending',
-    tagColor: '#1f80e0',
-    category: 'Streaming',
-    icon: 'Tv',
-    color: '#1f80e0',
-  },
-  {
-    id: 6,
-    title: 'Netflix',
-    subtitle: '1 Month Premium 4K UHD',
-    description: 'Stream Netflix originals, movies & series in stunning 4K Ultra HD on 4 screens.',
-    price: 299,
-    duration: '1 Month',
-    image: businessImg,
-    tag: '4K UHD',
-    tagColor: '#e50914',
-    category: 'Streaming',
-    icon: 'Tv',
-    color: '#e50914',
-    variants: [{ label: '1 Month Basic', price: 250 }, { label: '1 Month 4K UHD', price: 299 }],
-  },
-  {
-    id: 7,
-    title: 'Coursera Plus',
-    subtitle: '1 Year Full Access',
-    description: 'Unlimited access to 7,000+ world-class courses, professional certificates & degrees.',
-    price: 879,
-    duration: '1 Year',
-    image: codingImg,
-    tag: 'Bestseller',
-    tagColor: '#0056d2',
-    category: 'Learning',
-    icon: 'BookOpen',
-    color: '#0056d2',
-  },
-  {
-    id: 8,
-    title: 'NordVPN',
-    subtitle: '3 Months Subscription',
-    description: 'Military-grade encryption, no-logs policy, 5,000+ servers in 60 countries.',
-    price: 499,
-    duration: '3 Months',
-    image: abstractImg,
-    tag: 'Secure',
-    tagColor: '#4687ff',
-    category: 'VPN & Security',
-    icon: 'Shield',
-    color: '#4687ff',
-  },
-  {
-    id: 9,
-    title: 'Amazon Prime',
-    subtitle: '6 Months Access',
-    description: 'Free delivery, Prime Video, Prime Music, exclusive deals & more.',
-    price: 200,
-    duration: '6 Months',
-    image: businessImg,
-    tag: 'Best Value',
-    tagColor: '#ff9900',
-    category: 'Streaming',
-    icon: 'ShoppingBag',
-    color: '#ff9900',
-  },
-  {
-    id: 10,
-    title: 'LinkedIn Premium Career',
-    subtitle: '3 Months Plan',
-    description: 'InMail credits, who viewed your profile, LinkedIn Learning & career insights.',
-    price: 777,
-    duration: '3 Months',
-    image: designImg,
-    tag: 'Career Boost',
-    tagColor: '#0077b5',
-    category: 'Productivity',
-    icon: 'Briefcase',
-    color: '#0077b5',
-  },
-  {
-    id: 11,
-    title: 'ChatGPT Plus',
-    subtitle: '1 Month Subscription',
-    description: 'GPT-4o access, faster responses, image generation & advanced data analysis.',
-    price: 999,
-    duration: '1 Month',
-    image: abstractImg,
-    tag: 'AI Power',
-    tagColor: '#10b981',
-    category: 'AI Tools',
-    icon: 'Brain',
-    color: '#10b981',
-  },
-  {
-    id: 12,
-    title: 'GitHub Student Pack',
-    subtitle: '2 Years Access',
-    description: 'Free access to 100+ developer tools — GitHub Pro, Copilot, domains & cloud credits.',
-    price: 2200,
-    duration: '2 Years',
-    image: codingImg,
-    tag: 'Dev Essential',
-    tagColor: '#6e7681',
-    category: 'Developer Tools',
-    icon: 'Code2',
-    color: '#6e7681',
-  },
-  {
-    id: 13,
-    title: 'Autodesk All Apps',
-    subtitle: '1 Year License',
-    description: 'AutoCAD, Revit, 3ds Max, Maya & 100+ Autodesk apps for design & engineering.',
-    price: 999,
-    duration: '1 Year',
-    image: designImg,
-    tag: 'Pro Suite',
-    tagColor: '#ec4899',
-    category: 'Design',
-    icon: 'Palette',
-    color: '#ec4899',
-  },
-  {
-    id: 14,
-    title: 'Microsoft 365',
-    subtitle: 'Lifetime / 1 Year Family',
-    description: 'Word, Excel, PowerPoint, Teams, OneDrive & more — for work and home.',
-    price: 499,
-    duration: 'Lifetime',
-    image: businessImg,
-    tag: 'Lifetime Deal',
-    tagColor: '#0078d4',
-    category: 'Productivity',
-    icon: 'Briefcase',
-    color: '#0078d4',
-    variants: [{ label: 'Lifetime 100GB', price: 499 }, { label: '1 Year Family 1TB', price: 499 }],
-  },
-  {
-    id: 15,
-    title: 'edX Full Access',
-    subtitle: '1 Year Subscription',
-    description: 'Unlimited verified certificates from MIT, Harvard, Stanford & 160+ top universities.',
-    price: 999,
-    duration: '1 Year',
-    image: codingImg,
-    tag: 'Top Rated',
-    tagColor: '#06b6d4',
-    category: 'Learning',
-    icon: 'BookOpen',
-    color: '#06b6d4',
-  },
-  {
-    id: 16,
-    title: 'Canva Pro',
-    subtitle: '1 Year Subscription',
-    description: 'Unlimited premium templates, brand kit, background remover & 100M+ assets.',
-    price: 150,
-    duration: '1 Year',
-    image: designImg,
-    tag: 'Lowest Price',
-    tagColor: '#7d2ae8',
-    category: 'Design',
-    icon: 'Palette',
-    color: '#7d2ae8',
-  },
-];
-
-const OFFERS = [
-  {
-    id: 1,
-    type: 'video',
-    title: 'Flash Sale — Streaming Bundle',
-    description: 'Get Netflix + Prime + Hotstar together at a jaw-dropping bundled price. Limited slots available.',
-    badge: 'VIDEO OFFER',
-    discount: '60% OFF',
-    color: '#4f46e5',
-    thumbnail: codingImg,
-  },
-  {
-    id: 2,
-    type: 'audio',
-    title: 'Podcast: How to Save Big on Premium Apps',
-    description: 'Tips on stacking subscriptions, getting the best deals, and never overpaying for software again.',
-    badge: 'AUDIO OFFER',
-    discount: null,
-    color: '#8b5cf6',
-    audioDuration: '14:30',
-  },
-  {
-    id: 3,
-    type: 'image',
-    title: 'Design Tools Mega Bundle — Canva + Autodesk',
-    description: 'Get Canva Pro and Autodesk All Apps together at an unbeatable price. Create anything, design everything.',
-    badge: 'IMAGE OFFER',
-    discount: 'Bundle Deal',
-    image: designImg,
-    color: '#ec4899',
-  },
-  {
-    id: 4,
-    type: 'text',
-    title: 'Learning Stack — Coursera + edX + LinkedIn',
-    description: 'Lock in all three learning platforms at combo pricing and build your career faster than ever.',
-    badge: 'TEXT OFFER',
-    discount: 'Combo Deal',
-    color: '#10b981',
-    highlights: ['Coursera Plus — 1 Year', 'edX Full Access — 1 Year', 'LinkedIn Premium — 3 Months', 'All at combo pricing'],
-  },
-];
-
-const STATS = [
-  { value: '16+', label: 'Premium Deals', icon: 'Tag', color: '#4f46e5' },
-  { value: 'Rs.50', label: 'Starts From', icon: 'Wallet', color: '#06b6d4' },
-  { value: '100%', label: 'Verified Accounts', icon: 'ShieldCheck', color: '#10b981' },
-  { value: '24/7', label: 'Support via DM', icon: 'MessageCircle', color: '#f59e0b' },
-];
 
 // ─── SMALL COMPONENTS ────────────────────────────────────────────────────────
 
@@ -524,7 +219,7 @@ function Navbar() {
           {NAV_LINKS.map((l) => (
             <a
               key={l}
-              href={`#${l.toLowerCase()}`}
+              href={`#${NAV_IDS[l]}`}
               className="text-sm font-medium transition-colors"
               style={{ color: textColor }}
               onMouseEnter={e => (e.currentTarget.style.color = '#4f46e5')}
@@ -573,7 +268,7 @@ function Navbar() {
               {NAV_LINKS.map((l) => (
                 <a
                   key={l}
-                  href={`#${l.toLowerCase()}`}
+                  href={`#${NAV_IDS[l]}`}
                   className="text-sm font-medium"
                   style={{ color: textColor }}
                   onClick={() => setMenuOpen(false)}
@@ -763,14 +458,6 @@ function StatsSection() {
 }
 
 // ─── TRUST BANNER ────────────────────────────────────────────────────────────
-
-const TRUST_ITEMS = [
-  { icon: 'ShieldCheck', text: 'Trusted by 500+ students' },
-  { icon: 'Star', text: '4.9 / 5 average rating' },
-  { icon: 'Clock', text: 'Delivery within 30 minutes' },
-  { icon: 'RefreshCw', text: 'Replacement guarantee' },
-  { icon: 'Zap', text: 'Instant activation' },
-];
 
 function TrustBanner() {
   const { dark } = useDark();
@@ -1264,63 +951,6 @@ function ContactSection() {
 
 // ─── PROOF / TESTIMONIALS ────────────────────────────────────────────────────
 
-const TESTIMONIALS = [
-  {
-    name: 'Arjun Mehta',
-    role: 'Engineering Student, IIT Delhi',
-    avatar: 'AM',
-    color: '#4f46e5',
-    text: 'Got Coursera Plus for just Rs.879 — the same plan costs Rs.7,000+ officially. Delivery was instant and the account works perfectly. 100% legit.',
-    rating: 5,
-    deal: 'Coursera Plus',
-  },
-  {
-    name: 'Priya Sharma',
-    role: 'Design Student, NID Ahmedabad',
-    avatar: 'PS',
-    color: '#ec4899',
-    text: 'Canva Pro for Rs.150 a year is insane value. I was skeptical at first but it worked immediately. Already recommended it to my whole batch.',
-    rating: 5,
-    deal: 'Canva Pro',
-  },
-  {
-    name: 'Rohan Verma',
-    role: 'BCA Final Year, Pune University',
-    avatar: 'RV',
-    color: '#10b981',
-    text: 'ChatGPT Plus for Rs.999 instead of Rs.1,600+ is a steal. Ordered via Instagram DM, got access in under 10 minutes. No issues at all.',
-    rating: 5,
-    deal: 'ChatGPT Plus',
-  },
-  {
-    name: 'Sneha Patel',
-    role: 'MBA Student, NMIMS Mumbai',
-    avatar: 'SP',
-    color: '#0077b5',
-    text: 'LinkedIn Premium for 3 months at Rs.777 helped me land two internship interviews. The support on Instagram was super quick and helpful.',
-    rating: 5,
-    deal: 'LinkedIn Premium',
-  },
-  {
-    name: 'Karan Singh',
-    role: 'CS Student, BITS Pilani',
-    avatar: 'KS',
-    color: '#f59e0b',
-    text: 'GitHub Student Pack for Rs.2200 — GitHub Copilot alone is worth it. Setup was smooth and I got all the benefits within the day.',
-    rating: 5,
-    deal: 'GitHub Student Pack',
-  },
-  {
-    name: 'Anjali Nair',
-    role: 'Commerce Student, DU',
-    avatar: 'AN',
-    color: '#06b6d4',
-    text: 'Netflix 4K for Rs.299 and Prime for Rs.200 — I use both daily. Ordered together and both were activated within 20 minutes. Highly recommend!',
-    rating: 5,
-    deal: 'Netflix + Prime',
-  },
-];
-
 function ProofSection() {
   const { dark } = useDark();
 
@@ -1465,69 +1095,6 @@ function ProofSection() {
 }
 
 // ─── DAILY DEALS ─────────────────────────────────────────────────────────────
-
-const DAILY_DEALS = [
-  {
-    id: 1,
-    emoji: '🔥',
-    title: "Today's Flash Deal",
-    subtitle: 'Netflix 4K + Amazon Prime Bundle',
-    description: 'Get both streaming giants together at a special combined price. Valid today only.',
-    originalPrice: 549,
-    dealPrice: 399,
-    savings: 150,
-    expiresIn: 'Today only',
-    tag: 'BUNDLE',
-    tagColor: '#e50914',
-    slots: 5,
-    slotsLeft: 2,
-  },
-  {
-    id: 2,
-    emoji: '⚡',
-    title: 'Lightning Deal',
-    subtitle: 'YouTube Premium 3 Months',
-    description: 'Ad-free YouTube for 3 months at a price lower than a single month officially.',
-    originalPrice: 319,
-    dealPrice: 230,
-    savings: 89,
-    expiresIn: '6 hours left',
-    tag: 'HOT',
-    tagColor: '#ff0000',
-    slots: 10,
-    slotsLeft: 7,
-  },
-  {
-    id: 3,
-    emoji: '🎓',
-    title: 'Student Special',
-    subtitle: 'Coursera Plus + edX Bundle',
-    description: 'Two of the best learning platforms together — certificates from MIT, Harvard, Stanford and more.',
-    originalPrice: 1878,
-    dealPrice: 1499,
-    savings: 379,
-    expiresIn: 'This week',
-    tag: 'LEARNING',
-    tagColor: '#0056d2',
-    slots: 8,
-    slotsLeft: 3,
-  },
-  {
-    id: 4,
-    emoji: '🎨',
-    title: 'Creator Bundle',
-    subtitle: 'Canva Pro + Autodesk All Apps',
-    description: 'Everything a design or engineering student needs — all in one deal.',
-    originalPrice: 1149,
-    dealPrice: 899,
-    savings: 250,
-    expiresIn: '2 days left',
-    tag: 'DESIGN',
-    tagColor: '#7d2ae8',
-    slots: 6,
-    slotsLeft: 4,
-  },
-];
 
 function DailyDealsSection() {
   const { dark } = useDark();
@@ -1746,20 +1313,12 @@ function FloatingInstagramButton() {
 
 // ─── HOME ────────────────────────────────────────────────────────────────────
 
-export default function Home() {
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem('substore-dark') === 'true'; } catch { return false; }
-  });
-
-  const toggle = () => setDark((d) => {
-    const next = !d;
-    try { localStorage.setItem('substore-dark', String(next)); } catch {}
-    return next;
-  });
+function HomeInner() {
+  const { dark } = useDark();
 
   return (
-    <DarkModeContext.Provider value={{ dark, toggle }}>
     <div
+      data-theme={dark ? 'dark' : 'light'}
       style={{
         background: dark ? '#070F0E' : '#E7E8E4',
         minHeight: '100vh',
@@ -1767,7 +1326,8 @@ export default function Home() {
         transition: 'background 0.3s',
       }}
     >
-      {/* inset canvas — poori site ek rounded card ke andar */}
+      {/* inset canvas — poori site ek rounded card ke andar.
+          overflow: clip hi rakhna — hidden sticky navbar tod deta hai */}
       <div
         style={{
           background: dark ? '#0f172a' : '#FAFAFA',
@@ -1793,6 +1353,13 @@ export default function Home() {
       </div>
       <FloatingInstagramButton />
     </div>
-    </DarkModeContext.Provider>
+  );
+}
+
+export default function Home() {
+  return (
+    <DarkModeProvider>
+      <HomeInner />
+    </DarkModeProvider>
   );
 }
