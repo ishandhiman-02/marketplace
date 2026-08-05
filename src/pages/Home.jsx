@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
 import { DarkModeProvider } from '../context/DarkModeContext';
@@ -9,6 +9,7 @@ import { CATEGORIES, COURSES } from '../data/products';
 import { OFFERS, DAILY_DEALS } from '../data/offers';
 import { STATS, TRUST_ITEMS, TESTIMONIALS } from '../data/social';
 import { Navbar } from '../components/sections/Navbar';
+import { HeroSection } from '../components/sections/HeroSection';
 import { OrderCta } from '../components/sections/OrderCta';
 import { Footer } from '../components/sections/Footer';
 import { FloatingInstagramButton } from '../components/sections/FloatingInstagramButton';
@@ -135,127 +136,6 @@ function VideoOfferCard({ offer }) {
         </div>
       )}
     </div>
-  );
-}
-
-// ─── HERO ────────────────────────────────────────────────────────────────────
-
-function HeroSection() {
-  const { dark } = useDark();
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 600], [0, -120]);
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-
-  return (
-    <section
-      id="hero"
-      className="relative flex items-center justify-center overflow-hidden"
-      style={{
-        // navbar ab sticky hai aur 56px layout leta hai — hero utna kam le
-        minHeight: 'calc(100vh - 56px)',
-        background: dark ? '#0f172a' : '#FAFAFA',
-      }}
-    >
-
-      <motion.div style={{ y, opacity }} className="relative z-10 max-w-5xl mx-auto px-6 text-center pt-10 pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 text-xs font-semibold tracking-wider uppercase"
-          style={{ background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.2)', color: '#4f46e5' }}
-        >
-          <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#4f46e5' }} />
-          Premium subscriptions at student-friendly prices
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none mb-6"
-          style={{ letterSpacing: '-3px', color: dark ? '#f8fafc' : '#0f172a' }}
-        >
-          Get premium.
-          <br />
-          <span style={{ color: '#4f46e5' }}>Pay less.</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-          style={{ color: dark ? '#94a3b8' : '#475569' }}
-        >
-          Netflix, Spotify, ChatGPT, Canva, Coursera and 10+ more — all at prices that make sense for students. Order via Instagram DM in seconds.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="flex items-center justify-center gap-4 flex-wrap"
-        >
-          <motion.button
-            whileHover={{ scale: 1.03, boxShadow: '0 8px 30px rgba(79,70,229,0.35)' }}
-            whileTap={{ scale: 0.97 }}
-            onClick={openInstagram}
-            className="px-8 py-3.5 rounded-full text-sm font-semibold flex items-center gap-2 shadow-lg"
-            style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
-          >
-            <IgIcon size={16} />
-            Order on Instagram
-          </motion.button>
-          <motion.a
-            href="#deals"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="px-8 py-3.5 rounded-full text-sm font-semibold flex items-center gap-2"
-            style={{ background: '#ffffff', color: '#0f172a', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(15,23,42,0.08)' }}
-          >
-            Browse all deals
-            <Icons.ArrowRight size={16} />
-          </motion.a>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="flex items-center justify-center gap-6 mt-12 flex-wrap"
-        >
-          {[
-            { icon: 'ShieldCheck', text: 'Verified accounts' },
-            { icon: 'Zap', text: 'Instant delivery' },
-            { icon: 'MessageCircle', text: '24/7 DM support' },
-            { icon: 'GraduationCap', text: 'Student-focused' },
-          ].map(({ icon, text }) => {
-            const Icon = Icons[icon] || Icons.HelpCircle;
-            return (
-              <div key={text} className="flex items-center gap-2 text-xs font-medium" style={{ color: '#475569' }}>
-                <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#e0e7ff' }}>
-                  <Icon size={11} style={{ color: '#4f46e5' }} />
-                </div>
-                {text}
-              </div>
-            );
-          })}
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs tracking-widest uppercase font-medium" style={{ color: '#94a3b8' }}>Scroll</span>
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-          <Icons.ChevronDown size={16} style={{ color: '#4f46e5' }} />
-        </motion.div>
-      </motion.div>
-    </section>
   );
 }
 
