@@ -1,144 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
 import { DarkModeProvider } from '../context/DarkModeContext';
 import { useDark } from '../context/useDark';
-import { openInstagram } from '../lib/instagram';
 import { CATEGORIES } from '../data/products';
-import { OFFERS, DAILY_DEALS } from '../data/offers';
 import { STATS, TRUST_ITEMS, TESTIMONIALS } from '../data/social';
 import { Navbar } from '../components/sections/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
 import { MarketplaceSection } from '../components/sections/MarketplaceSection';
+import { DealCarousel } from '../components/sections/DealCarousel';
+import { OffersBento } from '../components/sections/OffersBento';
+import { PricingFan } from '../components/sections/PricingFan';
 import { OrderCta } from '../components/sections/OrderCta';
 import { Footer } from '../components/sections/Footer';
 import { FloatingInstagramButton } from '../components/sections/FloatingInstagramButton';
-import { IgIcon } from '../components/ui/IgIcon';
-
-// ─── SMALL COMPONENTS ────────────────────────────────────────────────────────
-
-function CountdownTimer() {
-  const [time, setTime] = useState({ h: 5, m: 47, s: 23 });
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTime((prev) => {
-        let { h, m, s } = prev;
-        s--;
-        if (s < 0) { s = 59; m--; }
-        if (m < 0) { m = 59; h--; }
-        if (h < 0) { h = 23; m = 59; s = 59; }
-        return { h, m, s };
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const pad = (n) => String(n).padStart(2, '0');
-
-  return (
-    <div className="flex items-center gap-2">
-      {[{ v: time.h, l: 'HRS' }, { v: time.m, l: 'MIN' }, { v: time.s, l: 'SEC' }].map(({ v, l }, i) => (
-        <div key={l} className="flex items-center gap-2">
-          <div className="text-center">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold font-mono text-white"
-              style={{ background: '#4f46e5', boxShadow: '0 2px 8px rgba(79,70,229,0.35)' }}
-            >
-              {pad(v)}
-            </div>
-            <div className="text-xs mt-1 font-medium" style={{ color: '#94a3b8' }}>{l}</div>
-          </div>
-          {i < 2 && <span className="text-lg font-bold mb-4" style={{ color: '#4f46e5' }}>:</span>}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AudioPlayer({ offer }) {
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const intervalRef = useRef(null);
-
-  const toggle = () => {
-    setPlaying((p) => {
-      if (!p) {
-        intervalRef.current = setInterval(() => {
-          setProgress((prev) => {
-            if (prev >= 100) { clearInterval(intervalRef.current); return 0; }
-            return prev + 0.3;
-          });
-        }, 100);
-      } else {
-        clearInterval(intervalRef.current);
-      }
-      return !p;
-    });
-  };
-
-  const bars = [3, 5, 7, 4, 8, 6, 9, 5, 7, 4, 6, 8, 5, 7, 3, 9, 6, 4, 8, 5];
-
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-1 h-14 justify-center">
-        {bars.map((h, i) => (
-          <div
-            key={i}
-            className="rounded-full transition-all duration-300"
-            style={{
-              width: 3,
-              height: `${h * 5}px`,
-              background: playing ? `rgba(79,70,229,${0.3 + (h / 9) * 0.7})` : '#e2e8f0',
-            }}
-          />
-        ))}
-      </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#e2e8f0' }}>
-        <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: '#4f46e5' }} />
-      </div>
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-mono" style={{ color: '#94a3b8' }}>
-          {Math.floor((progress / 100) * 14)}:{String(Math.floor(((progress / 100) * 30) % 60)).padStart(2, '0')}
-        </span>
-        <button
-          onClick={toggle}
-          className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105 shadow-md"
-          style={{ background: '#4f46e5' }}
-        >
-          {playing ? <Icons.Pause size={16} color="#fff" /> : <Icons.Play size={16} color="#fff" />}
-        </button>
-        <span className="text-xs font-mono" style={{ color: '#94a3b8' }}>{offer.audioDuration}</span>
-      </div>
-    </div>
-  );
-}
-
-function VideoOfferCard({ offer }) {
-  const [clicked, setClicked] = useState(false);
-  return (
-    <div
-      className="relative rounded-xl overflow-hidden cursor-pointer"
-      style={{ height: 200 }}
-      onClick={() => setClicked(true)}
-    >
-      <img src={offer.thumbnail} alt={offer.title} className="w-full h-full object-cover" />
-      <div className="absolute inset-0" style={{ background: 'rgba(15,23,42,0.45)' }} />
-      {!clicked && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <motion.div
-            whileHover={{ scale: 1.1 }}
-            className="w-16 h-16 rounded-full flex items-center justify-center shadow-xl"
-            style={{ background: '#4f46e5' }}
-          >
-            <Icons.Play size={24} color="#fff" />
-          </motion.div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── STATS ───────────────────────────────────────────────────────────────────
 
@@ -285,141 +160,6 @@ function CategoriesSection() {
   );
 }
 
-// ─── OFFERS ──────────────────────────────────────────────────────────────────
-
-function OffersSection() {
-  const { dark } = useDark();
-  return (
-    <section id="offers" className="py-24 relative overflow-hidden" style={{ background: dark ? '#0f172a' : '#f8faff' }}>
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(79,70,229,0.04) 0%, transparent 70%)' }}
-      />
-
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase mb-4"
-            style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.25)', color: '#d97706' }}
-          >
-            <Icons.Zap size={12} />
-            Limited Time
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4" style={{ color: dark ? '#f8fafc' : '#0f172a', letterSpacing: '-1.5px' }}>
-            Exclusive offers
-          </h2>
-          <p className="text-base max-w-lg mx-auto" style={{ color: dark ? '#94a3b8' : '#475569' }}>
-            Hand-picked deals in every format — video, audio, image, and text. Don't miss out.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {OFFERS.map((offer, i) => (
-            <motion.div
-              key={offer.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.01 }}
-              className="rounded-2xl overflow-hidden"
-              style={{
-                background: dark ? '#1e293b' : '#ffffff',
-                border: `1px solid ${offer.color}30`,
-                boxShadow: `0 4px 20px rgba(15,23,42,0.06)`,
-              }}
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
-                      style={{ background: `${offer.color}15`, border: `1px solid ${offer.color}25` }}
-                    >
-                      {offer.type === 'video' && <Icons.Video size={14} style={{ color: offer.color }} />}
-                      {offer.type === 'audio' && <Icons.Music size={14} style={{ color: offer.color }} />}
-                      {offer.type === 'image' && <Icons.Image size={14} style={{ color: offer.color }} />}
-                      {offer.type === 'text' && <Icons.FileText size={14} style={{ color: offer.color }} />}
-                    </div>
-                    <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: offer.color }}>
-                      {offer.badge}
-                    </span>
-                  </div>
-                  {offer.discount && (
-                    <span
-                      className="text-xs font-bold px-3 py-1 rounded-full"
-                      style={{ background: `${offer.color}15`, color: offer.color, border: `1px solid ${offer.color}25` }}
-                    >
-                      {offer.discount}
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="text-lg font-bold mb-2 leading-snug" style={{ color: dark ? '#f1f5f9' : '#0f172a', letterSpacing: '-0.4px' }}>
-                  {offer.title}
-                </h3>
-                <p className="text-sm mb-5 leading-relaxed" style={{ color: dark ? '#94a3b8' : '#475569' }}>
-                  {offer.description}
-                </p>
-
-                {offer.type === 'video' && <VideoOfferCard offer={offer} />}
-                {offer.type === 'audio' && <AudioPlayer offer={offer} />}
-                {offer.type === 'image' && (
-                  <div className="rounded-xl overflow-hidden mb-2" style={{ height: 180 }}>
-                    <img src={offer.image} alt={offer.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-                {offer.type === 'text' && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {offer.highlights.map((h) => (
-                      <div
-                        key={h}
-                        className="flex items-center gap-2 p-3 rounded-lg text-xs font-medium"
-                        style={{ background: `${offer.color}08`, border: `1px solid ${offer.color}18`, color: dark ? '#94a3b8' : '#334155' }}
-                      >
-                        <Icons.Check size={12} style={{ color: offer.color, flexShrink: 0 }} />
-                        {h}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between mt-5 pt-4" style={{ borderTop: `1px solid ${dark ? '#334155' : '#f1f5f9'}` }}>
-                  {offer.type === 'video' ? (
-                    <CountdownTimer />
-                  ) : (
-                    <div className="flex items-center gap-2 text-xs font-medium" style={{ color: '#94a3b8' }}>
-                      <Icons.Clock size={12} />
-                      Limited availability
-                    </div>
-                  )}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={openInstagram}
-                    className="px-5 py-2.5 rounded-full text-xs font-semibold flex items-center gap-1.5 ml-auto shadow-md"
-                    style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
-                  >
-                    <IgIcon size={12} />
-                    Claim via Instagram
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── FOOTER ──────────────────────────────────────────────────────────────────
-
 // ─── PROOF / TESTIMONIALS ────────────────────────────────────────────────────
 
 function ProofSection() {
@@ -565,163 +305,6 @@ function ProofSection() {
   );
 }
 
-// ─── DAILY DEALS ─────────────────────────────────────────────────────────────
-
-function DailyDealsSection() {
-  const { dark } = useDark();
-  const [date] = useState(() => {
-    const d = new Date();
-    return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
-  });
-
-  return (
-    <section id="daily-deals" className="py-24 relative overflow-hidden" style={{ background: dark ? '#1e293b' : '#ffffff' }}>
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,158,11,0.06) 0%, transparent 60%)' }}
-      />
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
-        >
-          <div>
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase mb-4"
-              style={{ background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.25)', color: '#d97706' }}
-            >
-              <Icons.CalendarDays size={12} />
-              Updated daily
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter" style={{ color: dark ? '#f8fafc' : '#0f172a', letterSpacing: '-1.5px' }}>
-              Daily deals
-            </h2>
-            <p className="text-sm mt-2" style={{ color: dark ? '#64748b' : '#94a3b8' }}>{date}</p>
-          </div>
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
-            style={{ background: dark ? '#0f172a' : '#fefce8', border: `1px solid ${dark ? '#334155' : '#fde68a'}`, color: dark ? '#fbbf24' : '#92400e' }}
-          >
-            <Icons.Flame size={14} style={{ color: '#f59e0b' }} />
-            New deals drop every morning
-          </div>
-        </motion.div>
-
-        {/* Deal cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {DAILY_DEALS.map((deal, i) => (
-            <motion.div
-              key={deal.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.09 }}
-              whileHover={{ y: -5 }}
-              className="rounded-2xl overflow-hidden"
-              style={{
-                background: dark ? '#0f172a' : '#f8faff',
-                border: `1px solid ${dark ? '#334155' : '#e0e7ff'}`,
-                boxShadow: '0 2px 16px rgba(15,23,42,0.07)',
-              }}
-            >
-              <div className="p-6">
-                {/* Top row */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-                      style={{ background: dark ? '#1e293b' : '#ffffff', border: `1px solid ${dark ? '#334155' : '#e2e8f0'}` }}
-                    >
-                      {deal.emoji}
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold mb-0.5" style={{ color: dark ? '#64748b' : '#94a3b8' }}>{deal.title}</div>
-                      <div className="font-bold text-sm" style={{ color: dark ? '#f1f5f9' : '#0f172a' }}>{deal.subtitle}</div>
-                    </div>
-                  </div>
-                  <span
-                    className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
-                    style={{ background: `${deal.tagColor}15`, color: deal.tagColor, border: `1px solid ${deal.tagColor}30` }}
-                  >
-                    {deal.tag}
-                  </span>
-                </div>
-
-                {/* Description */}
-                <p className="text-xs leading-relaxed mb-5" style={{ color: dark ? '#94a3b8' : '#475569' }}>
-                  {deal.description}
-                </p>
-
-                {/* Slots bar */}
-                <div className="mb-5">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-medium" style={{ color: dark ? '#64748b' : '#94a3b8' }}>Slots remaining</span>
-                    <span className="text-xs font-bold" style={{ color: deal.slotsLeft <= 3 ? '#ef4444' : '#10b981' }}>
-                      {deal.slotsLeft} of {deal.slots} left
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: dark ? '#334155' : '#e2e8f0' }}>
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${((deal.slots - deal.slotsLeft) / deal.slots) * 100}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, delay: 0.3 }}
-                      className="h-full rounded-full"
-                      style={{ background: deal.slotsLeft <= 3 ? 'linear-gradient(90deg,#ef4444,#f97316)' : 'linear-gradient(90deg,#4f46e5,#06b6d4)' }}
-                    />
-                  </div>
-                </div>
-
-                {/* Price + CTA */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold" style={{ color: dark ? '#f8fafc' : '#0f172a', letterSpacing: '-1px' }}>Rs.{deal.dealPrice}</span>
-                      <span className="text-sm line-through" style={{ color: '#94a3b8' }}>Rs.{deal.originalPrice}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#ef4444' }} />
-                      <span className="text-xs font-semibold" style={{ color: '#ef4444' }}>{deal.expiresIn}</span>
-                      <span className="text-xs font-medium px-1.5 py-0.5 rounded" style={{ background: '#dcfce7', color: '#166534' }}>Save Rs.{deal.savings}</span>
-                    </div>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={openInstagram}
-                    className="px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg"
-                    style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
-                  >
-                    <IgIcon size={12} />
-                    Grab deal
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Bottom note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-10 text-center"
-        >
-          <p className="text-xs font-medium" style={{ color: dark ? '#475569' : '#94a3b8' }}>
-            Daily deals are updated every morning. DM us on Instagram to lock in your slot before they run out.
-          </p>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-// ─── FLOATING BUTTON ─────────────────────────────────────────────────────────
-
 // ─── HOME ────────────────────────────────────────────────────────────────────
 
 function HomeInner() {
@@ -752,12 +335,13 @@ function HomeInner() {
       >
         <Navbar />
         <HeroSection />
-        <TrustBanner />
+        <DealCarousel />
         <StatsSection />
         <CategoriesSection />
+        <OffersBento />
         <MarketplaceSection />
-        <OffersSection />
-        <DailyDealsSection />
+        <PricingFan />
+        <TrustBanner />
         <ProofSection />
         <OrderCta />
         <Footer />
