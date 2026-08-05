@@ -1,0 +1,194 @@
+{
+  "aesthetic": "sentry-inspired",
+  "layout_archetype": "bento",
+  "design_reference": "sentry",
+  "fonts": {
+    "display": {
+      "family": "Rubik, -apple-system, system-ui, sans-serif",
+      "weights": [
+        600,
+        700,
+        800
+      ]
+    },
+    "body": {
+      "family": "Rubik, -apple-system, system-ui, sans-serif",
+      "weights": [
+        400,
+        500,
+        600
+      ]
+    }
+  },
+  "tokens": {
+    "colors": {
+      "accent": "#150f23",
+      "primary": "#150f23",
+      "scheme": "light",
+      "secondary": "#1f1633",
+      "text": "#1f1633"
+    },
+    "typography": {
+      "bodyFont": "Rubik, -apple-system, system-ui, sans-serif",
+      "displayFont": "Rubik, -apple-system, system-ui, sans-serif",
+      "fontFamily": "'Inter', 'SF Pro', ui-sans-serif, system-ui",
+      "fontType": "sans-serif"
+    },
+    "radii": {
+      "default": "1.25rem (20px) on cards, 2.5rem (40px) on hero sections and search bar, 0.75rem (12px) for input fields",
+      "full": "9999px",
+      "lg": "1rem",
+      "sm": "0.25rem"
+    },
+    "shadows": {
+      "default": "Soft, deep, colored drop shadows on interactive surfaces",
+      "lg": "0 8px 24px rgba(0,0,0,0.2)",
+      "md": "0 4px 12px rgba(0,0,0,0.15)",
+      "sm": "0 1px 3px rgba(0,0,0,0.1)"
+    },
+    "spacing": {
+      "2xl": "6rem",
+      "lg": "2rem",
+      "md": "1rem",
+      "sm": "0.5rem",
+      "xl": "4rem",
+      "xs": "0.25rem"
+    }
+  },
+  "shared_components": [
+    {
+      "name": "Header",
+      "path": "src/components/Header.jsx",
+      "purpose": "Anchor navigation and branding, persistent site identity.",
+      "props": []
+    },
+    {
+      "name": "HeroAnimatedHeadline",
+      "path": "src/components/HeroAnimatedHeadline.jsx",
+      "purpose": "Grab user attention and funnel to course discovery.",
+      "props": []
+    },
+    {
+      "name": "CourseCategoriesGrid",
+      "path": "src/components/CourseCategoriesGrid.jsx",
+      "purpose": "Showcase main course categories visually.",
+      "props": [
+        "categories"
+      ]
+    },
+    {
+      "name": "FeaturedCoursesGrid",
+      "path": "src/components/FeaturedCoursesGrid.jsx",
+      "purpose": "Promote top-selling and new release courses for purchase.",
+      "props": [
+        "courses"
+      ]
+    },
+    {
+      "name": "SpecialOffersShowcase",
+      "path": "src/components/SpecialOffersShowcase.jsx",
+      "purpose": "Highlight multimedia special offers provided by admins.",
+      "props": [
+        "offers"
+      ]
+    },
+    {
+      "name": "TestimonialsSlider",
+      "path": "src/components/TestimonialsSlider.jsx",
+      "purpose": "Show social proof with high production value.",
+      "props": [
+        "testimonials"
+      ]
+    },
+    {
+      "name": "StatsBar",
+      "path": "src/components/StatsBar.jsx",
+      "purpose": "Build credibility and trust with real-time stats.",
+      "props": [
+        "stats"
+      ]
+    },
+    {
+      "name": "NewsletterSignupForm",
+      "path": "src/components/NewsletterSignupForm.jsx",
+      "purpose": "Capture leads for marketing.",
+      "props": []
+    },
+    {
+      "name": "Footer",
+      "path": "src/components/Footer.jsx",
+      "purpose": "Wrap content, reinforce branding, present legal links.",
+      "props": []
+    }
+  ],
+  "pages": [
+    {
+      "name": "Home",
+      "route": "/",
+      "file": "src/pages/Home.jsx",
+      "uses": [
+        "Header",
+        "HeroAnimatedHeadline",
+        "CourseCategoriesGrid",
+        "FeaturedCoursesGrid",
+        "SpecialOffersShowcase",
+        "TestimonialsSlider",
+        "StatsBar",
+        "NewsletterSignupForm",
+        "Footer"
+      ],
+      "layout_plan": [
+        {
+          "section": "hero",
+          "composition": "Asymmetric hero: oversized headline top-left with a primary CTA; a live metric/stat tile anchored bottom-right. Not centered."
+        },
+        {
+          "section": "bento-grid",
+          "composition": "Modular grid of UNEQUAL tiles — one large feature tile spanning 2 columns/rows, plus smaller tiles (a stat, a short quote, an image, a mini-feature). Varied sizes, never a uniform 3-up."
+        },
+        {
+          "section": "showcase",
+          "composition": "Wide product/feature band: large mockup or visual on a tinted surface, supporting copy beside it."
+        },
+        {
+          "section": "proof",
+          "composition": "Single full-width row: logo strip or 3–4 large stat numerals with small labels."
+        },
+        {
+          "section": "cta",
+          "composition": "Full-width CTA band, left-aligned headline + button on a brand-tinted surface."
+        }
+      ]
+    }
+  ],
+  "nav_links": [
+    {
+      "label": "Courses",
+      "route": "#courses"
+    },
+    {
+      "label": "Offers",
+      "route": "#offers"
+    },
+    {
+      "label": "Testimonials",
+      "route": "#testimonials"
+    },
+    {
+      "label": "Newsletter",
+      "route": "#newsletter"
+    }
+  ],
+  "footer_links": [
+    {
+      "label": "Privacy Policy",
+      "route": "#privacy"
+    },
+    {
+      "label": "Terms of Service",
+      "route": "#terms"
+    }
+  ],
+  "auth_pattern": "none",
+  "notes": "TYPOGRAPHY (from the sentry design system — use these EXACT family stacks as the CSS font-family; apply via inline style fontFamily or a Tailwind arbitrary value): display \"Rubik, -apple-system, system-ui, sans-serif\" for headings/hero, body \"Rubik, -apple-system, system-ui, sans-serif\" for body/labels. Load these Google Fonts via \u003clink\u003e in index.html: Rubik.\n\nDesign DNA: Inspired by Linear.app: ultra-premium minimalism, glassy surfaces, layered depth, animated gradients, heavy focus on whitespace and clarity. Oversized headlines, bold sans-serif display fonts, accent colors for interactive cues, dark backgrounds (#010102, #161725) with lavender-blue highlights (#5e6ad2) and muted surface ladders. Subtle shadows, rounded corners, luminous hover/focus effects. All cards float above near-black, cohesive section stacking.. Animation: Framer Motion, gradient transitions, floating card reveals, interactive search bar animations. Interaction: Smooth scroll, hover-glow, tactile button presses, focus-visible, animated input transitions, surface hovering.. Color scheme: dark.\n\nLAYOUT ARCHETYPE: bento — build each page from its layout_plan; do NOT collapse into a centered hero followed by a uniform 3-card grid and footer. A card grid, if used, is at most ONE section among differently-composed sections.\n\nREFERENCE DESIGN SYSTEM: sentry — this is THIS project's design system. USE its palette (tokens.colors above are taken from it) and its font stacks. DISTILL its component treatments (buttons, cards, nav), type scale + tracking, spacing rhythm, and depth/shadow system, and match its level of polish. Do NOT fall back to generic defaults (raw Tailwind gray text, #3B82F6 blue, system fonts) or invent an unrelated purple/dark theme. Brief follows:\n\n---\nversion: alpha\nname: Sentri-Inspired-design-analysis\ndescription: An inspired interpretation of Sentri's design language — a developer-tools brand built on a deep purple-violet midnight canvas, electric lime accents, and a slightly subversive illustrated personality. The system pairs a custom display sans (chunky, playful, near-condensed) with the open Rubik family for UI copy and Monaco for code, then leans on dark-on-light pricing surfaces, sticker-style mascots, and a single-color CTA hierarchy where black-violet buttons read as the primary action against either polarity.\n\ncolors:\n  primary: \"#150f23\"\n  ink-deep: \"#1f1633\"\n  on-primary: \"#ffffff\"\n  accent-lime: \"#c2ef4e\"\n  accent-pink: \"#fa7faa\"\n  accent-violet: \"#6a5fc1\"\n  accent-violet-deep: \"#422082\"\n  accent-violet-mid: \"#79628c\"\n  surface-canvas-dark: \"#1f1633\"\n  surface-canvas-light: \"#ffffff\"\n  surface-night: \"#150f23\"\n  surface-press-light: \"#f0f0f0\"\n  surface-press-stronger: \"#efefef\"\n  hairline-violet: \"#362d59\"\n  hairline-cool: \"#cfcfdb\"\n  hairline-cloud: \"#e5e7eb\"\n  ink: \"#1f1633\"\n  ink-press: \"#1a1a1a\"\n  on-dark-muted: \"#bdb8c0\"\n  on-dark-faint: \"#3f3849\"\n  ring-focus: \"#9dc1f5\"\n\ntypography:\n  display-hero:\n    fontFamily: \"Sentri Display, Rubik, system-ui, sans-serif\"\n    fontSize: 88px\n    fontWeight: 700\n    lineHeight: 1.2\n    letterSpacing: 0\n  display-large:\n    fontFamily: \"Sentri Display, Rubik, system-ui, sans-serif\"\n    fontSize: 60px\n    fontWeight: 500\n    lineHeight: 1.1\n    letterSpacing: 0\n  heading-xl:\n    fontFamily: \"Rubik, -apple-system, system-ui, Segoe UI, Helvetica, Arial, sans-serif\"\n    fontSize: 30px\n    fontWeight: 500\n    lineHeight: 1.2\n    letterSpacing: 0\n  heading-lg:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 27px\n    fontWeight: 500\n    lineHeight: 1.25\n    letterSpacing: 0\n  heading-md:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 24px\n    fontWeight: 500\n    lineHeight: 1.25\n    letterSpacing: 0\n  heading-sm:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 20px\n    fontWeight: 600\n    lineHeight: 1.25\n    letterSpacing: 0\n  body-lg:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 16px\n    fontWeight: 400\n    lineHeight: 2.0\n    letterSpacing: 0\n  body-strong:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 16px\n    fontWeight: 600\n    lineHeight: 1.5\n    letterSpacing: 0\n  body-md:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 16px\n    fontWeight: 500\n    lineHeight: 1.5\n    letterSpacing: 0\n  eyebrow:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 15px\n    fontWeight: 500\n    lineHeight: 1.4\n    letterSpacing: 0\n  button-cap:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 14px\n    fontWeight: 700\n    lineHeight: 1.14\n    letterSpacing: 0.2px\n  button-cap-light:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 14px\n    fontWeight: 500\n    lineHeight: 1.29\n    letterSpacing: 0.2px\n  caption:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 14px\n    fontWeight: 400\n    lineHeight: 1.43\n    letterSpacing: 0\n  micro-cap:\n    fontFamily: \"Rubik, -apple-system, system-ui, sans-serif\"\n    fontSize: 10px\n    fontWeight: 600\n    lineHeight: 1.8\n    letterSpacing: 0.25px\n  code:\n    fontFamily: \"Monaco, Menlo, Ubuntu Mono, monospace\"\n    fontSize: 16px\n    fontWeight: 400\n    lineHeight: 1.5\n    letterSpacing: 0\n  code-strong:\n    fontFamily: \"Monaco, Menlo, Ubuntu Mono, monospace\"\n    fontSize: 16px\n    fontWeight: 700\n    lineHeight: 1.5\n    letterSpacing: 0\n\nrounded:\n  xs: 4px\n  sm: 6px\n  md: 8px\n  lg: 10px\n  xl: 12px\n  xxl: 18px\n  full: 9999px\n\nspacing:\n  xxs: 2px\n  xs: 4px\n  sm: 8px\n  md: 12px\n  lg: 16px\n  xl: 24px\n  xxl: 32px\n  section: 96px\n\ncomponents:\n  button-primary:\n    backgroundColor: \"{colors.primary}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.md}\"\n    padding: 12px 16px\n  button-primary-pressed:\n    backgroundColor: \"{colors.surface-press-stronger}\"\n    textColor: \"{colors.ink-press}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.md}\"\n    padding: 12px 16px\n  button-inverted:\n    backgroundColor: \"{colors.on-primary}\"\n    textColor: \"{colors.ink-deep}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.md}\"\n    padding: 12px 16px\n  button-inverted-pressed:\n    backgroundColor: \"{colors.surface-press-light}\"\n    textColor: \"{colors.ink-press}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.md}\"\n    padding: 12px 16px\n  button-ghost-on-dark:\n    backgroundColor: \"{colors.on-dark-faint}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.xl}\"\n    padding: 8px\n  button-violet-token:\n    backgroundColor: \"{colors.accent-violet-mid}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.button-cap-light}\"\n    rounded: \"{rounded.xl}\"\n    padding: 8px 16px\n  button-disabled:\n    backgroundColor: \"{colors.hairline-cloud}\"\n    textColor: \"{colors.on-dark-muted}\"\n    typography: \"{typography.button-cap}\"\n    rounded: \"{rounded.md}\"\n    padding: 12px 16px\n  pill-neutral-dark:\n    backgroundColor: \"{colors.surface-night}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.caption}\"\n    rounded: \"{rounded.xs}\"\n    padding: 4px 8px\n  chip-lime-keyword:\n    backgroundColor: \"{colors.accent-lime}\"\n    textColor: \"{colors.ink-deep}\"\n    typography: \"{typography.display-hero}\"\n    rounded: \"{rounded.xs}\"\n    padding: 0 12px\n  text-input:\n    backgroundColor: \"{colors.surface-canvas-light}\"\n    textColor: \"{colors.ink-deep}\"\n    typography: \"{typography.body-md}\"\n    rounded: \"{rounded.sm}\"\n    padding: 8px 12px\n  text-input-focused:\n    backgroundColor: \"{colors.surface-canvas-light}\"\n    textColor: \"{colors.ink-deep}\"\n    typography: \"{typography.body-md}\"\n    rounded: \"{rounded.sm}\"\n    padding: 8px 12px\n  select-violet:\n    backgroundColor: \"{colors.accent-violet-deep}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.body-md}\"\n    rounded: \"{rounded.md}\"\n    padding: 8px 16px\n  card-pricing:\n    backgroundColor: \"{colors.surface-canvas-light}\"\n    textColor: \"{colors.ink-deep}\"\n    typography: \"{typography.body-md}\"\n    rounded: \"{rounded.xl}\"\n    padding: 32px\n  card-pricing-featured:\n    backgroundColor: \"{colors.surface-night}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.body-md}\"\n    rounded: \"{rounded.xl}\"\n    padding: 32px\n  card-feature-dark:\n    backgroundColor: \"{colors.ink-deep}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.body-lg}\"\n    rounded: \"{rounded.xxl}\"\n    padding: 32px\n  card-spotlight-violet:\n    backgroundColor: \"{colors.accent-violet-deep}\"\n    textColor: \"{colors.on-primary}\"\n    typography: \"{typography.body-lg}\"\n   \n…(brief truncated)\n"
+}
