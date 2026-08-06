@@ -4,7 +4,7 @@ import * as Icons from 'lucide-react';
 
 import { DarkModeProvider } from '../context/DarkModeContext';
 import { useDark } from '../context/useDark';
-import { openInstagram } from '../lib/instagram';
+import { orderOnInstagram, onOrderToast } from '../config/site';
 import { NAV_LINKS, NAV_IDS } from '../data/nav';
 import { CATEGORIES, COURSES } from '../data/products';
 import { OFFERS } from '../data/offers';
@@ -237,7 +237,7 @@ function Navbar() {
           <motion.button
             whileHover={{ scale: 1.03, boxShadow: '0 4px 16px rgba(79,70,229,0.3)' }}
             whileTap={{ scale: 0.97 }}
-            onClick={openInstagram}
+            onClick={() => orderOnInstagram()}
             className="text-sm font-semibold px-5 py-2 rounded-full flex items-center gap-2"
             style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
           >
@@ -279,7 +279,7 @@ function Navbar() {
                 </a>
               ))}
               <button
-                onClick={openInstagram}
+                onClick={() => orderOnInstagram()}
                 className="text-sm font-semibold py-2.5 rounded-full text-center mt-2 flex items-center justify-center gap-2"
                 style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
               >
@@ -590,7 +590,11 @@ function DealsSection() {
                     <motion.button
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
-                      onClick={openInstagram}
+                      onClick={() => orderOnInstagram({
+                        title: course.title,
+                        variant: course.subtitle,
+                        price: course.price,
+                      })}
                       className="px-4 py-2.5 rounded-full text-xs font-semibold flex items-center gap-1.5"
                       style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
                     >
@@ -741,7 +745,7 @@ function OffersSection() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={openInstagram}
+                    onClick={() => orderOnInstagram({ title: offer.title })}
                     className="px-5 py-2.5 rounded-full text-xs font-semibold flex items-center gap-1.5 ml-auto shadow-md"
                     style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
                   >
@@ -815,7 +819,7 @@ function ContactSection() {
           <motion.button
             whileHover={{ scale: 1.03, boxShadow: '0 8px 30px rgba(131,58,180,0.35)' }}
             whileTap={{ scale: 0.97 }}
-            onClick={openInstagram}
+            onClick={() => orderOnInstagram()}
             className="px-9 py-4 rounded-full text-base font-semibold flex items-center gap-3 mx-auto shadow-xl"
             style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
           >
@@ -993,7 +997,7 @@ function Footer() {
           All subscriptions are shared/family plan accounts. Prices are subject to availability.
         </p>
         <button
-          onClick={openInstagram}
+          onClick={() => orderOnInstagram()}
           className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full"
           style={{ background: 'rgba(131,58,180,0.08)', color: '#4f46e5', border: '1px solid rgba(131,58,180,0.2)' }}
         >
@@ -1025,13 +1029,55 @@ function FloatingInstagramButton() {
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
-          onClick={openInstagram}
+          onClick={() => orderOnInstagram()}
           className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-2xl text-sm font-semibold"
           style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
         >
           <IgIcon size={16} />
           Order now
         </motion.button>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── ORDER TOAST ─────────────────────────────────────────────────────────────
+
+// Clipboard copy hone pe 2 second ka confirmation — config/site.js emit karta hai
+function OrderToast() {
+  const [message, setMessage] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onOrderToast((msg) => setMessage(msg));
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (!message) return undefined;
+    const t = setTimeout(() => setMessage(null), 2000);
+    return () => clearTimeout(t);
+  }, [message]);
+
+  return (
+    <AnimatePresence>
+      {message && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.96 }}
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-24 left-1/2 z-[60] flex items-center gap-2.5 px-5 py-3 rounded-full shadow-2xl text-sm font-medium"
+          style={{
+            translateX: '-50%',
+            background: '#0f172a',
+            color: '#f8fafc',
+            maxWidth: 'calc(100vw - 32px)',
+          }}
+        >
+          <Icons.ClipboardCheck size={16} style={{ color: '#DFF264', flexShrink: 0 }} />
+          {message}
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -1078,6 +1124,7 @@ function HomeInner() {
         <Footer />
       </div>
       <FloatingInstagramButton />
+      <OrderToast />
     </div>
   );
 }

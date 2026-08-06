@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { COURSES } from '../../data/products';
-import { openInstagram } from '../../lib/instagram';
+import { orderOnInstagram } from '../../config/site';
 import { Eyebrow } from '../ui/Eyebrow';
 import { PillButton } from '../ui/PillButton';
 import { IgIcon } from '../ui/IgIcon';
@@ -14,7 +14,11 @@ function HeroTile({ product, compact = false }) {
   const Icon = Icons[product.icon] || Icons.HelpCircle;
   return (
     <div
-      onClick={openInstagram}
+      onClick={() => orderOnInstagram({
+        title: product.title,
+        variant: product.subtitle,
+        price: product.price,
+      })}
       className="relative overflow-hidden cursor-pointer select-none"
       style={{
         borderRadius: 22,
@@ -104,7 +108,7 @@ export function HeroSection() {
             transition={{ delay: 0.68 }}
             className="flex items-center gap-4 flex-wrap"
           >
-            <PillButton variant="ig" size="lg" onClick={openInstagram} className="shadow-lg">
+            <PillButton variant="ig" size="lg" onClick={() => orderOnInstagram()} className="shadow-lg">
               <IgIcon size={16} />
               Order on Instagram
             </PillButton>

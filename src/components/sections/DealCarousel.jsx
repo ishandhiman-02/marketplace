@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { DAILY_DEALS } from '../../data/offers';
-import { openInstagram } from '../../lib/instagram';
+import { orderOnInstagram } from '../../config/site';
 import { Eyebrow } from '../ui/Eyebrow';
 import { SpeechBubble } from '../ui/SpeechBubble';
 import { RoundNavButton } from '../ui/RoundNavButton';
@@ -166,7 +166,11 @@ export function DealCarousel() {
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
-                  onClick={openInstagram}
+                  onClick={() => orderOnInstagram({
+                    title: deal.subtitle,
+                    variant: deal.title,
+                    price: deal.dealPrice,
+                  })}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-ink bg-white cursor-pointer shadow-lg"
                   style={{ color: '#0f172a' }}
                 >
