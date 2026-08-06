@@ -3,17 +3,6 @@ import designImg from '../assets/design_course_creative_dark.jpg';
 import businessImg from '../assets/business_course_professional_dark.jpg';
 import abstractImg from '../assets/abstract_purple_blue_gradient_dark.jpg';
 
-export const CATEGORIES = [
-  { icon: 'Tv', label: 'Streaming', count: 6, color: '#e50914' },
-  { icon: 'Music', label: 'Music', count: 1, color: '#1db954' },
-  { icon: 'Shield', label: 'VPN & Security', count: 1, color: '#4f46e5' },
-  { icon: 'Brain', label: 'AI Tools', count: 1, color: '#10b981' },
-  { icon: 'Code2', label: 'Developer Tools', count: 1, color: '#f59e0b' },
-  { icon: 'Palette', label: 'Design', count: 2, color: '#ec4899' },
-  { icon: 'BookOpen', label: 'Learning', count: 3, color: '#06b6d4' },
-  { icon: 'Briefcase', label: 'Productivity', count: 2, color: '#8b5cf6' },
-];
-
 export const COURSES = [
   {
     id: 1,
@@ -106,7 +95,7 @@ export const COURSES = [
     title: 'Coursera Plus',
     subtitle: '1 Year Full Access',
     description: 'Unlimited access to 7,000+ world-class courses, professional certificates & degrees.',
-    price: 879,
+    price: 999,
     duration: '1 Year',
     image: codingImg,
     tag: 'Bestseller',
@@ -118,7 +107,7 @@ export const COURSES = [
   {
     id: 8,
     title: 'NordVPN',
-    subtitle: '3 Months Subscription',
+    subtitle: 'On your mail · 3 Months',
     description: 'Military-grade encryption, no-logs policy, 5,000+ servers in 60 countries.',
     price: 499,
     duration: '3 Months',
@@ -242,4 +231,97 @@ export const COURSES = [
     icon: 'Palette',
     color: '#7d2ae8',
   },
+  {
+    id: 17,
+    title: 'ExpressVPN',
+    subtitle: '1 Month Account',
+    description: 'Ultra-fast servers in 105 countries, TrustedServer tech & 24/7 live support.',
+    price: 299,
+    duration: '1 Month',
+    image: abstractImg,
+    tag: 'Fastest',
+    tagColor: '#DA3940',
+    category: 'VPN & Security',
+    icon: 'Shield',
+    color: '#DA3940',
+  },
+  {
+    id: 18,
+    title: 'Proton VPN',
+    subtitle: 'Direct account · 1 Year',
+    description: 'Swiss privacy, Secure Core routing & a strict no-logs policy. Direct account access.',
+    price: 1299,
+    duration: '1 Year',
+    image: codingImg,
+    tag: 'Direct Account',
+    tagColor: '#6D4AFF',
+    category: 'VPN & Security',
+    icon: 'Shield',
+    color: '#6D4AFF',
+  },
+  {
+    id: 19,
+    title: 'IPVanish',
+    subtitle: 'Single device · 1 Year',
+    description: 'Owned-and-operated servers in 75+ locations with unlimited bandwidth.',
+    price: 599,
+    duration: '1 Year',
+    image: businessImg,
+    tag: 'Single Device',
+    tagColor: '#70BB43',
+    category: 'VPN & Security',
+    icon: 'Shield',
+    color: '#70BB43',
+  },
+  {
+    id: 20,
+    title: 'Private Internet Access',
+    subtitle: '12 Months Subscription',
+    description: 'PIA VPN with open-source apps, MACE ad blocker & unlimited device connections.',
+    price: 1199,
+    duration: '12 Months',
+    image: designImg,
+    tag: 'Unlimited Devices',
+    tagColor: '#2E9E4E',
+    category: 'VPN & Security',
+    icon: 'Shield',
+    color: '#2E9E4E',
+  },
+  {
+    id: 21,
+    title: 'HMA Pro VPN',
+    subtitle: '1 Month Account',
+    description: 'HideMyAss servers across 210+ countries with lightning-fast connection speeds.',
+    price: 299,
+    duration: '1 Month',
+    image: abstractImg,
+    tag: 'Global Reach',
+    tagColor: '#F5A623',
+    category: 'VPN & Security',
+    icon: 'Shield',
+    color: '#F5A623',
+  },
 ];
+
+// counts COURSES se derive hote hain — haath se likhne pe har product add
+// karne ke baad galat ho jaate the (Learning pe 3 likha tha, asal mein 2 hai)
+const CATEGORY_META = [
+  { icon: 'Tv', label: 'Streaming', color: '#e50914' },
+  { icon: 'Music', label: 'Music', color: '#1db954' },
+  { icon: 'Shield', label: 'VPN & Security', color: '#4f46e5' },
+  { icon: 'Brain', label: 'AI Tools', color: '#10b981' },
+  { icon: 'Code2', label: 'Developer Tools', color: '#f59e0b' },
+  { icon: 'Palette', label: 'Design', color: '#ec4899' },
+  { icon: 'BookOpen', label: 'Learning', color: '#06b6d4' },
+  { icon: 'Briefcase', label: 'Productivity', color: '#8b5cf6' },
+];
+
+export const CATEGORIES = CATEGORY_META.map((c) => ({
+  ...c,
+  count: COURSES.filter((p) => p.category === c.label).length,
+}));
+
+// sabse sasta plan (variants ko bhi dekhta hai) — "Starts From" stat ke liye
+export const MIN_PRICE = Math.min(
+  ...COURSES.map((c) => (c.variants ? Math.min(...c.variants.map((v) => v.price)) : c.price)),
+);

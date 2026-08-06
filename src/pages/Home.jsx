@@ -445,7 +445,9 @@ function DealsSection() {
   const { dark } = useDark();
   const [activeFilter, setActiveFilter] = useState('All');
   const [visibleCount, setVisibleCount] = useState(6);
-  const filters = ['All', 'Streaming', 'Learning', 'Design', 'AI Tools', 'Productivity'];
+  // CATEGORIES se derive — haath se likhne pe naye category ke products
+  // sirf "All" mein dikhte the (VPN & Security, Music, Developer Tools chhoot gaye the)
+  const filters = ['All', ...CATEGORIES.map((c) => c.label)];
 
   const filteredAll = activeFilter === 'All' ? COURSES : COURSES.filter((c) => c.category === activeFilter);
   const filtered = filteredAll.slice(0, visibleCount);

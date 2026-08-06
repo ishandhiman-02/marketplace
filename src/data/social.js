@@ -1,6 +1,10 @@
+import { COURSES, MIN_PRICE } from './products';
+
 export const STATS = [
-  { value: '16+', label: 'Premium Deals', icon: 'Tag', color: '#4f46e5' },
-  { value: 'Rs.50', label: 'Starts From', icon: 'Wallet', color: '#06b6d4' },
+  // dono numbers COURSES se derive hote hain — product add/remove karne pe
+  // apne aap sahi rehte hain
+  { value: `${COURSES.length}`, label: 'Premium Deals', icon: 'Tag', color: '#4f46e5' },
+  { value: `Rs.${MIN_PRICE}`, label: 'Starts From', icon: 'Wallet', color: '#06b6d4' },
   { value: '100%', label: 'Verified Accounts', icon: 'ShieldCheck', color: '#10b981' },
   { value: '24/7', label: 'Support via DM', icon: 'MessageCircle', color: '#f59e0b' },
 ];
