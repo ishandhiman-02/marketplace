@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { DAILY_DEALS } from '../../data/offers';
+import { DAILY_DEALS } from '../../data/dailyOffers';
 import { orderOnInstagram } from '../../config/site';
 import { Eyebrow } from '../ui/Eyebrow';
 import { SpeechBubble } from '../ui/SpeechBubble';

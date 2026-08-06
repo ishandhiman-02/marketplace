@@ -2,7 +2,6 @@ import codingImg from '../assets/coding_course_laptop_dark.jpg';
 import designImg from '../assets/design_course_creative_dark.jpg';
 import businessImg from '../assets/business_course_professional_dark.jpg';
 import abstractImg from '../assets/abstract_purple_blue_gradient_dark.jpg';
-
 export const COURSES = [
   {
     id: 1,
@@ -302,24 +301,6 @@ export const COURSES = [
     color: '#F5A623',
   },
 ];
-
-// counts COURSES se derive hote hain — haath se likhne pe har product add
-// karne ke baad galat ho jaate the (Learning pe 3 likha tha, asal mein 2 hai)
-const CATEGORY_META = [
-  { icon: 'Tv', label: 'Streaming', color: '#e50914' },
-  { icon: 'Music', label: 'Music', color: '#1db954' },
-  { icon: 'Shield', label: 'VPN & Security', color: '#4f46e5' },
-  { icon: 'Brain', label: 'AI Tools', color: '#10b981' },
-  { icon: 'Code2', label: 'Developer Tools', color: '#f59e0b' },
-  { icon: 'Palette', label: 'Design', color: '#ec4899' },
-  { icon: 'BookOpen', label: 'Learning', color: '#06b6d4' },
-  { icon: 'Briefcase', label: 'Productivity', color: '#8b5cf6' },
-];
-
-export const CATEGORIES = CATEGORY_META.map((c) => ({
-  ...c,
-  count: COURSES.filter((p) => p.category === c.label).length,
-}));
 
 // sabse sasta plan (variants ko bhi dekhta hai) — "Starts From" stat ke liye
 export const MIN_PRICE = Math.min(
