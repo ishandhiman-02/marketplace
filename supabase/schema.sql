@@ -162,8 +162,19 @@ create policy "leads admin delete"
 -- ─────────────────────────────────────────────────────────────
 
 insert into storage.buckets (id, name, public)
-values ('proofs', 'proofs', true)
+values ('proofs', 'proofs', true), ('product-images', 'product-images', true)
 on conflict (id) do update set public = true;
+
+-- product images bhi isi tarah — sab padh sakte hain, upload sirf admin
+drop policy if exists "product images public read" on storage.objects;
+create policy "product images public read"
+  on storage.objects for select to public
+  using (bucket_id = 'product-images');
+
+drop policy if exists "product images admin write" on storage.objects;
+create policy "product images admin write"
+  on storage.objects for all to authenticated
+  using (bucket_id = 'product-images') with check (bucket_id = 'product-images');
 
 drop policy if exists "proofs bucket public read" on storage.objects;
 create policy "proofs bucket public read"

@@ -1,6 +1,8 @@
 import { requireSupabase } from '../lib/supabase';
+import { compressImage } from './proofs';
 
 const TABLE = 'products';
+const BUCKET = 'product-images';
 
 // DB snake_case -> app camelCase, taaki components ka shape na badle
 function fromRow(r) {
@@ -91,4 +93,18 @@ export async function setProductActive(id, isActive) {
 export async function deleteProduct(id) {
   const { error } = await requireSupabase().from(TABLE).delete().eq('id', id);
   if (error) throw error;
+}
+
+/** Product image storage mein daal ke public URL wapas deta hai */
+export async function uploadProductImage(file) {
+  const sb = requireSupabase();
+  const compressed = await compressImage(file, { maxWidth: 1200, quality: 0.82 });
+  const ext = compressed.name.split('.').pop() || 'jpg';
+  const path = `${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await sb.storage
+    .from(BUCKET).upload(path, compressed, { cacheControl: '3600', upsert: false });
+  if (error) throw error;
+
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
