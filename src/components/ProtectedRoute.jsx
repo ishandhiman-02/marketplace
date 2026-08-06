@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getSession, onAuthChange } from '../services/auth';
+import { getSession } from '../services/auth';
 
 export function ProtectedRoute({ children }) {
   // undefined = abhi check ho raha hai, null = logged out, object = logged in
@@ -9,8 +9,7 @@ export function ProtectedRoute({ children }) {
   useEffect(() => {
     let alive = true;
     getSession().then((s) => { if (alive) setSession(s); });
-    const unsubscribe = onAuthChange((s) => setSession(s));
-    return () => { alive = false; unsubscribe(); };
+    return () => { alive = false; };
   }, []);
 
   // check hone tak loading — warna login page ek jhalak ke liye flash karta hai

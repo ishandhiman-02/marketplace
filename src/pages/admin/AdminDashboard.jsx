@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import { leadStats } from '../../services/leads';
-import { isSupabaseConfigured } from '../../services/auth';
 
 const TILES = [
   { key: 'today', label: 'Leads today', icon: 'CalendarDays' },
@@ -15,7 +14,6 @@ export default function AdminDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
     leadStats().then(setStats).catch((e) => setError(e.message));
   }, []);
 
@@ -24,12 +22,6 @@ export default function AdminDashboard() {
       <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Dashboard</h1>
       <p className="text-sm text-muted mb-8">Aaj ke orders aur leads ki summary.</p>
 
-      {!isSupabaseConfigured && (
-        <div className="p-4 rounded-2xl text-[13px] leading-relaxed mb-6" style={{ background: '#FEF3C7', color: '#92400E' }}>
-          Supabase configure nahi hai — numbers khaali rahenge. <code>.env</code> banakar
-          <code> supabase/schema.sql</code> aur <code>supabase/seed.sql</code> chalayein.
-        </div>
-      )}
       {error && (
         <div className="p-4 rounded-2xl text-[13px] mb-6" style={{ background: '#FEE2E2', color: '#991B1B' }}>{error}</div>
       )}

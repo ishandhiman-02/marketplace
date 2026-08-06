@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from 'lucide-react';
-import { signIn, getSession, isSupabaseConfigured } from '../../services/auth';
+import { signIn, getSession } from '../../services/auth';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export default function AdminLogin() {
       navigate('/admin', { replace: true });
     } catch (err) {
       setError(
-        err?.message?.includes('Invalid login')
+        err?.message?.includes('galat')
           ? 'Email ya password galat hai.'
           : err.message || 'Login nahi ho paaya. Dobara koshish karein.',
       );
@@ -43,12 +43,6 @@ export default function AdminLogin() {
           <span className="font-bold text-[17px] tracking-tight text-ink">SubStore admin</span>
         </div>
 
-        {!isSupabaseConfigured && (
-          <div className="mb-5 p-3.5 rounded-xl text-[13px] leading-relaxed" style={{ background: '#FEF3C7', color: '#92400E' }}>
-            Supabase abhi configure nahi hai. <code>.env.example</code> ko <code>.env</code> banakar
-            URL aur anon key daalein, phir dev server restart karein.
-          </div>
-        )}
 
         <form onSubmit={submit} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5">
@@ -83,7 +77,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={busy || !isSupabaseConfigured}
+            disabled={busy}
             className="mt-1 py-3 rounded-full text-sm font-semibold bg-ink text-canvas disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
           >
             {busy ? 'Signing in…' : 'Sign in'}
@@ -91,7 +85,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-[11px] text-faint mt-6 leading-relaxed">
-          Admin account Supabase dashboard se banta hai (Authentication → Users → Add user).
+          Admin account terminal se banta hai — <code>npm run db:create-admin</code>.
           Yahan signup nahi hai.
         </p>
       </div>

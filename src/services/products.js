@@ -1,110 +1,57 @@
-import { requireSupabase } from '../lib/supabase';
-import { compressImage } from './proofs';
+import { api } from '../lib/api';
 
-const TABLE = 'products';
-const BUCKET = 'product-images';
-
-// DB snake_case -> app camelCase, taaki components ka shape na badle
-function fromRow(r) {
-  return {
-    id: r.id,
-    title: r.title,
-    subtitle: r.subtitle,
-    description: r.description,
-    category: r.category,
-    price: r.price,
-    duration: r.duration,
-    tag: r.tag,
-    tagColor: r.tag_color,
-    color: r.color,
-    icon: r.icon,
-    image: r.image_url,
-    variants: r.variants?.length ? r.variants : undefined,
-    isActive: r.is_active,
-    sortOrder: r.sort_order,
-  };
+/** Public site sirf active products dekhti hai; admin sab (includeInactive). */
+export function listProducts({ includeInactive = false } = {}) {
+  return includeInactive ? api.get('/products/all', { auth: true }) : api.get('/products');
 }
 
-function toRow(p) {
-  return {
-    title: p.title,
-    subtitle: p.subtitle ?? null,
-    description: p.description ?? null,
-    category: p.category,
-    price: p.price,
-    duration: p.duration ?? null,
-    tag: p.tag ?? null,
-    tag_color: p.tagColor ?? null,
-    color: p.color ?? null,
-    icon: p.icon ?? null,
-    image_url: p.image ?? null,
-    variants: p.variants ?? [],
-    is_active: p.isActive ?? true,
-    sort_order: p.sortOrder ?? 0,
-  };
+export function createProduct(product) {
+  return api.post('/products', product, { auth: true });
 }
 
-/** Public site sirf active products dekhti hai; admin sab. */
-export async function listProducts({ includeInactive = false } = {}) {
-  let q = requireSupabase().from(TABLE).select('*').order('sort_order').order('created_at');
-  if (!includeInactive) q = q.eq('is_active', true);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data.map(fromRow);
-}
-
-export async function createProduct(product) {
-  const { data, error } = await requireSupabase()
-    .from(TABLE).insert(toRow(product)).select().single();
-  if (error) throw error;
-  return fromRow(data);
-}
-
-export async function updateProduct(id, patch) {
-  const row = toRow(patch);
-  // sirf wahi columns bhejo jo patch mein aaye — baaki undefined ho jaate
-  Object.keys(row).forEach((k) => { if (row[k] === undefined) delete row[k]; });
-  const { data, error } = await requireSupabase()
-    .from(TABLE).update(row).eq('id', id).select().single();
-  if (error) throw error;
-  return fromRow(data);
+export function updateProduct(id, product) {
+  return api.put(`/products/${id}`, product, { auth: true });
 }
 
 /** Inline price edit — admin ka sabse common kaam */
-export async function updateProductPrice(id, price) {
-  const { data, error } = await requireSupabase()
-    .from(TABLE).update({ price }).eq('id', id).select().single();
-  if (error) throw error;
-  return fromRow(data);
+export function updateProductPrice(id, price) {
+  return api.patch(`/products/${id}`, { price }, { auth: true });
 }
 
-/** Soft delete — galti se hataya product wapas laaya ja sake */
-export async function archiveProduct(id) {
-  const { error } = await requireSupabase().from(TABLE).update({ is_active: false }).eq('id', id);
-  if (error) throw error;
+export function setProductActive(id, isActive) {
+  return api.patch(`/products/${id}`, { isActive }, { auth: true });
 }
 
-export async function setProductActive(id, isActive) {
-  const { error } = await requireSupabase().from(TABLE).update({ is_active: isActive }).eq('id', id);
-  if (error) throw error;
+export function deleteProduct(id) {
+  return api.del(`/products/${id}`, { auth: true });
 }
 
-/** Permanently hata deta hai — confirm dialog ke baad hi call karein */
-export async function deleteProduct(id) {
-  const { error } = await requireSupabase().from(TABLE).delete().eq('id', id);
-  if (error) throw error;
+/**
+ * Phone ke screenshots 4MB tak ke hote hain — upload se pehle browser mein hi
+ * compress kar dete hain, warna server aur site dono slow ho jaate hain.
+ */
+export async function compressImage(file, { maxWidth = 1200, quality = 0.8 } = {}) {
+  if (!file.type.startsWith('image/')) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxWidth / bitmap.width);
+  if (scale === 1 && file.size < 400_000) return file;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close?.();
+
+  const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', quality));
+  if (!blob || blob.size >= file.size) return file;
+  return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
 }
 
-/** Product image storage mein daal ke public URL wapas deta hai */
+/** Image store karke uska public URL wapas deta hai (koi DB row nahi banti) */
 export async function uploadProductImage(file) {
-  const sb = requireSupabase();
-  const compressed = await compressImage(file, { maxWidth: 1200, quality: 0.82 });
-  const ext = compressed.name.split('.').pop() || 'jpg';
-  const path = `${crypto.randomUUID()}.${ext}`;
-
-  const { error } = await sb.storage
-    .from(BUCKET).upload(path, compressed, { cacheControl: '3600', upsert: false });
-  if (error) throw error;
-
-  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  const fd = new FormData();
+  fd.append('file', await compressImage(file, { maxWidth: 1200, quality: 0.82 }));
+  const { url } = await api.upload('/uploads', fd);
+  return url;
 }

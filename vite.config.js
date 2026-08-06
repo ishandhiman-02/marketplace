@@ -13,6 +13,14 @@ export default defineConfig({
     tailwindcss(),
     tsconfigPaths(),
   ],
+  server: {
+    // dev mein browser /api aur /uploads ko Express pe bhej deta hai,
+    // isliye CORS ki zaroorat nahi padti
+    proxy: {
+      "/api": { target: "http://localhost:3001", changeOrigin: true },
+      "/uploads": { target: "http://localhost:3001", changeOrigin: true },
+    },
+  },
   resolve: {
     dedupe: ["react", "react-dom"],
   },

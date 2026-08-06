@@ -13,6 +13,8 @@ import { ContactSection } from '../components/sections/ContactSection';
 import { Footer } from '../components/sections/Footer';
 import { FloatingInstagramButton } from '../components/sections/FloatingInstagramButton';
 import { OrderToast } from '../components/sections/OrderToast';
+import { ProofsSection } from '../components/sections/ProofsSection';
+import { OrderModal } from '../components/OrderModal';
 
 function HomeInner() {
   const { dark } = useDark();
@@ -48,11 +50,13 @@ function HomeInner() {
         <CategoriesSection />
         <DealsSection />
         <OffersSection />
+        <ProofsSection />
         <ProofSection />
         <ContactSection />
         <Footer />
       </div>
       <FloatingInstagramButton />
+      <OrderModal />
       <OrderToast />
     </div>
   );

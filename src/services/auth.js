@@ -1,26 +1,23 @@
-import { supabase, isSupabaseConfigured, requireSupabase } from '../lib/supabase';
+import { api, getToken, setToken } from '../lib/api';
 
 export async function signIn(email, password) {
-  const { data, error } = await requireSupabase().auth.signInWithPassword({ email, password });
-  if (error) throw error;
-  return data.session;
+  const { token, user } = await api.post('/auth/login', { email, password });
+  setToken(token);
+  return user;
 }
 
-export async function signOut() {
-  await requireSupabase().auth.signOut();
+export function signOut() {
+  setToken(null);
 }
 
+/** Token hai bhi aur valid bhi hai? Server se confirm karta hai. */
 export async function getSession() {
-  if (!isSupabaseConfigured) return null;
-  const { data } = await supabase.auth.getSession();
-  return data.session;
+  if (!getToken()) return null;
+  try {
+    const { user } = await api.get('/auth/me', { auth: true });
+    return user;
+  } catch {
+    setToken(null);
+    return null;
+  }
 }
-
-/** Session badalne pe callback — token refresh aur logout dono cover karta hai */
-export function onAuthChange(callback) {
-  if (!isSupabaseConfigured) return () => {};
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => callback(session));
-  return () => data.subscription.unsubscribe();
-}
-
-export { isSupabaseConfigured };

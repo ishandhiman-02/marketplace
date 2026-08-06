@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import * as Icons from 'lucide-react';
 import { CATEGORIES } from '../../data/categories';
-import { isSupabaseConfigured } from '../../services/auth';
 import {
   listProducts, createProduct, updateProduct, updateProductPrice,
   setProductActive, deleteProduct,
@@ -74,7 +73,6 @@ export default function AdminProducts() {
   const { toast, show } = useToast();
 
   const load = async () => {
-    if (!isSupabaseConfigured) { setLoading(false); return; }
     setLoading(true);
     try {
       setProducts(await listProducts({ includeInactive: true }));
@@ -156,20 +154,13 @@ export default function AdminProducts() {
         </div>
         <button
           onClick={() => setEditing('new')}
-          disabled={!isSupabaseConfigured}
-          className="px-5 py-2.5 rounded-full text-sm font-semibold bg-ink text-canvas inline-flex items-center gap-2 disabled:opacity-45 cursor-pointer"
+          className="px-5 py-2.5 rounded-full text-sm font-semibold bg-ink text-canvas inline-flex items-center gap-2 cursor-pointer"
         >
           <Icons.Plus size={15} />
           Add product
         </button>
       </div>
 
-      {!isSupabaseConfigured && (
-        <div className="p-4 rounded-2xl text-[13px] leading-relaxed mb-6" style={{ background: '#FEF3C7', color: '#92400E' }}>
-          Supabase configure nahi hai. <code>.env</code> banakar <code>supabase/schema.sql</code> aur
-          <code> supabase/seed.sql</code> chalayein, phir dev server restart karein.
-        </div>
-      )}
       {error && (
         <div className="p-4 rounded-2xl text-[13px] mb-6" style={{ background: '#FEE2E2', color: '#991B1B' }}>{error}</div>
       )}

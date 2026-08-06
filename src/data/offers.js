@@ -1,6 +1,3 @@
-import codingImg from '../assets/coding_course_laptop_dark.jpg';
-import designImg from '../assets/design_course_creative_dark.jpg';
-
 export const OFFERS = [
   {
     id: 1,
@@ -10,7 +7,7 @@ export const OFFERS = [
     badge: 'VIDEO OFFER',
     discount: '60% OFF',
     color: '#4f46e5',
-    thumbnail: codingImg,
+    thumbnail: '/assets/coding_course_laptop_dark.jpg',
   },
   {
     id: 2,
@@ -29,7 +26,7 @@ export const OFFERS = [
     description: 'Get Canva Pro and Autodesk All Apps together at an unbeatable price. Create anything, design everything.',
     badge: 'IMAGE OFFER',
     discount: 'Bundle Deal',
-    image: designImg,
+    image: '/assets/design_course_creative_dark.jpg',
     color: '#ec4899',
   },
   {

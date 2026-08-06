@@ -9,14 +9,9 @@ import { RoundNavButton } from '../ui/RoundNavButton';
 import { CountdownChip } from '../ui/CountdownChip';
 import { IgIcon } from '../ui/IgIcon';
 
-import businessImg from '../../assets/business_course_professional_dark.jpg';
-import codingImg from '../../assets/coding_course_laptop_dark.jpg';
-import designImg from '../../assets/design_course_creative_dark.jpg';
-import abstractImg from '../../assets/abstract_purple_blue_gradient_dark.jpg';
-
 // DAILY_DEALS mein image field nahi hai (data verbatim rule) —
 // deterministic map yahin section mein
-const DEAL_IMAGES = [businessImg, codingImg, designImg, abstractImg];
+const DEAL_IMAGES = ['/assets/business_course_professional_dark.jpg', '/assets/coding_course_laptop_dark.jpg', '/assets/design_course_creative_dark.jpg', '/assets/abstract_purple_blue_gradient_dark.jpg'];
 
 export function DealCarousel() {
   const [idx, setIdx] = useState(0);
