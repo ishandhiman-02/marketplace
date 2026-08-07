@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 
-// Purane CountdownTimer ka logic, compact pill mein.
-// 5:47:23 se shuru, 0 pe 23:59:59 pe wapas (marketing loop).
+// The old CountdownTimer logic, in a compact pill.
+// Starts at 5:47:23 and resets to 23:59:59 at zero (marketing loop).
 export function CountdownChip({ className = '', light = false }) {
   const [time, setTime] = useState({ h: 5, m: 47, s: 23 });
 

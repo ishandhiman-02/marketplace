@@ -11,8 +11,8 @@ export const STATUS_STYLE = {
 };
 
 /**
- * Public site se — yahi "kaun khareed raha hai" ka record banata hai.
- * Purchase Instagram DM pe hota hai, isliye DM kholne se pehle ye call hota hai.
+ * Called from the public site — this is what records who is buying.
+ * The purchase happens in an Instagram DM, so this runs just before the DM opens.
  */
 export function createLead(lead) {
   return api.post('/leads', lead);
@@ -38,7 +38,7 @@ export function deleteLead(id) {
   return api.del(`/leads/${id}`, { auth: true });
 }
 
-/** Filtered rows ko CSV mein */
+/** Turns the filtered rows into CSV */
 export function leadsToCsv(leads) {
   const head = ['Date', 'Name', 'Instagram', 'Phone', 'Product', 'Price', 'Status', 'Notes'];
   const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;

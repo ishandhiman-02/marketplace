@@ -7,8 +7,8 @@ const TTL = '7d';
 
 if (!SECRET || SECRET.length < 24) {
   console.error(
-    '\n  JWT_SECRET set nahi hai (ya bahut chhota hai).\n' +
-    '  .env mein ek lamba random string daalein:\n' +
+    '\n  JWT_SECRET is not set (or is too short).\n' +
+    '  Put a long random string in .env:\n' +
     '  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"\n',
   );
   process.exit(1);
@@ -29,16 +29,16 @@ export function hashPassword(password) {
   return bcrypt.hash(password, 12);
 }
 
-/** Admin-only routes pe lagta hai. Token na ho ya galat ho to 401. */
+/** Guards admin-only routes. Missing or invalid token means 401. */
 export function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) return res.status(401).json({ error: 'Login zaroori hai' });
+  if (!token) return res.status(401).json({ error: 'Sign in required' });
 
   try {
     req.user = jwt.verify(token, SECRET);
     return next();
   } catch {
-    return res.status(401).json({ error: 'Session expire ho gaya — dobara login karein' });
+    return res.status(401).json({ error: 'Session expired — please sign in again' });
   }
 }

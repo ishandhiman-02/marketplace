@@ -24,15 +24,16 @@ function toApi(r) {
 }
 
 /**
- * PUBLIC — yahi wo jagah hai jahan "kaun khareed raha hai" ka record banta hai.
- * Purchase Instagram DM pe hota hai, isliye DM kholne se pehle site ye call karti hai.
- * Response mein sirf id jaati hai — public kabhi doosri leads nahi padh sakta.
+ * PUBLIC — this is where the record of who is buying gets created.
+ * The purchase happens in an Instagram DM, so the site calls this just before
+ * opening the DM. The response returns only an id — the public can never read
+ * anyone else's leads.
  */
 leads.post('/', async (req, res, next) => {
   try {
     const { name, instagramUsername, phone, productName, price } = req.body;
     if (!name?.trim() || !instagramUsername?.trim()) {
-      return res.status(400).json({ error: 'Naam aur Instagram username zaroori hain' });
+      return res.status(400).json({ error: 'Name and Instagram username are required' });
     }
     const row = await one(
       `insert into leads (name, instagram_username, phone, product_name, price)
@@ -49,7 +50,7 @@ leads.post('/', async (req, res, next) => {
   } catch (e) { return next(e); }
 });
 
-// ADMIN se aage — public inhe kabhi nahi dekh sakta
+// ADMIN only from here down — the public can never see these
 leads.get('/', requireAuth, async (req, res, next) => {
   try {
     const where = [];
@@ -72,7 +73,7 @@ leads.get('/', requireAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-/** Dashboard ke upar wale 4 numbers */
+/** The four numbers at the top of the dashboard */
 leads.get('/stats', requireAuth, async (req, res, next) => {
   try {
     const row = await one(`
@@ -101,19 +102,19 @@ leads.patch('/:id', requireAuth, async (req, res, next) => {
 
     if (req.body.status !== undefined) {
       if (!STATUSES.includes(req.body.status)) {
-        return res.status(400).json({ error: 'Status galat hai' });
+        return res.status(400).json({ error: 'Invalid status' });
       }
       add('status', req.body.status);
     }
     if (req.body.notes !== undefined) add('notes', req.body.notes);
-    if (!sets.length) return res.status(400).json({ error: 'Kuch update karne ko nahi hai' });
+    if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
 
     params.push(req.params.id);
     const row = await one(
       `update leads set ${sets.join(', ')} where id=$${params.length} returning ${COLS}`,
       params,
     );
-    if (!row) return res.status(404).json({ error: 'Lead nahi mili' });
+    if (!row) return res.status(404).json({ error: 'Lead not found' });
     return res.json(toApi(row));
   } catch (e) { return next(e); }
 });
@@ -121,7 +122,7 @@ leads.patch('/:id', requireAuth, async (req, res, next) => {
 leads.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const row = await one('delete from leads where id=$1 returning id', [req.params.id]);
-    if (!row) return res.status(404).json({ error: 'Lead nahi mili' });
+    if (!row) return res.status(404).json({ error: 'Lead not found' });
     return res.status(204).end();
   } catch (e) { return next(e); }
 });

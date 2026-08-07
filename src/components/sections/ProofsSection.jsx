@@ -4,7 +4,7 @@ import * as Icons from 'lucide-react';
 import { listProofs } from '../../services/proofs';
 import { useDark } from '../../context/useDark';
 
-/** PDF requirement #1 — real orders ke screenshots, admin panel se manage hote hain */
+/** PDF requirement #1 — screenshots of real orders, managed from the admin panel */
 export function ProofsSection() {
   const { dark } = useDark();
   const [proofs, setProofs] = useState([]);
@@ -25,7 +25,7 @@ export function ProofsSection() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, proofs.length]);
 
-  // ek bhi proof na ho to poora section chhupa do — khaali section bura lagta hai
+  // no proofs at all — hide the whole section, an empty one looks bad
   if (proofs.length === 0) return null;
 
   return (
@@ -44,7 +44,7 @@ export function ProofsSection() {
             Delivered, not promised.
           </h2>
           <p className="text-base max-w-lg mx-auto" style={{ color: dark ? '#94a3b8' : '#6B7570' }}>
-            Har order ke baad screenshot — taaki aapko bharosa karne se pehle dekhne ko mile.
+            A screenshot after every order — so you can see the receipts before you trust us.
           </p>
         </motion.div>
 

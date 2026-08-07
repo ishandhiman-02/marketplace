@@ -7,7 +7,7 @@ import { PillButton } from '../ui/PillButton';
 import { IgIcon } from '../ui/IgIcon';
 import { FannedStack } from '../ui/FannedStack';
 
-// Fan ke liye 6 alag-alag dikhne wale products
+// Six visually distinct products for the fan-out
 const HERO_IDS = [7, 4, 6, 16, 11, 3];
 
 function HeroTile({ product, compact = false }) {
@@ -32,7 +32,7 @@ function HeroTile({ product, compact = false }) {
         draggable={false}
         className="w-full h-full object-cover"
       />
-      {/* brand color ka tint — repeat hoti stock images ko alag pehchaan deta hai */}
+      {/* brand-colour tint — gives repeated stock images their own identity */}
       <div
         className="absolute inset-0"
         style={{ background: `linear-gradient(185deg, transparent 30%, ${product.color}B8 125%)` }}

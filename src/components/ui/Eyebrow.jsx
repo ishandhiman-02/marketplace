@@ -1,5 +1,5 @@
-// Chhota uppercase label — reference mein har section heading ke upar hota hai.
-// Accent word ke liye caller <span style={{color}}> pass kare.
+// Small uppercase label — in the reference it sits above every section heading.
+// For an accent word, the caller passes a <span style={{color}}>.
 export function Eyebrow({ children, className = '' }) {
   return (
     <div

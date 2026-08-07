@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
-/** useToast() se state lo, isse render karo. */
+/** Take the state from useToast() and render it with this. */
 export function Toast({ toast }) {
   const bad = toast?.tone === 'error';
   return (

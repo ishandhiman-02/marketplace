@@ -10,11 +10,11 @@ const password = process.argv[3] || await rl.question('Password (min 8 chars): '
 rl.close();
 
 if (!email.includes('@')) {
-  console.error('  Email theek nahi lag raha.');
+  console.error('  That does not look like a valid email.');
   process.exit(1);
 }
 if (!password || password.length < 8) {
-  console.error('  Password kam se kam 8 characters ka hona chahiye.');
+  console.error('  Password must be at least 8 characters.');
   process.exit(1);
 }
 
@@ -26,5 +26,5 @@ const row = await one(
   [email, hash],
 );
 
-console.log(`\n  Admin ready: ${row.email}\n  /admin/login pe login kar sakte hain.`);
+console.log(`\n  Admin ready: ${row.email}\n  You can now sign in at /admin/login.`);
 await pool.end();

@@ -11,7 +11,7 @@ import { useToast } from '../../components/admin/useToast';
 
 const field = 'px-3.5 py-2 rounded-xl border border-line bg-canvas text-ink text-sm outline-none focus:border-ink transition-colors';
 
-/** Price cell — click karo, number badlo, Enter se save. Client ka sabse common kaam. */
+/** Price cell — click, change the number, Enter to save. The client's most frequent task. */
 function PriceCell({ product, onSave }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(product.price);
@@ -101,7 +101,7 @@ export default function AdminProducts() {
       setProducts((list) => list.map((x) => (x.id === p.id ? updated : x)));
       show('Saved');
     } catch (e) {
-      show(e.message || 'Price save nahi hua', 'error');
+      show(e.message || 'Could not save the price', 'error');
       throw e;
     }
   };
@@ -110,20 +110,20 @@ export default function AdminProducts() {
     try {
       await setProductActive(p.id, !p.isActive);
       setProducts((list) => list.map((x) => (x.id === p.id ? { ...x, isActive: !p.isActive } : x)));
-      show(p.isActive ? 'Site se hataya' : 'Site pe dikhega');
+      show(p.isActive ? 'Hidden from the site' : 'Now visible on the site');
     } catch (e) {
-      show(e.message || 'Change nahi hua', 'error');
+      show(e.message || 'Could not apply the change', 'error');
     }
   };
 
   const remove = async (p) => {
-    if (!window.confirm(`"${p.title}" delete ho jaayega. Pakka?\n\n(Sirf chhupana hai to Active toggle band kar dein — wo wapas laaya ja sakta hai.)`)) return;
+    if (!window.confirm(`"${p.title}" will be deleted. Are you sure?\n\n(To only hide it, switch the Active toggle off instead — that can be undone.)`)) return;
     try {
       await deleteProduct(p.id);
       setProducts((list) => list.filter((x) => x.id !== p.id));
       show('Deleted');
     } catch (e) {
-      show(e.message || 'Delete nahi hua', 'error');
+      show(e.message || 'Could not delete', 'error');
     }
   };
 
@@ -139,7 +139,7 @@ export default function AdminProducts() {
       setEditing(null);
       show('Saved');
     } catch (e) {
-      show(e.message || 'Save nahi hua', 'error');
+      show(e.message || 'Could not save', 'error');
     }
   };
 
@@ -149,7 +149,7 @@ export default function AdminProducts() {
         <div>
           <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Products</h1>
           <p className="text-sm text-muted">
-            {products.length} products · price seedha table mein edit ho jaata hai
+            {products.length} products · prices can be edited straight from the table
           </p>
         </div>
         <button
@@ -203,7 +203,7 @@ export default function AdminProducts() {
             )}
             {!loading && visible.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-10 text-center text-sm text-muted">
-                {products.length === 0 ? 'Abhi koi product nahi hai.' : 'Is filter mein kuch nahi mila.'}
+                {products.length === 0 ? 'No products yet.' : 'Nothing matches this filter.'}
               </td></tr>
             )}
             {visible.map((p) => (

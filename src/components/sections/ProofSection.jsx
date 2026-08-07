@@ -49,7 +49,7 @@ export function ProofSection() {
                 padding: 28,
               }}
             >
-              {/* monochrome stars — rangeen se zyada premium lagte hain */}
+              {/* monochrome stars — reads more premium than coloured ones */}
               <div className="flex items-center gap-0.5 mb-5">
                 {Array.from({ length: t.rating }).map((_, si) => (
                   <Icons.Star
@@ -67,7 +67,7 @@ export function ProofSection() {
                 {t.text}
               </p>
 
-              {/* neutral chip + colour sirf ek chhote dot mein */}
+              {/* neutral chip, with colour confined to one small dot */}
               <div
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium w-fit mb-6"
                 style={{ background: dark ? '#1e293b' : '#F4F5F2', color: dark ? '#94a3b8' : '#5A6663' }}
@@ -117,7 +117,7 @@ export function ProofSection() {
             borderRadius: 26,
           }}
         >
-          {/* icons hata diye — sirf numbers, isse zyada saaf aur premium lagta hai */}
+          {/* icons removed — numbers alone look cleaner and more premium */}
           {[
             { value: '500+', label: 'Happy students' },
             { value: '4.9/5', label: 'Average rating' },

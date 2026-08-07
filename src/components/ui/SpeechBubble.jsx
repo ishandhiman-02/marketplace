@@ -1,5 +1,5 @@
-// Reference wala black speech bubble ("@reatha") — tail neeche-baayein.
-// ink/canvas tokens se theme ke saath invert hota hai.
+// The reference's black speech bubble ("@reatha") — tail at bottom-left.
+// Inverts with the theme via the ink/canvas tokens.
 export function SpeechBubble({ children, rotate = 0, className = '' }) {
   return (
     <div className={`relative inline-block ${className}`} style={{ transform: `rotate(${rotate}deg)` }}>

@@ -17,7 +17,7 @@ const EMPTY = {
   slots: 5, slotsLeft: 5, expiresAt: '', isActive: true,
 };
 
-/** datetime-local input ko ISO chahiye hota hai, aur wapas bhi */
+/** datetime-local inputs need ISO in and ISO out */
 const toLocalInput = (iso) => (iso ? new Date(iso).toISOString().slice(0, 16) : '');
 
 function OfferForm({ offer, onCancel, onSave }) {
@@ -96,7 +96,7 @@ function OfferForm({ offer, onCancel, onSave }) {
           </label>
         </div>
         {savings > 0 && (
-          <p className="text-[12px] font-semibold -mt-2" style={{ color: '#166534' }}>Customer Rs.{savings} bachaayega</p>
+          <p className="text-[12px] font-semibold -mt-2" style={{ color: '#166534' }}>Customer saves Rs.{savings}</p>
         )}
 
         <div className="grid grid-cols-2 gap-3">
@@ -127,12 +127,12 @@ function OfferForm({ offer, onCancel, onSave }) {
         <label className="flex flex-col gap-1.5">
           <span className={labelCls}>Expires at</span>
           <input type="datetime-local" value={form.expiresAt || ''} onChange={(e) => set('expiresAt', e.target.value)} className={field} />
-          <span className="text-[11px] text-faint">Khaali chhodenge to offer expire nahi hoga.</span>
+          <span className="text-[11px] text-faint">Leave empty and the offer never expires.</span>
         </label>
 
         <label className="flex items-center gap-2.5">
           <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="w-4 h-4" />
-          <span className="text-[13px] text-ink">Site pe live karein</span>
+          <span className="text-[13px] text-ink">Show live on the site</span>
         </label>
 
         <div className="flex items-center gap-3 mt-2 pb-2">
@@ -183,12 +183,12 @@ export default function AdminOffers() {
     try {
       const copy = await duplicateDailyOffer(o.id);
       setOffers((l) => [copy, ...l]);
-      show('Copy ban gayi — paused hai, edit karke live karein');
+      show('Copy created — it is paused, edit it and go live');
     } catch (e) { show(e.message, 'error'); }
   };
 
   const remove = async (o) => {
-    if (!window.confirm(`"${o.subtitle || o.title}" delete ho jaayega. Pakka?`)) return;
+    if (!window.confirm(`"${o.subtitle || o.title}" will be deleted. Are you sure?`)) return;
     try {
       await deleteDailyOffer(o.id);
       setOffers((l) => l.filter((x) => x.id !== o.id));
@@ -209,7 +209,7 @@ export default function AdminOffers() {
       <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
         <div>
           <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Daily Offers</h1>
-          <p className="text-sm text-muted">Roz ke deals — products se alag. Duplicate se kal ka offer copy ho jaata hai.</p>
+          <p className="text-sm text-muted">Daily deals — separate from products. Use Duplicate to reuse an offer the next day.</p>
         </div>
         <button onClick={() => setEditing('new')} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-ink text-canvas inline-flex items-center gap-2 cursor-pointer">
           <Icons.Plus size={15} /> New offer
@@ -220,7 +220,7 @@ export default function AdminOffers() {
       {loading && <p className="text-sm text-muted">Loading…</p>}
       {!loading && offers.length === 0 && !error && (
         <div className="bg-surface border border-line p-10 text-center" style={{ borderRadius: 22 }}>
-          <p className="text-sm text-muted">Abhi koi daily offer nahi hai. &ldquo;New offer&rdquo; se pehla banayein.</p>
+          <p className="text-sm text-muted">No daily offers yet. Create your first one with &ldquo;New offer&rdquo;.</p>
         </div>
       )}
 

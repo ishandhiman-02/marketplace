@@ -36,10 +36,10 @@ proofs.get('/all', requireAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-/** Multiple files ek saath — client se compressed aati hain */
+/** Several files at once — they arrive already compressed from the client */
 proofs.post('/', requireAuth, upload.array('files', 12), async (req, res, next) => {
   try {
-    if (!req.files?.length) return res.status(400).json({ error: 'Koi file nahi mili' });
+    if (!req.files?.length) return res.status(400).json({ error: 'No file received' });
 
     const created = [];
     for (const file of req.files) {
@@ -64,23 +64,23 @@ proofs.patch('/:id', requireAuth, async (req, res, next) => {
     if (req.body.productName !== undefined) add('product_name', req.body.productName);
     if (req.body.isActive !== undefined) add('is_active', req.body.isActive);
     if (req.body.sortOrder !== undefined) add('sort_order', req.body.sortOrder);
-    if (!sets.length) return res.status(400).json({ error: 'Kuch update karne ko nahi hai' });
+    if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
 
     params.push(req.params.id);
     const row = await one(
       `update proofs set ${sets.join(', ')} where id=$${params.length} returning ${COLS}`,
       params,
     );
-    if (!row) return res.status(404).json({ error: 'Proof nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Proof not found' });
     return res.json(toApi(row));
   } catch (e) { return next(e); }
 });
 
-/** Row ke saath disk se file bhi hataata hai, warna uploads/ bharta rahega */
+/** Deletes the file from disk along with the row, otherwise uploads/ keeps growing */
 proofs.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const row = await one('delete from proofs where id=$1 returning image_url', [req.params.id]);
-    if (!row) return res.status(404).json({ error: 'Proof nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Proof not found' });
     await removeUpload(row.image_url);
     return res.status(204).end();
   } catch (e) { return next(e); }

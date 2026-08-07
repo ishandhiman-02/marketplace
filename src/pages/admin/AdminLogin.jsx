@@ -10,7 +10,7 @@ export default function AdminLogin() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // pehle se logged in ho to seedha dashboard
+  // already signed in — go straight to the dashboard
   useEffect(() => {
     getSession().then((s) => { if (s) navigate('/admin', { replace: true }); });
   }, [navigate]);
@@ -23,11 +23,7 @@ export default function AdminLogin() {
       await signIn(email, password);
       navigate('/admin', { replace: true });
     } catch (err) {
-      setError(
-        err?.message?.includes('galat')
-          ? 'Email ya password galat hai.'
-          : err.message || 'Login nahi ho paaya. Dobara koshish karein.',
-      );
+      setError(err.message || 'Could not sign in. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -85,8 +81,8 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-[11px] text-faint mt-6 leading-relaxed">
-          Admin account terminal se banta hai — <code>npm run db:create-admin</code>.
-          Yahan signup nahi hai.
+          Admin accounts are created from the terminal — <code>npm run db:create-admin</code>.
+          There is no signup here.
         </p>
       </div>
     </div>

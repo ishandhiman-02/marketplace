@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
 /**
- * Admin pages ka chhota toast state.
- * Component se alag file mein hai — react-refresh/only-export-components ke liye.
+ * Small toast state for the admin pages.
+ * Kept in its own file, away from the component — for react-refresh/only-export-components.
  */
 export function useToast(ms = 2200) {
   const [toast, setToast] = useState(null);

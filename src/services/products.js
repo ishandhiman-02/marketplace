@@ -1,6 +1,6 @@
 import { api } from '../lib/api';
 
-/** Public site sirf active products dekhti hai; admin sab (includeInactive). */
+/** The public site sees only active products; admin sees all (includeInactive). */
 export function listProducts({ includeInactive = false } = {}) {
   return includeInactive ? api.get('/products/all', { auth: true }) : api.get('/products');
 }
@@ -13,7 +13,7 @@ export function updateProduct(id, product) {
   return api.put(`/products/${id}`, product, { auth: true });
 }
 
-/** Inline price edit — admin ka sabse common kaam */
+/** Inline price edit — the admin's most frequent action */
 export function updateProductPrice(id, price) {
   return api.patch(`/products/${id}`, { price }, { auth: true });
 }
@@ -27,8 +27,8 @@ export function deleteProduct(id) {
 }
 
 /**
- * Phone ke screenshots 4MB tak ke hote hain — upload se pehle browser mein hi
- * compress kar dete hain, warna server aur site dono slow ho jaate hain.
+ * Phone screenshots can be up to 4MB — we compress them in the browser before
+ * upload, otherwise both the server and the site get slow.
  */
 export async function compressImage(file, { maxWidth = 1200, quality = 0.8 } = {}) {
   if (!file.type.startsWith('image/')) return file;
@@ -48,7 +48,7 @@ export async function compressImage(file, { maxWidth = 1200, quality = 0.8 } = {
   return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
 }
 
-/** Image store karke uska public URL wapas deta hai (koi DB row nahi banti) */
+/** Stores the image and returns its public URL (no DB row is created) */
 export async function uploadProductImage(file) {
   const fd = new FormData();
   fd.append('file', await compressImage(file, { maxWidth: 1200, quality: 0.82 }));

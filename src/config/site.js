@@ -1,21 +1,21 @@
 export const SITE = {
   brandName: 'SubStore',
-  // TODO: client ka asli Instagram handle yahan daalein (bina @ ke), warna
-  // DM link kisi profile pe nahi jaayega.
+  // TODO: put the client's real Instagram handle here (without the @), otherwise
+  // the DM link will not point at any profile.
   instagramHandle: '',
 };
 
-// ig.me/m/<handle> seedha DM thread kholta hai (profile page nahi)
+// ig.me/m/<handle> opens the DM thread directly (not the profile page)
 export const IG_DM_URL = `https://ig.me/m/${SITE.instagramHandle}`;
 
 function buildOrderText(detail) {
   if (!detail?.title) return null;
   const parts = [detail.title, detail.variant, detail.price != null ? `Rs.${detail.price}` : null]
     .filter(Boolean);
-  return `Hi! Mujhe ye chahiye: ${parts.join(' — ')}`;
+  return `Hi! I'd like to order: ${parts.join(' — ')}`;
 }
 
-// ── pub/sub: modal aur toast dono yahin se sunte hain ──────────
+// ── pub/sub: both the modal and the toast listen here ─────────
 const orderListeners = new Set();
 const toastListeners = new Set();
 
@@ -30,24 +30,24 @@ export function onOrderToast(fn) {
 }
 
 /**
- * Har "Order" button yahi call karta hai.
- * Seedha Instagram nahi kholta — pehle OrderModal uthata hai, taaki
- * "kaun khareed raha hai" ka record ban sake. Modal submit/skip pe
- * completeOrder() chalta hai.
+ * Every "Order" button calls this.
+ * It does not open Instagram directly — it raises the OrderModal first so we
+ * get a record of who is buying. completeOrder() runs when the modal is
+ * submitted or skipped.
  */
 export function orderOnInstagram(detail) {
   const request = { detail, id: Date.now() };
   if (orderListeners.size === 0) {
-    completeOrder(request); // modal mount nahi hai — customer ko rokna nahi hai
+    completeOrder(request); // modal not mounted — never block the customer
     return;
   }
   orderListeners.forEach((fn) => fn(request));
 }
 
 /**
- * Order details clipboard pe copy karta hai, phir DM kholta hai.
- * Instagram DM ka text URL se prefill nahi hota — clipboard hi ek tarika hai.
- * Clipboard fail ho jaaye tab bhi tab khulta hai.
+ * Copies the order details to the clipboard, then opens the DM.
+ * Instagram DM text cannot be prefilled from a URL — the clipboard is the only
+ * way. The tab still opens even if the clipboard write fails.
  */
 export function completeOrder(request) {
   const open = () => window.open(IG_DM_URL, '_blank', 'noopener,noreferrer');
@@ -59,7 +59,7 @@ export function completeOrder(request) {
   }
 
   navigator.clipboard.writeText(text)
-    .then(() => toastListeners.forEach((fn) => fn('Order details copy ho gaye — Instagram DM mein paste kar dijiye.')))
+    .then(() => toastListeners.forEach((fn) => fn('Order details copied — paste them into the Instagram DM.')))
     .catch(() => { /* clipboard blocked */ })
     .finally(open);
 }

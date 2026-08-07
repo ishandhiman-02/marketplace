@@ -5,7 +5,7 @@ export function listProofs({ includeInactive = false } = {}) {
   return includeInactive ? api.get('/proofs/all', { auth: true }) : api.get('/proofs');
 }
 
-/** Multiple files ek saath. Compression browser mein hota hai, upload se pehle. */
+/** Several files at once. Compression happens in the browser, before upload. */
 export async function uploadProofs(files, { caption = '', productName = '' } = {}) {
   const fd = new FormData();
   for (const file of files) {
@@ -24,7 +24,7 @@ export function deleteProof(id) {
   return api.del(`/proofs/${id}`, { auth: true });
 }
 
-/** Upar/neeche move — sirf badle hue do rows update hote hain */
+/** Move up/down — only the two changed rows are updated */
 export function reorderProofs(pairs) {
   return Promise.all(pairs.map(({ id, sortOrder }) => updateProof(id, { sortOrder })));
 }

@@ -1,5 +1,5 @@
-// Dev mein khaali — Vite /api ko Express pe proxy karta hai.
-// Production mein VITE_API_URL se poora API origin aata hai.
+// Empty in dev — Vite proxies /api to Express.
+// In production VITE_API_URL supplies the full API origin.
 const BASE = import.meta.env.VITE_API_URL || '';
 
 const TOKEN_KEY = 'substore-token';
@@ -31,10 +31,10 @@ async function request(path, { method = 'GET', body, auth = false, raw = false }
       body: raw ? body : body ? JSON.stringify(body) : undefined,
     });
   } catch {
-    throw new Error('Server se connect nahi ho paaya. API chal raha hai? (npm run server)');
+    throw new Error('Could not reach the server. Is the API running? (npm run server)');
   }
 
-  // token expire ho gaya — admin ko dobara login karwao
+  // token expired — send the admin back to sign in
   if (res.status === 401 && auth) {
     setToken(null);
     if (!window.location.pathname.startsWith('/admin/login')) {
@@ -45,7 +45,7 @@ async function request(path, { method = 'GET', body, auth = false, raw = false }
   if (res.status === 204) return null;
 
   const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error || `Request fail hui (${res.status})`);
+  if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);
   return data;
 }
 

@@ -35,7 +35,7 @@ const vals = (b) => [
   JSON.stringify(b.variants ?? []), b.isActive ?? true, b.sortOrder ?? 0,
 ];
 
-// PUBLIC — sirf active products
+// PUBLIC — active products only
 products.get('/', async (req, res, next) => {
   try {
     const rows = await q(
@@ -45,7 +45,7 @@ products.get('/', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// ADMIN — inactive bhi, warna unhe manage nahi kar payenge
+// ADMIN — inactive ones too, otherwise they could never be managed
 products.get('/all', requireAuth, async (req, res, next) => {
   try {
     const rows = await q(`select ${COLS} from products order by sort_order, created_at`);
@@ -56,7 +56,7 @@ products.get('/all', requireAuth, async (req, res, next) => {
 products.post('/', requireAuth, async (req, res, next) => {
   try {
     if (!req.body.title || req.body.price == null) {
-      return res.status(400).json({ error: 'title aur price zaroori hain' });
+      return res.status(400).json({ error: 'title and price are required' });
     }
     const row = await one(
       `insert into products
@@ -80,12 +80,12 @@ products.put('/:id', requireAuth, async (req, res, next) => {
        where id=$15 returning ${COLS}`,
       [...vals(req.body), req.params.id],
     );
-    if (!row) return res.status(404).json({ error: 'Product nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Product not found' });
     return res.json(toApi(row));
   } catch (e) { return next(e); }
 });
 
-// inline price edit — sabse common admin action, isliye apna chhota endpoint
+// inline price edit — the most common admin action, so it gets its own small endpoint
 products.patch('/:id', requireAuth, async (req, res, next) => {
   try {
     const sets = [];
@@ -95,14 +95,14 @@ products.patch('/:id', requireAuth, async (req, res, next) => {
     if (req.body.price !== undefined) add('price', Number(req.body.price));
     if (req.body.isActive !== undefined) add('is_active', req.body.isActive);
     if (req.body.sortOrder !== undefined) add('sort_order', req.body.sortOrder);
-    if (!sets.length) return res.status(400).json({ error: 'Kuch update karne ko nahi hai' });
+    if (!sets.length) return res.status(400).json({ error: 'Nothing to update' });
 
     params.push(req.params.id);
     const row = await one(
       `update products set ${sets.join(', ')} where id=$${params.length} returning ${COLS}`,
       params,
     );
-    if (!row) return res.status(404).json({ error: 'Product nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Product not found' });
     return res.json(toApi(row));
   } catch (e) { return next(e); }
 });
@@ -110,7 +110,7 @@ products.patch('/:id', requireAuth, async (req, res, next) => {
 products.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const row = await one('delete from products where id=$1 returning id', [req.params.id]);
-    if (!row) return res.status(404).json({ error: 'Product nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Product not found' });
     return res.status(204).end();
   } catch (e) { return next(e); }
 });

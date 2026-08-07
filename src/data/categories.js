@@ -1,7 +1,7 @@
 import { COURSES } from './products';
 
-// counts COURSES se derive hote hain — haath se likhne pe har product add
-// karne ke baad galat ho jaate the (Learning pe 3 likha tha, asal mein 2 hai)
+// counts are derived from COURSES — hand-written ones went stale after every
+// product added (Learning said 3 when there were actually 2)
 const CATEGORY_META = [
   { icon: 'Tv', label: 'Streaming', color: '#e50914' },
   { icon: 'Music', label: 'Music', color: '#1db954' },

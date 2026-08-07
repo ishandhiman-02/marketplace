@@ -9,8 +9,8 @@ import { RoundNavButton } from '../ui/RoundNavButton';
 import { CountdownChip } from '../ui/CountdownChip';
 import { IgIcon } from '../ui/IgIcon';
 
-// DAILY_DEALS mein image field nahi hai (data verbatim rule) —
-// deterministic map yahin section mein
+// DAILY_DEALS has no image field (data stays verbatim) —
+// the deterministic map lives here in the section instead
 const DEAL_IMAGES = ['/assets/business_course_professional_dark.jpg', '/assets/coding_course_laptop_dark.jpg', '/assets/design_course_creative_dark.jpg', '/assets/abstract_purple_blue_gradient_dark.jpg'];
 
 export function DealCarousel() {
@@ -80,7 +80,7 @@ export function DealCarousel() {
               style={{ aspectRatio: '21 / 10', minHeight: 420 }}
             >
               <img src={img} alt={deal.subtitle} className="absolute inset-0 w-full h-full object-cover" />
-              {/* deal ke tagColor ka tint + neeche dark gradient — text readability */}
+              {/* tint from the deal's tagColor + a dark gradient below — for text readability */}
               <div
                 className="absolute inset-0"
                 style={{
@@ -176,7 +176,7 @@ export function DealCarousel() {
             </motion.div>
           </AnimatePresence>
 
-          {/* bottom-right nav — AnimatePresence ke bahar taaki slide ke saath na hile */}
+          {/* bottom-right nav — kept outside AnimatePresence so it doesn't move with the slide */}
           <div className="absolute bottom-5 right-5 md:bottom-7 md:right-8 flex items-center gap-2 z-10">
             <RoundNavButton light dir="prev" onClick={() => go(idx - 1)} />
             <RoundNavButton light dir="next" onClick={() => go(idx + 1)} />

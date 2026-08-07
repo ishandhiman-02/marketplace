@@ -1,6 +1,6 @@
 import { api } from '../lib/api';
 
-/** liveOnly: public site — active, expire nahi hue, slots bache hain */
+/** liveOnly: public site — active, not expired, slots still remaining */
 export function listDailyOffers({ liveOnly = false } = {}) {
   return liveOnly ? api.get('/offers') : api.get('/offers/all', { auth: true });
 }
@@ -13,7 +13,7 @@ export function updateDailyOffer(id, offer) {
   return api.put(`/offers/${id}`, offer, { auth: true });
 }
 
-/** Kal ka offer copy karke aaj ka — paused banta hai taaki galti se live na ho */
+/** Copies an earlier offer into a new one — created paused so it cannot go live by accident */
 export function duplicateDailyOffer(id) {
   return api.post(`/offers/${id}/duplicate`, undefined, { auth: true });
 }
@@ -22,7 +22,7 @@ export function deleteDailyOffer(id) {
   return api.del(`/offers/${id}`, { auth: true });
 }
 
-/** List view ka status pill */
+/** Status pill for the list view */
 export function offerStatus(offer) {
   if (!offer.isActive) return 'paused';
   if (offer.slotsLeft <= 0) return 'sold-out';

@@ -1,7 +1,7 @@
 export const NAV_LINKS = ['Deals', 'Offers', 'Daily Deals', 'Contact'];
 
-// Label → section id. Pehle `label.toLowerCase()` use hota tha jo
-// 'Daily Deals' ke liye '#daily deals' (space ke saath) banata tha — toota anchor.
+// Label → section id. This used to be `label.toLowerCase()`, which
+// For 'Daily Deals' this produced '#daily deals' (with a space) — a broken anchor.
 export const NAV_IDS = {
   'Deals': 'deals',
   'Offers': 'offers',

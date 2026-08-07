@@ -32,7 +32,7 @@ export default function AdminProofs() {
     try {
       const created = await uploadProofs(files);
       setProofs((l) => [...created, ...l]);
-      show(`${created.length} proof${created.length > 1 ? 's' : ''} upload ho gaye`);
+      show(`${created.length} proof${created.length > 1 ? 's' : ''} uploaded`);
     } catch (e) {
       show(e.message, 'error');
     } finally {
@@ -50,7 +50,7 @@ export default function AdminProofs() {
   };
 
   const remove = async (proof) => {
-    if (!window.confirm('Ye proof delete ho jaayega (image bhi). Pakka?')) return;
+    if (!window.confirm('This proof will be deleted, along with its image. Are you sure?')) return;
     try {
       await deleteProof(proof.id);
       setProofs((l) => l.filter((p) => p.id !== proof.id));
@@ -58,7 +58,7 @@ export default function AdminProofs() {
     } catch (e) { show(e.message, 'error'); }
   };
 
-  /** Upar/neeche — sirf do rows ke sort_order swap hote hain */
+  /** Up/down — only swaps the sort_order of the two rows involved */
   const move = async (index, dir) => {
     const next = index + dir;
     if (next < 0 || next >= proofs.length) return;
@@ -74,7 +74,7 @@ export default function AdminProofs() {
     <div className="max-w-5xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Proofs</h1>
-        <p className="text-sm text-muted">Delivery aur payment ke screenshots — public site pe bharosa banate hain.</p>
+        <p className="text-sm text-muted">Delivery and payment screenshots — these build trust on the public site.</p>
       </div>
 
       {error && <div className="p-4 rounded-2xl text-[13px] mb-6" style={{ background: '#FEE2E2', color: '#991B1B' }}>{error}</div>}
@@ -89,22 +89,22 @@ export default function AdminProofs() {
       >
         <Icons.UploadCloud size={26} className="mx-auto text-faint mb-3" />
         <p className="text-sm font-semibold text-ink">
-          {uploading ? 'Uploading…' : 'Screenshots yahan drag karein, ya click karein'}
+          {uploading ? 'Uploading…' : 'Drag screenshots here, or click to browse'}
         </p>
         <p className="text-[12px] text-faint mt-1.5">
-          Ek saath kai files chalengi. Upload se pehle browser mein compress ho jaati hain.
+          You can select several files at once. They are compressed in the browser before upload.
         </p>
         <input ref={inputRef} type="file" accept="image/*" multiple onChange={(e) => handleFiles(e.target.files)} className="hidden" />
       </div>
 
       <div className="p-3.5 rounded-2xl text-[12px] leading-relaxed mb-6" style={{ background: '#FEF3C7', color: '#92400E' }}>
-        <strong>Dhyan rakhein:</strong> screenshots mein customer ka naam, phone number ya UPI ID hoti hai.
-        Upload se pehle unhe mask kar dein, aur customer se permission le lein.
+        <strong>Careful:</strong> screenshots often contain a customer&rsquo;s name, phone number or UPI ID.
+        Mask those before uploading, and get the customer&rsquo;s permission first.
       </div>
 
       {loading && <p className="text-sm text-muted">Loading…</p>}
       {!loading && proofs.length === 0 && !error && (
-        <p className="text-sm text-muted text-center py-8">Abhi koi proof nahi hai.</p>
+        <p className="text-sm text-muted text-center py-8">No proofs yet.</p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

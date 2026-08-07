@@ -9,10 +9,10 @@ const REMEMBER_KEY = 'substore-buyer';
 const field = 'px-3.5 py-2.5 rounded-xl border border-line bg-canvas text-ink text-sm outline-none focus:border-ink transition-colors w-full';
 
 /**
- * Instagram DM kholne se pehle chhota form.
- * Wajah: purchase DM pe hota hai, isliye website ko warna kabhi pata hi nahi
- * chalta ki kaun khareed raha hai. Form optional hai — "seedha DM karo" link
- * hamesha maujood hai, warna kuch customers bhaag jaayenge.
+ * A small form shown just before the Instagram DM opens.
+ * Why: the purchase happens in the DM, so without this the website would never
+ * know who is buying. The form is optional — the "just DM instead" link is
+ * always there, otherwise some customers would drop off.
  */
 export function OrderModal() {
   const [item, setItem] = useState(null);
@@ -53,8 +53,8 @@ export function OrderModal() {
       completeOrder(item);
       close();
     } catch (err) {
-      // lead save na ho paaye to bhi customer ko roka nahi jaata
-      setError(`${err.message} — phir bhi Instagram khol rahe hain.`);
+      // even if the lead fails to save, never block the customer
+      setError(`${err.message} — opening Instagram anyway.`);
       setTimeout(() => { completeOrder(item); close(); }, 1400);
     } finally {
       setBusy(false);
@@ -83,7 +83,7 @@ export function OrderModal() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-lg font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>Almost there</h2>
-                <p className="text-[13px] text-muted mt-0.5">Details bhar dein, hum DM pe pehchan lenge.</p>
+                <p className="text-[13px] text-muted mt-0.5">Fill in your details so we can recognise you in the DM.</p>
               </div>
               <button type="button" onClick={close} aria-label="Close" className="text-muted hover:text-ink cursor-pointer">
                 <Icons.X size={19} />
@@ -103,7 +103,7 @@ export function OrderModal() {
             )}
 
             <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] font-semibold text-muted">Naam *</span>
+              <span className="text-[12px] font-semibold text-muted">Name *</span>
               <input required value={name} onChange={(e) => setName(e.target.value)} className={field} />
             </label>
 
@@ -128,11 +128,11 @@ export function OrderModal() {
               style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)' }}
             >
               <IgIcon size={15} />
-              {busy ? 'Opening…' : 'Instagram pe order karo'}
+              {busy ? 'Opening…' : 'Order on Instagram'}
             </button>
 
             <button type="button" onClick={skip} className="text-[12px] text-faint hover:text-muted cursor-pointer">
-              Form bharna nahi hai? Seedha DM karo
+              Rather not fill this in? Just DM instead
             </button>
           </motion.form>
         </div>

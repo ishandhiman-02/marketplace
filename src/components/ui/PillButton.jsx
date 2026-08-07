@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 
 const VARIANTS = {
-  // ink/canvas tokens theme ke saath invert hote hain — light mein dark button, dark mein light
+  // ink/canvas tokens invert with the theme — dark button in light mode, light in dark
   dark: 'bg-ink text-canvas',
   magenta: 'text-white',
   ig: 'text-white',

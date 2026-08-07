@@ -298,7 +298,7 @@ export const COURSES = [
   },
 ];
 
-// sabse sasta plan (variants ko bhi dekhta hai) — "Starts From" stat ke liye
+// cheapest plan, variants included — used by the "Starts From" stat
 export const MIN_PRICE = Math.min(
   ...COURSES.map((c) => (c.variants ? Math.min(...c.variants.map((v) => v.price)) : c.price)),
 );

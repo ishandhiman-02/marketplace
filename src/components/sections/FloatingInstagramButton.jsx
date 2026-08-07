@@ -35,4 +35,4 @@ export function FloatingInstagramButton() {
 
 // ─── ORDER TOAST ─────────────────────────────────────────────────────────────
 
-// Clipboard copy hone pe 2 second ka confirmation — config/site.js emit karta hai
+// 2-second confirmation after the clipboard copy — emitted by config/site.js

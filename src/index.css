@@ -1,13 +1,13 @@
-/* @import sabse pehle hona chahiye — warna PostCSS ise drop kar deta hai
-   aur font load hi nahi hota */
+/* @import must come first — otherwise PostCSS drops it
+   and the font never loads */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @import 'tailwindcss';
 
 /* ── Design tokens — "Pallet Ross" reference ─────────────────────────
-   Components inhe Tailwind utilities se use karte hain:
+   Components consume these through Tailwind utilities:
    bg-canvas, text-ink, border-line, bg-surface, text-muted, ...
-   Dark theme [data-theme='dark'] ancestor se override hota hai. */
+   The dark theme overrides them from a [data-theme='dark'] ancestor. */
 @theme {
   --color-backdrop: #E7E8E4;
   --color-canvas: #FAFAFA;
@@ -38,8 +38,8 @@
   --color-line: #26332f;
   --color-surface: #16211f;
   --color-surface-2: #1a2622;
-  /* accents same rehte hain — dark pe aur pop karte hain;
-     wine ko lighten karna padta hai warna headline padh nahi aati */
+  /* accents stay the same — they pop even more on dark;
+     wine has to be lightened or the headline becomes unreadable */
   --color-wine: #C96B60;
 }
 
@@ -52,7 +52,7 @@ html {
 }
 
 body {
-  /* overscroll bounce pe yahi dikhta hai — canvas ke backdrop se match karta hai */
+  /* this is what shows during the overscroll bounce — matches the canvas backdrop */
   background-color: #E7E8E4;
   color: #0f172a;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -66,7 +66,7 @@ body {
 ::-webkit-scrollbar-thumb { background: #9aa39f; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #6B7570; }
 
-/* CategorySplit ke floating icon chips */
+/* floating icon chips in CategorySplit */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-12px); }

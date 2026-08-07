@@ -8,7 +8,7 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   globalIgnores(['dist', 'server/uploads']),
-  // Backend Node pe chalta hai — browser globals nahi, Node globals chahiye
+  // The backend runs on Node — it needs Node globals, not browser globals
   {
     files: ['server/**/*.js'],
     extends: [js.configs.recommended],

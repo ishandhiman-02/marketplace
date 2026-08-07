@@ -52,7 +52,7 @@ export default function AdminLeads() {
   };
 
   const remove = async (lead) => {
-    if (!window.confirm(`${lead.name} ki lead delete ho jaayegi. Pakka?`)) return;
+    if (!window.confirm(`The lead for ${lead.name} will be deleted. Are you sure?`)) return;
     try {
       await deleteLead(lead.id);
       setLeads((l) => l.filter((x) => x.id !== lead.id));
@@ -66,7 +66,7 @@ export default function AdminLeads() {
         <div>
           <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Leads</h1>
           <p className="text-sm text-muted">
-            Kaun khareed raha hai — Instagram DM kholne se pehle capture hoti hai.
+            Who is buying — captured just before the Instagram DM opens.
           </p>
         </div>
         <button
@@ -120,7 +120,7 @@ export default function AdminLeads() {
             {loading && <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted">Loading…</td></tr>}
             {!loading && visible.length === 0 && (
               <tr><td colSpan={9} className="px-4 py-10 text-center text-sm text-muted">
-                {leads.length === 0 ? 'Abhi koi lead nahi aayi.' : 'Is filter mein kuch nahi mila.'}
+                {leads.length === 0 ? 'No leads yet.' : 'Nothing matches this filter.'}
               </td></tr>
             )}
             {visible.map((l) => (

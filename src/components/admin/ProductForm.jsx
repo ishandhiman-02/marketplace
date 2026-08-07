@@ -34,7 +34,7 @@ export function ProductForm({ product, onCancel, onSave, onError }) {
     try {
       set('image', await uploadProductImage(file));
     } catch (err) {
-      onError?.(err.message || 'Image upload nahi ho paayi');
+      onError?.(err.message || 'Could not upload the image');
     } finally {
       setUploading(false);
     }
@@ -152,7 +152,7 @@ export function ProductForm({ product, onCancel, onSave, onError }) {
                 {uploading ? 'Uploading…' : 'Upload image'}
                 <input type="file" accept="image/*" onChange={pickImage} className="hidden" disabled={uploading} />
               </label>
-              <input value={form.image || ''} onChange={(e) => set('image', e.target.value)} placeholder="ya image URL paste karein" className={field} />
+              <input value={form.image || ''} onChange={(e) => set('image', e.target.value)} placeholder="or paste an image URL" className={field} />
             </div>
           </div>
         </div>
@@ -170,7 +170,7 @@ export function ProductForm({ product, onCancel, onSave, onError }) {
             </button>
           </div>
           {form.variants.length === 0 && (
-            <p className="text-[12px] text-faint">Alag-alag plans hain to yahan add karein (jaise 1 / 3 / 6 months).</p>
+            <p className="text-[12px] text-faint">If this product has multiple plans, add them here (e.g. 1 / 3 / 6 months).</p>
           )}
           {form.variants.map((v, i) => (
             <div key={i} className="flex items-center gap-2">
@@ -190,7 +190,7 @@ export function ProductForm({ product, onCancel, onSave, onError }) {
 
         <label className="flex items-center gap-2.5 mt-1">
           <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="w-4 h-4 accent-current" />
-          <span className="text-[13px] text-ink">Site pe dikhaayein</span>
+          <span className="text-[13px] text-ink">Show on the site</span>
         </label>
 
         <div className="flex items-center gap-3 mt-2 pb-2">

@@ -1,8 +1,8 @@
 import { motion, useReducedMotion } from 'framer-motion';
 
-// Reference ka signature move: cards ek pile se fan-out hote hain.
-// items = [{ key, node }] — node koi bhi card content ho sakta hai.
-// Hero, Statement aur Pricing teeno isi ko use karte hain.
+// The reference's signature move: cards fan out from a single pile.
+// items = [{ key, node }] — node can be any card content.
+// Hero, Statement and Pricing all use this.
 export function FannedStack({
   items,
   rotations = [-12, -6, 0, 5, 10, 16],

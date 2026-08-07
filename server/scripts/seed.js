@@ -1,13 +1,13 @@
 /**
- * src/data/ ke arrays ko database mein daalta hai.
- * Data wahi rehta hai — ek hi source of truth se seed hota hai,
- * isliye SQL mein haath se copy karne wale typo nahi hote.
+ * Loads the arrays from src/data/ into the database.
+ * The data stays identical — seeding from a single source of truth avoids the
+ * typos that come from hand-copying it into SQL.
  */
 import { pool, q } from '../db.js';
 import { COURSES } from '../../src/data/products.js';
 import { DAILY_DEALS } from '../../src/data/dailyOffers.js';
 
-// src/data mein image bundler ke through aati hai; DB ke liye public path chahiye
+// in src/data the image comes through the bundler; the DB needs a public path
 const imageName = (v) => {
   const m = String(v || '').match(/([\w-]+\.(?:jpg|jpeg|png|webp))/i);
   return m ? `/assets/${m[1]}` : null;
@@ -43,5 +43,5 @@ for (const d of DAILY_DEALS) {
 }
 
 console.log(`  seeded ${COURSES.length} products, ${DAILY_DEALS.length} daily offers`);
-console.log('  proofs aur leads khaali hain — dono admin panel se bharte hain.');
+console.log('  proofs and leads are left empty — both are filled from the admin panel.');
 await pool.end();

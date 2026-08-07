@@ -34,7 +34,7 @@ app.use('/api/proofs', proofs);
 app.use('/api/uploads', uploads);
 app.use('/api/leads', leads);
 
-app.use((req, res) => res.status(404).json({ error: 'Route nahi mila' }));
+app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 app.use((err, req, res, _next) => {
   console.error(err);

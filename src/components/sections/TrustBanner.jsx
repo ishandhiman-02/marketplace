@@ -4,7 +4,7 @@ import { TRUST_ITEMS } from '../../data/stats';
 
 export function TrustBanner() {
   const { dark } = useDark();
-  // seamless loop ke liye list do baar — marquee-track -50% shift karta hai
+  // list rendered twice for a seamless loop — marquee-track shifts by -50%
   const row = [...TRUST_ITEMS, ...TRUST_ITEMS];
 
   return (

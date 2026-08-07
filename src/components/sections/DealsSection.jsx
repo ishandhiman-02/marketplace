@@ -11,8 +11,8 @@ export function DealsSection() {
   const { dark } = useDark();
   const [activeFilter, setActiveFilter] = useState('All');
   const [visibleCount, setVisibleCount] = useState(6);
-  // CATEGORIES se derive — haath se likhne pe naye category ke products
-  // sirf "All" mein dikhte the (VPN & Security, Music, Developer Tools chhoot gaye the)
+  // derived from CATEGORIES — when hand-written, products in a new category
+  // only showed under "All" (VPN & Security, Music and Developer Tools were missed)
   const filters = ['All', ...CATEGORIES.map((c) => c.label)];
 
   const filteredAll = activeFilter === 'All' ? COURSES : COURSES.filter((c) => c.category === activeFilter);
@@ -75,7 +75,7 @@ export function DealsSection() {
                   padding: 10,
                 }}
               >
-                {/* image card ke andar inset baithti hai — reference wala treatment */}
+                {/* the image sits inset inside the card — the reference treatment */}
                 <div className="relative overflow-hidden" style={{ borderRadius: 18, aspectRatio: '4 / 3' }}>
                   <img
                     src={course.image}
@@ -137,7 +137,7 @@ export function DealsSection() {
                     </div>
                   )}
 
-                  {/* bada price numeral — reference ke pricing cards jaisa */}
+                  {/* large price numeral — like the reference's pricing cards */}
                   <div className="flex items-end justify-between mt-auto pt-3">
                     <div>
                       <div className="flex items-baseline gap-1">

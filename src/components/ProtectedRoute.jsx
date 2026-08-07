@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { getSession } from '../services/auth';
 
 export function ProtectedRoute({ children }) {
-  // undefined = abhi check ho raha hai, null = logged out, object = logged in
+  // undefined = still checking, null = logged out, object = logged in
   const [session, setSession] = useState(undefined);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export function ProtectedRoute({ children }) {
     return () => { alive = false; };
   }, []);
 
-  // check hone tak loading — warna login page ek jhalak ke liye flash karta hai
+  // show loading until the check finishes — otherwise the login page flashes briefly
   if (session === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-canvas">

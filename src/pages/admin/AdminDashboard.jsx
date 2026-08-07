@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   return (
     <div className="max-w-5xl">
       <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Dashboard</h1>
-      <p className="text-sm text-muted mb-8">Aaj ke orders aur leads ki summary.</p>
+      <p className="text-sm text-muted mb-8">A summary of today&rsquo;s orders and leads.</p>
 
       {error && (
         <div className="p-4 rounded-2xl text-[13px] mb-6" style={{ background: '#FEE2E2', color: '#991B1B' }}>{error}</div>

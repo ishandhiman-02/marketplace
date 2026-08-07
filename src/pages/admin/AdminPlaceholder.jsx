@@ -1,8 +1,8 @@
 import * as Icons from 'lucide-react';
 
 /**
- * Steps 6–9 in pages ko bharenge. Tab tak ye saaf-saaf batata hai ki
- * kya aane wala hai — khaali page se behtar.
+ * Steps 6–9 will fill these pages in. Until then this states plainly what is
+ * coming — better than a blank page.
  */
 export function AdminPlaceholder({ title, description, step, features }) {
   return (
@@ -14,7 +14,7 @@ export function AdminPlaceholder({ title, description, step, features }) {
         <div className="flex items-center gap-2.5 mb-4">
           <Icons.Hammer size={16} className="text-faint" />
           <span className="text-[11px] font-semibold uppercase text-faint" style={{ letterSpacing: '0.12em' }}>
-            Step {step} mein banega
+            Coming in step {step}
           </span>
         </div>
         <ul className="flex flex-col gap-2.5">

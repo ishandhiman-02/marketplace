@@ -10,7 +10,7 @@ export function signOut() {
   setToken(null);
 }
 
-/** Token hai bhi aur valid bhi hai? Server se confirm karta hai. */
+/** Is there a token, and is it still valid? Confirms with the server. */
 export async function getSession() {
   if (!getToken()) return null;
   try {

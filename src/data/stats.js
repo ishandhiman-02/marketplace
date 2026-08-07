@@ -1,8 +1,8 @@
 import { COURSES, MIN_PRICE } from './products';
 
 export const STATS = [
-  // dono numbers COURSES se derive hote hain — product add/remove karne pe
-  // apne aap sahi rehte hain
+  // both numbers are derived from COURSES — they stay correct on their own
+  // when products are added or removed
   { value: `${COURSES.length}`, label: 'Premium Deals', icon: 'Tag', color: '#4f46e5' },
   { value: `Rs.${MIN_PRICE}`, label: 'Starts From', icon: 'Wallet', color: '#06b6d4' },
   { value: '100%', label: 'Verified Accounts', icon: 'ShieldCheck', color: '#10b981' },

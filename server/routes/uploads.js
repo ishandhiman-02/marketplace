@@ -18,14 +18,14 @@ const storage = multer.diskStorage({
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 8 * 1024 * 1024 }, // browser pehle hi compress karta hai
+  limits: { fileSize: 8 * 1024 * 1024 }, // the browser has already compressed it
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith('image/')) return cb(new Error('Sirf image files chalengi'));
+    if (!file.mimetype.startsWith('image/')) return cb(new Error('Only image files are allowed'));
     return cb(null, true);
   },
 });
 
-/** Disk se file hataata hai — proofs delete karte waqt kaam aata hai */
+/** Removes a file from disk — used when deleting proofs */
 export async function removeUpload(publicUrl) {
   const name = path.basename(publicUrl || '');
   if (name) await fs.unlink(path.join(UPLOAD_DIR, name)).catch(() => {});
@@ -34,10 +34,10 @@ export async function removeUpload(publicUrl) {
 export const uploads = Router();
 
 /**
- * Sirf file store karta hai aur URL wapas deta hai — koi DB row nahi banti.
- * Product images isi se aati hain (proofs ki apni row hoti hai).
+ * Only stores the file and returns a URL — no DB row is created.
+ * Product images come through here (proofs get their own row).
  */
 uploads.post('/', requireAuth, upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Koi file nahi mili' });
+  if (!req.file) return res.status(400).json({ error: 'No file received' });
   return res.status(201).json({ url: `/uploads/${req.file.filename}` });
 });

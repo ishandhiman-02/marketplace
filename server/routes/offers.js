@@ -32,7 +32,7 @@ const vals = (b) => [
   b.slots ?? 0, b.slotsLeft ?? 0, b.expiresAt || null, b.isActive ?? true,
 ];
 
-// PUBLIC — sirf wo offers jo live hain: active, expire nahi hue, slots bache hain
+// PUBLIC — only offers that are live: active, not expired, slots remaining
 offers.get('/', async (req, res, next) => {
   try {
     const rows = await q(
@@ -56,7 +56,7 @@ offers.get('/all', requireAuth, async (req, res, next) => {
 offers.post('/', requireAuth, async (req, res, next) => {
   try {
     if (!req.body.title || req.body.dealPrice == null) {
-      return res.status(400).json({ error: 'title aur deal price zaroori hain' });
+      return res.status(400).json({ error: 'title and deal price are required' });
     }
     const row = await one(
       `insert into daily_offers
@@ -79,12 +79,12 @@ offers.put('/:id', requireAuth, async (req, res, next) => {
        where id=$13 returning ${COLS}`,
       [...vals(req.body), req.params.id],
     );
-    if (!row) return res.status(404).json({ error: 'Offer nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Offer not found' });
     return res.json(toApi(row));
   } catch (e) { return next(e); }
 });
 
-/** Kal ka offer copy karke aaj ka — roz naya likhne se time bachta hai */
+/** Copies an existing offer into a new one — saves writing one from scratch daily */
 offers.post('/:id/duplicate', requireAuth, async (req, res, next) => {
   try {
     const row = await one(
@@ -97,7 +97,7 @@ offers.post('/:id/duplicate', requireAuth, async (req, res, next) => {
        returning ${COLS}`,
       [req.params.id],
     );
-    if (!row) return res.status(404).json({ error: 'Offer nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Offer not found' });
     return res.status(201).json(toApi(row));
   } catch (e) { return next(e); }
 });
@@ -105,7 +105,7 @@ offers.post('/:id/duplicate', requireAuth, async (req, res, next) => {
 offers.delete('/:id', requireAuth, async (req, res, next) => {
   try {
     const row = await one('delete from daily_offers where id=$1 returning id', [req.params.id]);
-    if (!row) return res.status(404).json({ error: 'Offer nahi mila' });
+    if (!row) return res.status(404).json({ error: 'Offer not found' });
     return res.status(204).end();
   } catch (e) { return next(e); }
 });

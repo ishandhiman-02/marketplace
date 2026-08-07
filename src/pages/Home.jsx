@@ -29,8 +29,8 @@ function HomeInner() {
         transition: 'background 0.3s',
       }}
     >
-      {/* inset canvas — poori site ek rounded card ke andar.
-          overflow: clip hi rakhna — hidden sticky navbar tod deta hai */}
+      {/* inset canvas — the whole site sits inside one rounded card.
+          keep overflow: clip — hidden breaks the sticky navbar */}
       <div
         style={{
           background: dark ? '#0f172a' : '#FAFAFA',

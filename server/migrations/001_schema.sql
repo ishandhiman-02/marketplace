@@ -1,12 +1,12 @@
 -- SubStore schema (plain Postgres)
--- Chalane ke liye:  npm run db:migrate
--- Dobara chalane pe safe hai.
+-- To run:  npm run db:migrate
+-- Safe to run more than once.
 
 create extension if not exists "pgcrypto";  -- gen_random_uuid()
 
 -- ── admin users ───────────────────────────────────────────────
--- Sirf admin login ke liye. Public signup kahin nahi hai —
--- account `npm run db:create-admin` se banta hai.
+-- For admin login only. There is no public signup anywhere —
+-- accounts are created with `npm run db:create-admin`.
 create table if not exists admin_users (
   id            uuid primary key default gen_random_uuid(),
   email         text        not null unique,
@@ -65,8 +65,8 @@ create table if not exists proofs (
 );
 
 -- ── leads ─────────────────────────────────────────────────────
--- "Data of who is purchasing" — order Instagram DM pe hota hai,
--- isliye DM kholne se pehle site yahan lead save karti hai.
+-- "Data of who is purchasing" — the order happens in an Instagram DM,
+-- so the site saves a lead here just before opening the DM.
 create table if not exists leads (
   id                 uuid primary key default gen_random_uuid(),
   name               text        not null,
