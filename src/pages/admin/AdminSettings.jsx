@@ -141,7 +141,7 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="Store"
           title="Brand"
-          chips={['Navbar', 'Footer', 'Browser tab', 'Order DM link']}
+          hint="Shown in the navbar, the footer and the browser tab."
         >
           <TextField
             label="Site name"
@@ -167,7 +167,6 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="Palette"
           title="Colours"
-          chips={['Trust banner', 'Logo tile', 'Link hover']}
           hint="Two accents carry the whole site. Everything else follows the theme."
         >
           <ColorField
@@ -187,7 +186,7 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="Type"
           title="Hero and buttons"
-          chips={['Hero headline block', 'Every order button']}
+          hint="The first thing a visitor reads, and the label on every order button."
         >
           <TextField
             label="Eyebrow line"
@@ -204,8 +203,7 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="Navigation"
           title="Navigation"
-          chips={['Navbar', 'Mobile menu']}
-          hint="The section id must match a section on the page — deals, offers, daily-deals, contact."
+          hint="Links in the navbar. The section id must match a section on the page — deals, offers, daily-deals, contact."
         >
           <RepeaterField
             label="Links"
@@ -224,8 +222,7 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="BadgeCheck"
           title="Trust banner"
-          chips={['Scrolling strip under the hero']}
-          hint="Icon names come from lucide.dev — ShieldCheck, Star, Clock, Zap."
+          hint="The scrolling strip under the hero. Icon names come from lucide.dev — ShieldCheck, Star, Clock, Zap."
         >
           <RepeaterField
             label="Items"
@@ -244,7 +241,6 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="BarChart3"
           title="Stats row"
-          chips={['Stats row under the trust banner']}
           hint="Leave a value empty and set Auto to productCount or minPrice to have it work itself out from the catalogue."
         >
           <RepeaterField
@@ -266,7 +262,7 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="MessageSquare"
           title="Order form"
-          chips={['Order modal', 'Copied DM message']}
+          hint="The small form shown before Instagram opens, and the message copied to the clipboard."
         >
           <TextField label="Form title" value={form.order.modalTitle} onChange={(v) => set('order', 'modalTitle', v)} />
           <TextField label="Form note" value={form.order.modalNote} onChange={(v) => set('order', 'modalNote', v)} />
@@ -281,7 +277,6 @@ export default function AdminSettings() {
         <SettingsGroup
           icon="LayoutTemplate"
           title="Sections"
-          chips={['Whole home page']}
           hint="Turn any block of the home page off without deleting its content."
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -297,11 +292,7 @@ export default function AdminSettings() {
           </div>
         </SettingsGroup>
 
-        <SettingsGroup
-          icon="AlignLeft"
-          title="Footer"
-          chips={['Bottom of every page']}
-        >
+        <SettingsGroup icon="AlignLeft" title="Footer">
           <TextField
             label="Footer note"
             value={form.footer.note}
