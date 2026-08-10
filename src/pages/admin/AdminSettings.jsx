@@ -3,6 +3,7 @@ import * as Icons from 'lucide-react';
 import { getSettings, saveSettings, resetSettings } from '../../services/settings';
 import { mergeSettings, DEFAULT_SETTINGS } from '../../config/defaults';
 import { PageHeader } from '../../components/admin/PageHeader';
+import { SectionNav } from '../../components/admin/SectionNav';
 import { ErrorBar } from '../../components/admin/Panel';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
@@ -10,6 +11,19 @@ import {
   SettingsGroup, TextField, ColorField, ToggleRow, RepeaterField,
 } from '../../components/admin/SettingsField';
 import { btnPrimary, btnGhost, radius } from '../../components/admin/ui';
+
+/** Jump chips at the top. Same order as the cards below. */
+const NAV_SECTIONS = [
+  { id: 'set-brand', label: 'Brand' },
+  { id: 'set-colours', label: 'Colours' },
+  { id: 'set-hero', label: 'Hero and buttons' },
+  { id: 'set-navigation', label: 'Navigation' },
+  { id: 'set-trust', label: 'Trust banner' },
+  { id: 'set-stats', label: 'Stats row' },
+  { id: 'set-order', label: 'Order form' },
+  { id: 'set-sections', label: 'Sections' },
+  { id: 'set-footer', label: 'Footer' },
+];
 
 /** Order matches the home page, top to bottom, so the list reads like the site. */
 const SECTION_ROWS = [
@@ -137,8 +151,11 @@ export default function AdminSettings() {
         </div>
       )}
 
+      <SectionNav sections={NAV_SECTIONS} />
+
       <div className="flex flex-col gap-4">
         <SettingsGroup
+          id="set-brand"
           icon="Store"
           title="Brand"
           hint="Shown in the navbar, the footer and the browser tab."
@@ -165,6 +182,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-colours"
           icon="Palette"
           title="Colours"
           hint="Two accents carry the whole site. Everything else follows the theme."
@@ -184,6 +202,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-hero"
           icon="Type"
           title="Hero and buttons"
           hint="The first thing a visitor reads, and the label on every order button."
@@ -201,6 +220,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-navigation"
           icon="Navigation"
           title="Navigation"
           hint="Links in the navbar. The section id must match a section on the page — deals, offers, daily-deals, contact."
@@ -220,6 +240,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-trust"
           icon="BadgeCheck"
           title="Trust banner"
           hint="The scrolling strip under the hero. Icon names come from lucide.dev — ShieldCheck, Star, Clock, Zap."
@@ -239,6 +260,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-stats"
           icon="BarChart3"
           title="Stats row"
           hint="Leave a value empty and set Auto to productCount or minPrice to have it work itself out from the catalogue."
@@ -260,6 +282,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-order"
           icon="MessageSquare"
           title="Order form"
           hint="The small form shown before Instagram opens, and the message copied to the clipboard."
@@ -275,6 +298,7 @@ export default function AdminSettings() {
         </SettingsGroup>
 
         <SettingsGroup
+          id="set-sections"
           icon="LayoutTemplate"
           title="Sections"
           hint="Turn any block of the home page off without deleting its content."
@@ -292,7 +316,7 @@ export default function AdminSettings() {
           </div>
         </SettingsGroup>
 
-        <SettingsGroup icon="AlignLeft" title="Footer">
+        <SettingsGroup id="set-footer" icon="AlignLeft" title="Footer">
           <TextField
             label="Footer note"
             value={form.footer.note}

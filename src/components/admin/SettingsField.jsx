@@ -1,11 +1,19 @@
 import * as Icons from 'lucide-react';
 import { field, labelCls, radius } from './ui';
 
-/** A titled group of settings. One card per area of the site. */
-export function SettingsGroup({ title, hint, icon, children }) {
+/**
+ * A titled group of settings. One card per area of the site.
+ * `id` is the anchor target for the jump chips — the scroll margin keeps the
+ * heading clear of the sticky chip row.
+ */
+export function SettingsGroup({ id, title, hint, icon, children }) {
   const Icon = Icons[icon] || Icons.Settings;
   return (
-    <section className="bg-surface border border-line p-6" style={{ borderRadius: radius }}>
+    <section
+      id={id}
+      className="bg-surface border border-line p-6 scroll-mt-32 lg:scroll-mt-20"
+      style={{ borderRadius: radius }}
+    >
       <div className="flex items-start gap-3 mb-5">
         <span
           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
