@@ -2,12 +2,17 @@ import { api } from '../lib/api';
 
 export const LEAD_STATUSES = ['new', 'contacted', 'paid', 'delivered', 'cancelled'];
 
+/**
+ * Pill colours for the lead table.
+ * Named by role, not by colour — the palette lives in index.css, so a theme
+ * change never has to touch this file.
+ */
 export const STATUS_STYLE = {
-  new: { label: 'New', bg: '#E0E7FF', fg: '#3730A3' },
-  contacted: { label: 'Contacted', bg: '#FEF3C7', fg: '#92400E' },
-  paid: { label: 'Paid', bg: '#DCFCE7', fg: '#166534' },
-  delivered: { label: 'Delivered', bg: '#CFFAFE', fg: '#155E75' },
-  cancelled: { label: 'Cancelled', bg: '#FEE2E2', fg: '#991B1B' },
+  new: { label: 'New', bg: 'var(--pill-fresh-bg)', fg: 'var(--pill-fresh-fg)' },
+  contacted: { label: 'Contacted', bg: 'var(--pill-active-bg)', fg: 'var(--pill-active-fg)' },
+  paid: { label: 'Paid', bg: 'var(--pill-won-bg)', fg: 'var(--pill-won-fg)' },
+  delivered: { label: 'Delivered', bg: 'var(--pill-done-bg)', fg: 'var(--pill-done-fg)' },
+  cancelled: { label: 'Cancelled', bg: 'var(--pill-lost-bg)', fg: 'var(--pill-lost-fg)' },
 };
 
 /**

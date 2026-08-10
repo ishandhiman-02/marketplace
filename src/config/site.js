@@ -1,18 +1,32 @@
-export const SITE = {
-  brandName: 'SubStore',
-  // TODO: put the client's real Instagram handle here (without the @), otherwise
-  // the DM link will not point at any profile.
-  instagramHandle: '',
-};
+/**
+ * Set from the admin's Global Settings, pushed in by SettingsProvider once
+ * the settings request resolves. It lives in a module variable rather than
+ * React state because the order helpers below are plain functions called from
+ * event handlers, not hooks.
+ *
+ * Empty means every order button leads nowhere, so the buttons check first.
+ */
+let instagramHandle = '';
+let messagePrefix = "Hi! I'd like to order:";
+
+export function setInstagramHandle(handle) {
+  instagramHandle = String(handle || '').replace(/^@/, '').trim();
+}
+
+export function setOrderMessagePrefix(prefix) {
+  if (prefix) messagePrefix = prefix;
+}
+
+export const hasInstagramHandle = () => instagramHandle.length > 0;
 
 // ig.me/m/<handle> opens the DM thread directly (not the profile page)
-export const IG_DM_URL = `https://ig.me/m/${SITE.instagramHandle}`;
+export const igDmUrl = () => `https://ig.me/m/${instagramHandle}`;
 
 function buildOrderText(detail) {
   if (!detail?.title) return null;
   const parts = [detail.title, detail.variant, detail.price != null ? `Rs.${detail.price}` : null]
     .filter(Boolean);
-  return `Hi! I'd like to order: ${parts.join(' — ')}`;
+  return `${messagePrefix} ${parts.join(' — ')}`;
 }
 
 // ── pub/sub: both the modal and the toast listen here ─────────
@@ -50,8 +64,20 @@ export function orderOnInstagram(detail) {
  * way. The tab still opens even if the clipboard write fails.
  */
 export function completeOrder(request) {
-  const open = () => window.open(IG_DM_URL, '_blank', 'noopener,noreferrer');
   const text = buildOrderText(request?.detail);
+
+  // No handle set in Global Settings yet. Opening https://ig.me/m/ lands the
+  // customer on an Instagram error page, which looks like the shop is broken.
+  // Copy the order and say so instead — they can still reach us.
+  if (!hasInstagramHandle()) {
+    if (text && navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(() => {});
+    toastListeners.forEach((fn) => fn(
+      'Ordering is not set up yet — please message us on Instagram and we will help.',
+    ));
+    return;
+  }
+
+  const open = () => window.open(igDmUrl(), '_blank', 'noopener,noreferrer');
 
   if (!text || !navigator.clipboard?.writeText) {
     open();

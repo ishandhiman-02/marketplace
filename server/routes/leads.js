@@ -81,6 +81,7 @@ leads.get('/stats', requireAuth, async (req, res, next) => {
         count(*) filter (where created_at >= date_trunc('day', now()))        as today,
         count(*) filter (where created_at >= now() - interval '7 days')       as this_week,
         count(*) filter (where status in ('paid','delivered'))                as paid_count,
+        count(*) filter (where status = 'new')                                as new_count,
         coalesce(sum(price) filter (where status in ('paid','delivered')), 0) as revenue,
         count(*)                                                              as total
       from leads`);
@@ -88,6 +89,7 @@ leads.get('/stats', requireAuth, async (req, res, next) => {
       today: Number(row.today),
       thisWeek: Number(row.this_week),
       paidCount: Number(row.paid_count),
+      newCount: Number(row.new_count),
       revenue: Number(row.revenue),
       total: Number(row.total),
     });

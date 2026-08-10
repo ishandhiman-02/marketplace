@@ -30,9 +30,10 @@ export function offerStatus(offer) {
   return 'live';
 }
 
+/** Same role-named set as the lead pills — see services/leads.js */
 export const STATUS_STYLE = {
-  live: { label: 'Live', bg: '#DCFCE7', fg: '#166534' },
-  paused: { label: 'Paused', bg: '#F1F5F9', fg: '#475569' },
-  expired: { label: 'Expired', bg: '#FEE2E2', fg: '#991B1B' },
-  'sold-out': { label: 'Sold out', bg: '#FEF3C7', fg: '#92400E' },
+  live: { label: 'Live', bg: 'var(--pill-fresh-bg)', fg: 'var(--pill-fresh-fg)' },
+  paused: { label: 'Paused', bg: 'var(--pill-done-bg)', fg: 'var(--pill-done-fg)' },
+  expired: { label: 'Expired', bg: 'var(--pill-lost-bg)', fg: 'var(--pill-lost-fg)' },
+  'sold-out': { label: 'Sold out', bg: 'var(--pill-active-bg)', fg: 'var(--pill-active-fg)' },
 };

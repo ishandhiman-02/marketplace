@@ -15,9 +15,9 @@ export function ProtectedRoute({ children }) {
   // show loading until the check finishes — otherwise the login page flashes briefly
   if (session === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-canvas">
+      <div data-theme="admin" className="min-h-screen flex items-center justify-center bg-canvas">
         <div className="flex items-center gap-3 text-sm text-muted">
-          <span className="w-4 h-4 rounded-full border-2 border-line border-t-ink animate-spin" />
+          <span className="w-4 h-4 rounded-full border-2 border-line border-t-[var(--admin-accent)] animate-spin" />
           Checking session…
         </div>
       </div>

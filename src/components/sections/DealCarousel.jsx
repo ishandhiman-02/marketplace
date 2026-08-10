@@ -1,32 +1,52 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { DAILY_DEALS } from '../../data/dailyOffers';
+import { useCatalog } from '../../context/useCatalog';
 import { orderOnInstagram } from '../../config/site';
 import { Eyebrow } from '../ui/Eyebrow';
 import { SpeechBubble } from '../ui/SpeechBubble';
 import { RoundNavButton } from '../ui/RoundNavButton';
 import { CountdownChip } from '../ui/CountdownChip';
+import { CountUp } from '../ui/CountUp';
 import { IgIcon } from '../ui/IgIcon';
 
-// DAILY_DEALS has no image field (data stays verbatim) —
-// the deterministic map lives here in the section instead
+// Daily offers carry no image of their own, so each one gets a picture from
+// this list by position — stable per deal, and no image to manage in admin.
 const DEAL_IMAGES = ['/assets/business_course_professional_dark.jpg', '/assets/coding_course_laptop_dark.jpg', '/assets/design_course_creative_dark.jpg', '/assets/abstract_purple_blue_gradient_dark.jpg'];
 
+/**
+ * The bundled data carried a written-out phrase ("Today only"); the database
+ * stores a real timestamp instead, so the phrase is derived here. Offers with
+ * no expiry never end, which is a legitimate setting in the admin.
+ */
+function expiresLabel(deal) {
+  if (deal.expiresIn) return deal.expiresIn;       // bundled fallback data
+  if (!deal.expiresAt) return 'While slots last';
+
+  const ms = new Date(deal.expiresAt).getTime() - Date.now();
+  if (ms <= 0) return 'Ended';
+
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours < 1) return `${Math.max(1, Math.round(ms / 60_000))} min left`;
+  if (hours < 24) return `${hours}h left`;
+  return `${Math.round(hours / 24)}d left`;
+}
+
 export function DealCarousel() {
+  const { dailyDeals } = useCatalog();
   const [idx, setIdx] = useState(0);
   const [dirn, setDirn] = useState(1);
   const [hovered, setHovered] = useState(false);
-  const n = DAILY_DEALS.length;
+  const n = dailyDeals.length;
 
   const go = (next) => {
     setDirn(next > idx || (next === 0 && idx === n - 1) ? 1 : -1);
     setIdx(((next % n) + n) % n);
   };
 
-  // 7s auto-advance, hover pe paused
+  // 7s auto-advance, paused on hover
   useEffect(() => {
-    if (hovered) return undefined;
+    if (hovered || n < 2) return undefined;
     const t = setInterval(() => {
       setDirn(1);
       setIdx((i) => (i + 1) % n);
@@ -34,8 +54,13 @@ export function DealCarousel() {
     return () => clearInterval(t);
   }, [hovered, n]);
 
-  const deal = DAILY_DEALS[idx];
-  const img = DEAL_IMAGES[(deal.id - 1) % DEAL_IMAGES.length];
+  // The client can pause or expire every offer, and deleting one can leave
+  // idx past the end of a shorter list. Hide the whole section rather than
+  // render an empty frame, and clamp before indexing.
+  if (n === 0) return null;
+
+  const deal = dailyDeals[Math.min(idx, n - 1)];
+  const img = DEAL_IMAGES[Math.min(idx, n - 1) % DEAL_IMAGES.length];
   const date = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
@@ -77,7 +102,7 @@ export function DealCarousel() {
               exit={{ x: dirn * -90, opacity: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut' }}
               className="relative w-full"
-              style={{ aspectRatio: '21 / 10', minHeight: 420 }}
+              style={{ aspectRatio: '21 / 10', minHeight: 'clamp(420px, 46vw, 560px)' }}
             >
               <img src={img} alt={deal.subtitle} className="absolute inset-0 w-full h-full object-cover" />
               {/* tint from the deal's tagColor + a dark gradient below — for text readability */}
@@ -96,7 +121,7 @@ export function DealCarousel() {
 
               {/* top-right: dots */}
               <div className="absolute top-6 right-6 md:top-8 md:right-9 flex items-center gap-1.5">
-                {DAILY_DEALS.map((d, i) => (
+                {dailyDeals.map((d, i) => (
                   <button
                     key={d.id}
                     onClick={() => go(i)}
@@ -112,7 +137,7 @@ export function DealCarousel() {
               </div>
 
               {/* content */}
-              <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-12 max-w-2xl">
+              <div className="absolute inset-0 flex flex-col justify-center px-5 sm:px-6 md:px-12 pb-20 md:pb-24 max-w-2xl">
                 <div className="flex items-center gap-2.5 mb-3">
                   <span className="text-xl">{deal.emoji}</span>
                   <span className="text-[12px] font-semibold uppercase text-white/75" style={{ letterSpacing: '0.14em' }}>
@@ -139,11 +164,11 @@ export function DealCarousel() {
 
                 <div className="flex items-baseline gap-3 mb-5">
                   <span className="font-bold text-white" style={{ fontSize: 'clamp(30px, 3.6vw, 48px)', letterSpacing: '-2px' }}>
-                    Rs.{deal.dealPrice}
+                    <CountUp value={`Rs.${deal.dealPrice}`} />
                   </span>
                   <span className="text-lg line-through text-white/50">Rs.{deal.originalPrice}</span>
                   <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: '#DFF264', color: '#0f172a' }}>
-                    Save Rs.{deal.savings}
+                    Save <CountUp value={`Rs.${deal.savings}`} />
                   </span>
                 </div>
 
@@ -151,7 +176,7 @@ export function DealCarousel() {
                   <CountdownChip light />
                   <div className="flex items-center gap-2 text-[12px] font-medium text-white/80">
                     <Icons.Flame size={13} style={{ color: '#DFF264' }} />
-                    {deal.slotsLeft} of {deal.slots} slots left · {deal.expiresIn}
+                    {deal.slotsLeft} of {deal.slots} slots left · {expiresLabel(deal)}
                   </div>
                 </div>
               </div>

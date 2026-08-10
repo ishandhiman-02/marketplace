@@ -1,8 +1,14 @@
 import { COURSES } from './products';
 
-// counts are derived from COURSES — hand-written ones went stale after every
-// product added (Learning said 3 when there were actually 2)
-const CATEGORY_META = [
+/**
+ * The label, icon and colour for each category.
+ * Counts are not here — they come from whatever the catalogue actually holds,
+ * because hand-written ones went stale after every product added (Learning
+ * said 3 when there were really 2). CatalogContext derives them from the live
+ * product list; the CATEGORIES export below is the offline fallback and the
+ * source for the admin's category dropdown.
+ */
+export const CATEGORY_META = [
   { icon: 'Tv', label: 'Streaming', color: '#e50914' },
   { icon: 'Music', label: 'Music', color: '#1db954' },
   { icon: 'Shield', label: 'VPN & Security', color: '#4f46e5' },

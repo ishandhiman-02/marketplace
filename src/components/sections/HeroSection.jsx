@@ -1,14 +1,39 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { COURSES } from '../../data/products';
+import { useCatalog } from '../../context/useCatalog';
 import { orderOnInstagram } from '../../config/site';
+import { useSettings } from '../../context/useSettings';
 import { Eyebrow } from '../ui/Eyebrow';
 import { PillButton } from '../ui/PillButton';
 import { IgIcon } from '../ui/IgIcon';
 import { FannedStack } from '../ui/FannedStack';
 
-// Six visually distinct products for the fan-out
-const HERO_IDS = [7, 4, 6, 16, 11, 3];
+/**
+ * Six products for the fan-out.
+ *
+ * This used to be a hard-coded list of row ids, which stopped working the
+ * moment the catalogue came from the database — ids are uuids now, and the
+ * client can delete any product at any time. Picking one per category
+ * instead keeps the fan visually varied whatever the catalogue holds, and
+ * falls back to filling from the front if there are fewer than six
+ * categories.
+ */
+function pickHeroProducts(products, count = 6) {
+  const seen = new Set();
+  const picks = [];
+
+  for (const p of products) {
+    if (picks.length === count) break;
+    if (seen.has(p.category)) continue;
+    seen.add(p.category);
+    picks.push(p);
+  }
+  for (const p of products) {
+    if (picks.length === count) break;
+    if (!picks.includes(p)) picks.push(p);
+  }
+  return picks;
+}
 
 function HeroTile({ product, compact = false }) {
   const Icon = Icons[product.icon] || Icons.HelpCircle;
@@ -57,13 +82,15 @@ const HEADLINE_LINES = [
 ];
 
 export function HeroSection() {
-  const picks = HERO_IDS.map((id) => COURSES.find((c) => c.id === id)).filter(Boolean);
+  const { hero } = useSettings();
+  const { products } = useCatalog();
+  const picks = pickHeroProducts(products);
 
   return (
     <section id="top" className="relative bg-canvas overflow-hidden">
       <div
         className="max-w-7xl mx-auto px-6 md:px-8 grid md:grid-cols-[1.05fr_1fr] gap-8 md:gap-4 items-center"
-        style={{ minHeight: 'calc(100vh - 64px)', paddingTop: 32, paddingBottom: 48 }}
+        style={{ minHeight: 'calc(100dvh - 64px)', paddingTop: 32, paddingBottom: 48 }}
       >
         {/* left — copy */}
         <div>
@@ -72,7 +99,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            <Eyebrow className="mb-6">For students · Order via Instagram DM</Eyebrow>
+            <Eyebrow className="mb-6">{hero.eyebrow}</Eyebrow>
           </motion.div>
 
           <h1
@@ -110,7 +137,7 @@ export function HeroSection() {
           >
             <PillButton variant="ig" size="lg" onClick={() => orderOnInstagram()} className="shadow-lg">
               <IgIcon size={16} />
-              Order on Instagram
+              {hero.ctaLabel}
             </PillButton>
             <a
               href="#deals"
@@ -155,7 +182,7 @@ export function HeroSection() {
         </div>
 
         {/* mobile — scroll-snap row */}
-        <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto pb-2" style={{ scrollSnapType: 'x mandatory' }}>
+        <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto pb-2" data-lenis-prevent style={{ scrollSnapType: 'x mandatory' }}>
           {picks.slice(0, 4).map((p) => (
             <div key={p.id} className="w-[170px] shrink-0" style={{ scrollSnapAlign: 'center' }}>
               <HeroTile product={p} compact />

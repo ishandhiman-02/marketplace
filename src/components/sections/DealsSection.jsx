@@ -3,19 +3,23 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { orderOnInstagram } from '../../config/site';
 import { useDark } from '../../context/useDark';
-import { CATEGORIES } from '../../data/categories';
-import { COURSES } from '../../data/products';
+import { useCatalog } from '../../context/useCatalog';
+import { CountUp } from '../ui/CountUp';
 import { IgIcon } from '../ui/IgIcon';
 
 export function DealsSection() {
   const { dark } = useDark();
   const [activeFilter, setActiveFilter] = useState('All');
   const [visibleCount, setVisibleCount] = useState(6);
-  // derived from CATEGORIES — when hand-written, products in a new category
-  // only showed under "All" (VPN & Security, Music and Developer Tools were missed)
-  const filters = ['All', ...CATEGORIES.map((c) => c.label)];
+  const { products, categories } = useCatalog();
+  // Filters follow the live catalogue. When they were hand-written, products
+  // in a new category only showed under "All" (VPN & Security, Music and
+  // Developer Tools were all missed that way).
+  const filters = ['All', ...categories.map((c) => c.label)];
 
-  const filteredAll = activeFilter === 'All' ? COURSES : COURSES.filter((c) => c.category === activeFilter);
+  const filteredAll = activeFilter === 'All'
+    ? products
+    : products.filter((c) => c.category === activeFilter);
   const filtered = filteredAll.slice(0, visibleCount);
 
   return (
@@ -148,7 +152,7 @@ export function DealsSection() {
                           className="text-[30px] font-bold leading-none"
                           style={{ color: dark ? '#f8fafc' : '#0f172a', letterSpacing: '-1.5px' }}
                         >
-                          {course.price}
+                          <CountUp value={course.price} duration={800} />
                         </span>
                       </div>
                       <div className="text-[11px] mt-1" style={{ color: dark ? '#64748b' : '#9AA3A0' }}>
@@ -175,6 +179,12 @@ export function DealsSection() {
             );
           })}
         </div>
+
+        {filteredAll.length === 0 && (
+          <p className="text-center py-16 text-sm" style={{ color: dark ? '#64748b' : '#8A9490' }}>
+            Nothing in this category right now — try another one.
+          </p>
+        )}
 
         <div className="text-center mt-12">
           {visibleCount < filteredAll.length ? (

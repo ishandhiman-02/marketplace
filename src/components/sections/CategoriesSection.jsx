@@ -1,10 +1,15 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { useDark } from '../../context/useDark';
-import { CATEGORIES } from '../../data/categories';
+import { useCatalog } from '../../context/useCatalog';
 
 export function CategoriesSection() {
   const { dark } = useDark();
+  const { categories } = useCatalog();
+
+  // Every category is empty — nothing to browse, so show nothing.
+  if (categories.length === 0) return null;
+
   return (
     <section id="categories" className="py-24 relative" style={{ background: dark ? '#0f172a' : '#f8faff' }}>
       <div className="max-w-7xl mx-auto px-6">
@@ -29,7 +34,7 @@ export function CategoriesSection() {
         </motion.div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {CATEGORIES.map((cat, i) => {
+          {categories.map((cat, i) => {
             const Icon = Icons[cat.icon] || Icons.BookOpen;
             return (
               <motion.div

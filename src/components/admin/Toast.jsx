@@ -14,17 +14,21 @@ export function Toast({ toast }) {
           exit={{ opacity: 0, y: 16, scale: 0.97 }}
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 left-1/2 z-[70] flex items-center gap-2.5 px-5 py-3 rounded-full shadow-2xl text-sm font-medium"
+          className="fixed bottom-6 left-1/2 z-[70] flex items-center gap-2.5 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium border"
           style={{
             translateX: '-50%',
-            background: bad ? '#991B1B' : '#0f172a',
-            color: '#f8fafc',
+            // Built from surface tokens rather than a fixed near-black. A
+            // #0f172a toast on the dark theme's #101917 page was all but
+            // invisible; this way it lifts off the page in both themes.
+            background: 'var(--color-surface)',
+            borderColor: 'var(--color-line)',
+            color: 'var(--color-ink)',
             maxWidth: 'calc(100vw - 32px)',
           }}
         >
           {bad
-            ? <Icons.AlertCircle size={16} className="shrink-0" />
-            : <Icons.Check size={16} style={{ color: '#DFF264' }} className="shrink-0" />}
+            ? <Icons.AlertCircle size={16} className="shrink-0" style={{ color: 'var(--admin-danger)' }} />
+            : <Icons.CheckCircle2 size={16} className="shrink-0" style={{ color: 'var(--admin-success)' }} />}
           {toast.message}
         </motion.div>
       )}

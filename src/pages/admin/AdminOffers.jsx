@@ -1,15 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import {
   listDailyOffers, createDailyOffer, updateDailyOffer,
   duplicateDailyOffer, deleteDailyOffer, offerStatus, STATUS_STYLE,
 } from '../../services/offers';
+import { CountUp } from '../../components/ui/CountUp';
+import { PageHeader } from '../../components/admin/PageHeader';
+import { SearchInput } from '../../components/admin/SearchInput';
+import { Pagination } from '../../components/admin/Pagination';
+import { usePagination } from '../../components/admin/usePagination';
+import { Segmented } from '../../components/admin/Segmented';
+import { Panel, EmptyState, ErrorBar } from '../../components/admin/Panel';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
-
-const field = 'px-3.5 py-2.5 rounded-xl border border-line bg-canvas text-ink text-sm outline-none focus:border-ink transition-colors w-full';
-const labelCls = 'text-[12px] font-semibold text-muted';
+import { field, labelCls, btnPrimary, btnGhost, btnSmall, iconBtn, radius } from '../../components/admin/ui';
 
 const EMPTY = {
   emoji: '🔥', title: '', subtitle: '', description: '',
@@ -29,6 +34,13 @@ function OfferForm({ offer, onCancel, onSave }) {
 
   const savings = (Number(form.originalPrice) || 0) - (Number(form.dealPrice) || 0);
 
+  // Escape closes the drawer — expected of anything that covers the page
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onCancel();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onCancel]);
+
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
@@ -47,101 +59,107 @@ function OfferForm({ offer, onCancel, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end">
-      <div className="absolute inset-0" style={{ background: 'rgba(15,23,42,0.35)' }} onClick={onCancel} aria-hidden="true" />
+    <div className="fixed inset-0 z-[60] flex justify-end" role="dialog" aria-modal="true" aria-label={offer ? 'Edit offer' : 'New daily offer'}>
+      <div className="absolute inset-0" style={{ background: 'rgba(18,48,58,0.4)' }} onClick={onCancel} aria-hidden="true" />
       <motion.form
         initial={{ x: 40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         onSubmit={submit}
-        className="relative w-full max-w-lg h-full overflow-y-auto bg-surface border-l border-line p-6 flex flex-col gap-4"
+        data-lenis-prevent
+        className="relative w-full max-w-lg h-full overflow-y-auto bg-surface border-l border-line flex flex-col"
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>
+        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-surface border-b border-line">
+          <h2 className="text-[17px] font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>
             {offer ? 'Edit offer' : 'New daily offer'}
           </h2>
-          <button type="button" onClick={onCancel} aria-label="Close" className="text-muted hover:text-ink cursor-pointer">
-            <Icons.X size={20} />
+          <button type="button" onClick={onCancel} aria-label="Close" className={iconBtn}>
+            <Icons.X size={19} />
           </button>
         </div>
 
-        <div className="grid grid-cols-[70px_1fr] gap-3">
-          <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Emoji</span>
-            <input value={form.emoji || ''} onChange={(e) => set('emoji', e.target.value)} className={`${field} text-center text-lg`} />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Label *</span>
-            <input required value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Today's Flash Deal" className={field} />
-          </label>
-        </div>
+        <div className="p-6 flex flex-col gap-4">
+          <div className="grid grid-cols-[76px_1fr] gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Emoji</span>
+              <input value={form.emoji || ''} onChange={(e) => set('emoji', e.target.value)} className={`${field} text-center text-lg`} />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Label *</span>
+              <input required value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="Today's Flash Deal" className={field} />
+            </label>
+          </div>
 
-        <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Deal name *</span>
-          <input required value={form.subtitle || ''} onChange={(e) => set('subtitle', e.target.value)} placeholder="Netflix 4K + Amazon Prime Bundle" className={field} />
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Description</span>
-          <textarea rows={2} value={form.description || ''} onChange={(e) => set('description', e.target.value)} className={`${field} resize-y`} />
-        </label>
-
-        <div className="grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Original price</span>
-            <input type="number" min="0" value={form.originalPrice ?? ''} onChange={(e) => set('originalPrice', e.target.value)} className={field} />
+            <span className={labelCls}>Deal name *</span>
+            <input required value={form.subtitle || ''} onChange={(e) => set('subtitle', e.target.value)} placeholder="Netflix 4K + Amazon Prime Bundle" className={field} />
           </label>
-          <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Deal price *</span>
-            <input required type="number" min="0" value={form.dealPrice} onChange={(e) => set('dealPrice', e.target.value)} className={field} />
-          </label>
-        </div>
-        {savings > 0 && (
-          <p className="text-[12px] font-semibold -mt-2" style={{ color: '#166534' }}>Customer saves Rs.{savings}</p>
-        )}
 
-        <div className="grid grid-cols-2 gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Tag</span>
-            <input value={form.tag || ''} onChange={(e) => set('tag', e.target.value)} placeholder="BUNDLE" className={field} />
+            <span className={labelCls}>Description</span>
+            <textarea rows={2} value={form.description || ''} onChange={(e) => set('description', e.target.value)} className={`${field} resize-y`} />
           </label>
-          <div className="flex flex-col gap-1.5">
-            <span className={labelCls}>Tag colour</span>
-            <div className="flex items-center gap-2">
-              <input type="color" value={form.tagColor || '#e50914'} onChange={(e) => set('tagColor', e.target.value)} className="w-10 h-10 rounded-lg border border-line cursor-pointer shrink-0" />
-              <input value={form.tagColor || ''} onChange={(e) => set('tagColor', e.target.value)} className={field} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Original price</span>
+              <input type="number" min="0" value={form.originalPrice ?? ''} onChange={(e) => set('originalPrice', e.target.value)} className={field} />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Deal price *</span>
+              <input required type="number" min="0" value={form.dealPrice} onChange={(e) => set('dealPrice', e.target.value)} className={field} />
+            </label>
+          </div>
+          {savings > 0 && (
+            <p
+              className="text-[12px] font-semibold -mt-2 px-3 py-2 rounded-lg"
+              style={{ background: 'var(--admin-success-soft)', color: 'var(--admin-success)' }}
+            >
+              Customer saves Rs.{savings}
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Tag</span>
+              <input value={form.tag || ''} onChange={(e) => set('tag', e.target.value)} placeholder="BUNDLE" className={field} />
+            </label>
+            <div className="flex flex-col gap-1.5">
+              <span className={labelCls}>Tag colour</span>
+              <div className="flex items-center gap-2">
+                <input type="color" aria-label="Tag colour" value={form.tagColor || '#e50914'} onChange={(e) => set('tagColor', e.target.value)} className="w-10 h-10 rounded-lg border border-line shrink-0" />
+                <input value={form.tagColor || ''} onChange={(e) => set('tagColor', e.target.value)} className={field} />
+              </div>
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Total slots</span>
+              <input type="number" min="0" value={form.slots} onChange={(e) => set('slots', e.target.value)} className={field} />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className={labelCls}>Slots left</span>
+              <input type="number" min="0" max={form.slots} value={form.slotsLeft} onChange={(e) => set('slotsLeft', e.target.value)} className={field} />
+            </label>
+          </div>
+
+          <label className="flex flex-col gap-1.5">
+            <span className={labelCls}>Expires at</span>
+            <input type="datetime-local" value={form.expiresAt || ''} onChange={(e) => set('expiresAt', e.target.value)} className={field} />
+            <span className="text-[11px] text-faint">Leave empty and the offer never expires.</span>
+          </label>
+
+          <label className="flex items-center gap-2.5 px-3.5 py-3 rounded-xl bg-surface-2">
+            <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="w-4 h-4" />
+            <span className="text-[13px] text-ink font-medium">Show live on the site</span>
+          </label>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Total slots</span>
-            <input type="number" min="0" value={form.slots} onChange={(e) => set('slots', e.target.value)} className={field} />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className={labelCls}>Slots left</span>
-            <input type="number" min="0" max={form.slots} value={form.slotsLeft} onChange={(e) => set('slotsLeft', e.target.value)} className={field} />
-          </label>
-        </div>
-
-        <label className="flex flex-col gap-1.5">
-          <span className={labelCls}>Expires at</span>
-          <input type="datetime-local" value={form.expiresAt || ''} onChange={(e) => set('expiresAt', e.target.value)} className={field} />
-          <span className="text-[11px] text-faint">Leave empty and the offer never expires.</span>
-        </label>
-
-        <label className="flex items-center gap-2.5">
-          <input type="checkbox" checked={form.isActive} onChange={(e) => set('isActive', e.target.checked)} className="w-4 h-4" />
-          <span className="text-[13px] text-ink">Show live on the site</span>
-        </label>
-
-        <div className="flex items-center gap-3 mt-2 pb-2">
-          <button type="submit" disabled={busy} className="px-6 py-2.5 rounded-full text-sm font-semibold bg-ink text-canvas disabled:opacity-45 cursor-pointer">
-            {busy ? 'Saving…' : 'Save'}
+        <div className="sticky bottom-0 flex items-center gap-3 px-6 py-4 bg-surface border-t border-line">
+          <button type="submit" disabled={busy} className={btnPrimary} style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}>
+            {busy ? 'Saving…' : 'Save offer'}
           </button>
-          <button type="button" onClick={onCancel} className="px-5 py-2.5 rounded-full text-sm font-semibold border border-line text-ink cursor-pointer">
-            Cancel
-          </button>
+          <button type="button" onClick={onCancel} className={btnGhost}>Cancel</button>
         </div>
       </motion.form>
     </div>
@@ -153,17 +171,34 @@ export default function AdminOffers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editing, setEditing] = useState(null);
+  const [tab, setTab] = useState('all');
+  const [search, setSearch] = useState('');
   const { toast, show } = useToast();
 
-  const load = async () => {
+  const load = () => {
     setLoading(true);
-    try {
-      setOffers(await listDailyOffers());
-      setError(null);
-    } catch (e) { setError(e.message); } finally { setLoading(false); }
+    listDailyOffers()
+      .then((rows) => { setOffers(rows); setError(null); })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(load, []);
+
+  const liveCount = useMemo(() => offers.filter((o) => offerStatus(o) === 'live').length, [offers]);
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return offers.filter((o) => {
+      const okTab = tab !== 'live' || offerStatus(o) === 'live';
+      const okText = !q
+        || (o.subtitle || '').toLowerCase().includes(q)
+        || (o.title || '').toLowerCase().includes(q)
+        || (o.tag || '').toLowerCase().includes(q);
+      return okTab && okText;
+    });
+  }, [offers, tab, search]);
+
+  const paged = usePagination(visible, 12, `${tab}|${search}`);
 
   const save = async (data) => {
     try {
@@ -200,40 +235,87 @@ export default function AdminOffers() {
     try {
       const updated = await updateDailyOffer(o.id, { ...o, isActive: !o.isActive });
       setOffers((l) => l.map((x) => (x.id === o.id ? updated : x)));
-      show(o.isActive ? 'Paused' : 'Live');
+      show(o.isActive ? 'Paused' : 'Live on the site');
     } catch (e) { show(e.message, 'error'); }
   };
 
   return (
-    <div className="max-w-5xl">
-      <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-ink mb-1.5" style={{ letterSpacing: '-0.5px' }}>Daily Offers</h1>
-          <p className="text-sm text-muted">Daily deals — separate from products. Use Duplicate to reuse an offer the next day.</p>
-        </div>
-        <button onClick={() => setEditing('new')} className="px-5 py-2.5 rounded-full text-sm font-semibold bg-ink text-canvas inline-flex items-center gap-2 cursor-pointer">
-          <Icons.Plus size={15} /> New offer
+    <div>
+      <PageHeader
+        title="Daily Offers"
+        subtitle="Deals that run for a day — separate from products. Use Duplicate to reuse an offer the next day."
+      >
+        <button
+          type="button"
+          onClick={() => setEditing('new')}
+          className={btnPrimary}
+          style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}
+        >
+          <Icons.Plus size={16} /> New offer
         </button>
-      </div>
+      </PageHeader>
 
-      {error && <div className="p-4 rounded-2xl text-[13px] mb-6" style={{ background: '#FEE2E2', color: '#991B1B' }}>{error}</div>}
-      {loading && <p className="text-sm text-muted">Loading…</p>}
-      {!loading && offers.length === 0 && !error && (
-        <div className="bg-surface border border-line p-10 text-center" style={{ borderRadius: 22 }}>
-          <p className="text-sm text-muted">No daily offers yet. Create your first one with &ldquo;New offer&rdquo;.</p>
+      <ErrorBar message={error} onRetry={load} />
+
+      {offers.length > 0 && (
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-wrap">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search offers by name or tag…"
+            label="Search offers"
+            width="w-full sm:w-72"
+          />
+          <Segmented
+            ariaLabel="Filter offers"
+            value={tab}
+            onChange={setTab}
+            options={[
+              { value: 'all', label: 'All', count: offers.length },
+              { value: 'live', label: 'Live', count: liveCount },
+            ]}
+          />
         </div>
       )}
 
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="bg-surface border border-line p-5 h-44 animate-pulse" style={{ borderRadius: radius }} />
+          ))}
+        </div>
+      )}
+
+      {!loading && visible.length === 0 && (
+        <Panel>
+          <EmptyState
+            icon="Flame"
+            title={offers.length === 0
+              ? 'No daily offers yet'
+              : search ? 'Nothing matches that search' : 'No live offers right now'}
+            hint={offers.length === 0
+              ? 'A daily offer shows in the carousel at the top of the site, with a countdown and a slot counter.'
+              : search
+                ? 'Try a shorter search, or clear the box to see every offer.'
+                : 'Every offer is paused, expired or sold out. Edit one to put it back on the site.'}
+            actionLabel={offers.length === 0 ? 'Create first offer' : undefined}
+            onAction={offers.length === 0 ? () => setEditing('new') : undefined}
+          />
+        </Panel>
+      )}
+
+      <span ref={paged.anchorRef} aria-hidden="true" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {offers.map((o) => {
+        {!loading && paged.pageItems.map((o) => {
           const st = STATUS_STYLE[offerStatus(o)];
+          const sold = o.slots > 0 ? Math.round(((o.slots - o.slotsLeft) / o.slots) * 100) : 0;
           return (
-            <div key={o.id} className="bg-surface border border-line p-5" style={{ borderRadius: 22 }}>
+            <div key={o.id} className="bg-surface border border-line p-5" style={{ borderRadius: radius }}>
               <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-xl shrink-0">{o.emoji}</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-2xl shrink-0" aria-hidden="true">{o.emoji}</span>
                   <div className="min-w-0">
-                    <div className="text-[11px] font-semibold uppercase text-faint" style={{ letterSpacing: '0.1em' }}>{o.title}</div>
+                    <div className="text-[10px] font-bold uppercase text-faint" style={{ letterSpacing: '0.1em' }}>{o.title}</div>
                     <div className="font-semibold text-ink truncate">{o.subtitle}</div>
                   </div>
                 </div>
@@ -243,34 +325,73 @@ export default function AdminOffers() {
               </div>
 
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-[22px] font-bold text-ink" style={{ letterSpacing: '-0.8px' }}>Rs.{o.dealPrice}</span>
+                <span className="text-[24px] font-bold text-ink" style={{ letterSpacing: '-0.9px' }}>
+                  <CountUp value={`Rs.${o.dealPrice}`} duration={800} immediate />
+                </span>
                 {o.originalPrice > 0 && <span className="text-sm line-through text-faint">Rs.{o.originalPrice}</span>}
-                {o.savings > 0 && <span className="text-[11px] font-semibold" style={{ color: '#166534' }}>Save Rs.{o.savings}</span>}
+                {o.savings > 0 && (
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'var(--admin-success-soft)', color: 'var(--admin-success)' }}>
+                    Save Rs.{o.savings}
+                  </span>
+                )}
               </div>
 
-              <div className="text-[12px] text-muted mb-4">
-                {o.slotsLeft} of {o.slots} slots left
-                {o.expiresAt && ` · expires ${new Date(o.expiresAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`}
+              {/* slot progress — how close the offer is to selling out, at a glance */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-[12px] text-muted mb-1.5">
+                  <span>{o.slotsLeft} of {o.slots} slots left</span>
+                  {o.expiresAt && (
+                    <span className="text-faint">
+                      {new Date(o.expiresAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--color-surface-2)' }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${sold}%`, background: 'var(--admin-accent)' }} />
+                </div>
               </div>
 
-              <div className="flex items-center gap-1 flex-wrap">
-                <button onClick={() => setEditing(o)} className="px-3 py-1.5 rounded-full text-[12px] font-semibold border border-line text-ink cursor-pointer inline-flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button type="button" onClick={() => setEditing(o)} className={btnSmall}>
                   <Icons.Pencil size={12} /> Edit
                 </button>
-                <button onClick={() => duplicate(o)} className="px-3 py-1.5 rounded-full text-[12px] font-semibold border border-line text-ink cursor-pointer inline-flex items-center gap-1.5">
+                <button type="button" onClick={() => duplicate(o)} className={btnSmall}>
                   <Icons.Copy size={12} /> Duplicate
                 </button>
-                <button onClick={() => toggle(o)} className="px-3 py-1.5 rounded-full text-[12px] font-semibold border border-line text-ink cursor-pointer">
+                <button type="button" onClick={() => toggle(o)} className={btnSmall}>
+                  {o.isActive ? <Icons.Pause size={12} /> : <Icons.Play size={12} />}
                   {o.isActive ? 'Pause' : 'Go live'}
                 </button>
-                <button onClick={() => remove(o)} aria-label="Delete" className="ml-auto p-2 rounded-lg cursor-pointer" style={{ color: '#991B1B' }}>
-                  <Icons.Trash2 size={14} />
+                <button
+                  type="button"
+                  onClick={() => remove(o)}
+                  aria-label={`Delete ${o.subtitle || o.title}`}
+                  className={`${iconBtn} ml-auto`}
+                  style={{ color: 'var(--admin-danger)' }}
+                >
+                  <Icons.Trash2 size={15} />
                 </button>
               </div>
             </div>
           );
         })}
       </div>
+
+      {!loading && visible.length > 0 && (
+        <div className="mt-4">
+          <Panel>
+            <Pagination
+              page={paged.page}
+              pageCount={paged.pageCount}
+              from={paged.from}
+              to={paged.to}
+              total={paged.total}
+              onGo={paged.goTo}
+              unit="offers"
+            />
+          </Panel>
+        </div>
+      )}
 
       {editing && (
         <OfferForm offer={editing === 'new' ? null : editing} onCancel={() => setEditing(null)} onSave={save} />

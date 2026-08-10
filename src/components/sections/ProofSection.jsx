@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { useDark } from '../../context/useDark';
+import { CountUp } from '../ui/CountUp';
 import { TESTIMONIALS } from '../../data/testimonials';
 
 export function ProofSection() {
@@ -130,7 +131,7 @@ export function ProofSection() {
                 className="text-[27px] font-bold mb-1.5"
                 style={{ color: dark ? '#f8fafc' : '#0f172a', letterSpacing: '-1.2px' }}
               >
-                {value}
+                <CountUp value={value} />
               </div>
               <div
                 className="text-[10px] font-semibold uppercase"

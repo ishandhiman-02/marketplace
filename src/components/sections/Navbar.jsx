@@ -3,12 +3,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { orderOnInstagram } from '../../config/site';
 import { useDark } from '../../context/useDark';
-import { NAV_IDS, NAV_LINKS } from '../../data/nav';
+import { useSettings } from '../../context/useSettings';
 import { DarkToggle } from '../ui/DarkToggle';
 import { IgIcon } from '../ui/IgIcon';
 
 export function Navbar() {
   const { dark } = useDark();
+  const { brand, nav, hero } = useSettings();
+  const links = nav.links.filter((l) => l.label?.trim() && l.id?.trim());
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -41,23 +43,23 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: '#4f46e5' }}>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: brand.primaryColor }}>
             <Icons.Zap size={14} color="#fff" />
           </div>
-          <span className="font-bold text-base tracking-tight" style={{ color: logoColor }}>SubStore</span>
+          <span className="font-bold text-base tracking-tight" style={{ color: logoColor }}>{brand.name}</span>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          {NAV_LINKS.map((l) => (
+          {links.map((l) => (
             <a
-              key={l}
-              href={`#${NAV_IDS[l]}`}
+              key={l.id}
+              href={`#${l.id}`}
               className="text-sm font-medium transition-colors"
               style={{ color: textColor }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#4f46e5')}
+              onMouseEnter={e => (e.currentTarget.style.color = brand.primaryColor)}
               onMouseLeave={e => (e.currentTarget.style.color = textColor)}
             >
-              {l}
+              {l.label}
             </a>
           ))}
         </div>
@@ -72,7 +74,7 @@ export function Navbar() {
             style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
           >
             <IgIcon size={14} />
-            Order on Instagram
+            {hero.ctaLabel}
           </motion.button>
         </div>
 
@@ -97,15 +99,15 @@ export function Navbar() {
             }}
           >
             <div className="px-6 py-4 flex flex-col gap-4">
-              {NAV_LINKS.map((l) => (
+              {links.map((l) => (
                 <a
-                  key={l}
-                  href={`#${NAV_IDS[l]}`}
+                  key={l.id}
+                  href={`#${l.id}`}
                   className="text-sm font-medium"
                   style={{ color: textColor }}
                   onClick={() => setMenuOpen(false)}
                 >
-                  {l}
+                  {l.label}
                 </a>
               ))}
               <button
@@ -114,7 +116,7 @@ export function Navbar() {
                 style={{ background: 'linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)', color: '#fff' }}
               >
                 <IgIcon size={14} />
-                Order on Instagram
+                {hero.ctaLabel}
               </button>
             </div>
           </motion.div>

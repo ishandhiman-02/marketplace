@@ -7,6 +7,7 @@ import { offers } from './routes/offers.js';
 import { proofs } from './routes/proofs.js';
 import { uploads, UPLOAD_DIR } from './routes/uploads.js';
 import { leads } from './routes/leads.js';
+import { settings } from './routes/settings.js';
 import { pool } from './db.js';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/offers', offers);
 app.use('/api/proofs', proofs);
 app.use('/api/uploads', uploads);
 app.use('/api/leads', leads);
+app.use('/api/settings', settings);
 
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 

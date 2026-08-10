@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { createLead } from '../services/leads';
 import { onOrderRequest, completeOrder } from '../config/site';
+import { useSettings } from '../context/useSettings';
 import { IgIcon } from './ui/IgIcon';
 
 const REMEMBER_KEY = 'substore-buyer';
@@ -15,6 +16,7 @@ const field = 'px-3.5 py-2.5 rounded-xl border border-line bg-canvas text-ink te
  * always there, otherwise some customers would drop off.
  */
 export function OrderModal() {
+  const { order } = useSettings();
   const [item, setItem] = useState(null);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -82,8 +84,8 @@ export function OrderModal() {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-lg font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>Almost there</h2>
-                <p className="text-[13px] text-muted mt-0.5">Fill in your details so we can recognise you in the DM.</p>
+                <h2 className="text-lg font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>{order.modalTitle}</h2>
+                <p className="text-[13px] text-muted mt-0.5">{order.modalNote}</p>
               </div>
               <button type="button" onClick={close} aria-label="Close" className="text-muted hover:text-ink cursor-pointer">
                 <Icons.X size={19} />

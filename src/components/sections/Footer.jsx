@@ -1,10 +1,12 @@
 import * as Icons from 'lucide-react';
 import { orderOnInstagram } from '../../config/site';
 import { useDark } from '../../context/useDark';
+import { useSettings } from '../../context/useSettings';
 import { IgIcon } from '../ui/IgIcon';
 
 export function Footer() {
   const { dark } = useDark();
+  const { brand, footer } = useSettings();
   return (
     <footer className="py-8" style={{
       background: dark ? '#0f172a' : '#f8faff',
@@ -12,13 +14,13 @@ export function Footer() {
     }}>
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: '#4f46e5' }}>
+          <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: brand.primaryColor }}>
             <Icons.Zap size={12} color="#fff" />
           </div>
-          <span className="font-bold text-sm" style={{ color: dark ? '#f8fafc' : '#0f172a' }}>SubStore</span>
+          <span className="font-bold text-sm" style={{ color: dark ? '#f8fafc' : '#0f172a' }}>{brand.name}</span>
         </div>
         <p className="text-xs text-center" style={{ color: dark ? '#64748b' : '#94a3b8' }}>
-          All subscriptions are shared/family plan accounts. Prices are subject to availability.
+          {footer.note}
         </p>
         <button
           onClick={() => orderOnInstagram()}

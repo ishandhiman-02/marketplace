@@ -1,5 +1,8 @@
 import { DarkModeProvider } from '../context/DarkModeContext';
+import { SettingsProvider } from '../context/SettingsContext';
+import { CatalogProvider } from '../context/CatalogContext';
 import { useDark } from '../context/useDark';
+import { useSettings } from '../context/useSettings';
 import { Navbar } from '../components/sections/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
 import { DealCarousel } from '../components/sections/DealCarousel';
@@ -18,6 +21,7 @@ import { OrderModal } from '../components/OrderModal';
 
 function HomeInner() {
   const { dark } = useDark();
+  const { sections } = useSettings();
 
   return (
     <div
@@ -43,16 +47,16 @@ function HomeInner() {
         }}
       >
         <Navbar />
-        <HeroSection />
-        <DealCarousel />
-        <TrustBanner />
-        <StatsSection />
-        <CategoriesSection />
-        <DealsSection />
-        <OffersSection />
-        <ProofsSection />
-        <ProofSection />
-        <ContactSection />
+        {sections.hero && <HeroSection />}
+        {sections.dealCarousel && <DealCarousel />}
+        {sections.trustBanner && <TrustBanner />}
+        {sections.stats && <StatsSection />}
+        {sections.categories && <CategoriesSection />}
+        {sections.deals && <DealsSection />}
+        {sections.offers && <OffersSection />}
+        {sections.proofs && <ProofsSection />}
+        {sections.testimonials && <ProofSection />}
+        {sections.contact && <ContactSection />}
         <Footer />
       </div>
       <FloatingInstagramButton />
@@ -64,8 +68,12 @@ function HomeInner() {
 
 export default function Home() {
   return (
-    <DarkModeProvider>
-      <HomeInner />
-    </DarkModeProvider>
+    <SettingsProvider>
+      <CatalogProvider>
+        <DarkModeProvider>
+          <HomeInner />
+        </DarkModeProvider>
+      </CatalogProvider>
+    </SettingsProvider>
   );
 }

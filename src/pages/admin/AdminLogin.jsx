@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { signIn, getSession } from '../../services/auth';
+import { useAdminTheme } from '../../context/useAdminTheme';
+import { field, labelCls, btnPrimary, radius } from '../../components/admin/ui';
 
 export default function AdminLogin() {
+  const { theme } = useAdminTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -30,43 +34,76 @@ export default function AdminLogin() {
   };
 
   return (
-    <div data-theme="light" className="min-h-screen flex items-center justify-center px-6" style={{ background: '#E7E8E4' }}>
-      <div className="w-full max-w-sm bg-surface border border-line p-8" style={{ borderRadius: 26 }}>
-        <div className="flex items-center gap-2.5 mb-7">
-          <div className="w-8 h-8 rounded-[10px] bg-ink flex items-center justify-center">
-            <Icons.Zap size={15} className="text-canvas" />
+    <div
+      data-theme={theme}
+      className="min-h-screen flex items-center justify-center px-6 py-10"
+      style={{ background: 'var(--admin-sidebar)' }}
+    >
+      <div className="w-full max-w-[380px]">
+        <div className="flex items-center gap-3 mb-6 justify-center">
+          <span
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: 'var(--admin-sidebar-active)' }}
+          >
+            <Icons.Zap size={19} color="var(--admin-sidebar-active-text)" />
+          </span>
+          <div>
+            <div className="font-bold text-white text-[17px] leading-tight" style={{ letterSpacing: '-0.3px' }}>
+              SubStore
+            </div>
+            <div className="text-[11px] leading-tight" style={{ color: 'var(--admin-sidebar-text)' }}>
+              Admin panel
+            </div>
           </div>
-          <span className="font-bold text-[17px] tracking-tight text-ink">SubStore admin</span>
         </div>
 
-
-        <form onSubmit={submit} className="flex flex-col gap-4">
+        <form
+          onSubmit={submit}
+          className="bg-surface p-7 flex flex-col gap-4"
+          style={{ borderRadius: radius, boxShadow: '0 20px 50px rgba(0,0,0,0.28)' }}
+        >
           <label className="flex flex-col gap-1.5">
-            <span className="text-[12px] font-semibold text-muted">Email</span>
+            <span className={labelCls}>Email</span>
             <input
               type="email"
               required
+              autoFocus
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-line bg-canvas text-ink text-sm outline-none focus:border-ink transition-colors"
+              className={field}
             />
           </label>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[12px] font-semibold text-muted">Password</span>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-line bg-canvas text-ink text-sm outline-none focus:border-ink transition-colors"
-            />
+            <span className={labelCls}>Password</span>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${field} pr-11`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg text-faint hover:text-ink transition-colors"
+              >
+                {showPassword ? <Icons.EyeOff size={16} /> : <Icons.Eye size={16} />}
+              </button>
+            </div>
           </label>
 
           {error && (
-            <div role="alert" className="text-[13px] px-3.5 py-2.5 rounded-xl" style={{ background: '#FEE2E2', color: '#991B1B' }}>
+            <div
+              role="alert"
+              className="flex items-center gap-2.5 text-[13px] px-3.5 py-2.5 rounded-xl"
+              style={{ background: 'var(--admin-danger-soft)', color: 'var(--admin-danger)' }}
+            >
+              <Icons.AlertCircle size={15} className="shrink-0" />
               {error}
             </div>
           )}
@@ -74,16 +111,18 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-1 py-3 rounded-full text-sm font-semibold bg-ink text-canvas disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
+            className={`${btnPrimary} mt-1 py-3`}
+            style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}
           >
+            {busy ? <Icons.Loader2 size={16} className="animate-spin" /> : <Icons.LogIn size={16} />}
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
-        </form>
 
-        <p className="text-[11px] text-faint mt-6 leading-relaxed">
-          Admin accounts are created from the terminal — <code>npm run db:create-admin</code>.
-          There is no signup here.
-        </p>
+          <p className="text-[11px] text-faint mt-1 leading-relaxed text-center">
+            Admin accounts are created from the terminal — <code>npm run db:create-admin</code>.
+            There is no signup here.
+          </p>
+        </form>
       </div>
     </div>
   );

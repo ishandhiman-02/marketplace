@@ -43,12 +43,138 @@
   --color-wine: #C96B60;
 }
 
+/* ── Admin theme ──────────────────────────────────────────────────────
+   The storefront's palette: warm greige canvas, near-black ink, and the
+   lime from the marquee doing the accent work. The sidebar is the site's
+   dark backdrop.
+
+   These override the same token names the public site uses, so every
+   existing utility (bg-surface, text-ink, border-line, …) adapts on its
+   own — no component needs to know which theme it is in.
+
+   Accent tokens are named by ROLE, not by colour (--admin-highlight, not
+   --admin-lime; --pill-fresh, not --pill-green). The palette has changed
+   three times now; role names mean the next change is CSS only and never
+   touches a component. */
+[data-theme='admin'] {
+  --color-backdrop: #DCDDD8;
+  --color-canvas: #E7E8E4;
+  --color-ink: #0f172a;
+  --color-muted: #5F6A65;
+  /* Carries the 10px uppercase column headers, so it has to clear 4.5:1 on
+     the page background — the storefront's own #9AA3A0 sits at 2.6:1, which
+     is fine for a marketing caption and not for a table read all day. */
+  --color-faint: #68726E;
+  --color-line: #ECEDE9;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F4F5F2;
+
+  --admin-sidebar: #070F0E;
+  --admin-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --admin-sidebar-active: #DFF264;
+  --admin-sidebar-active-text: #0f172a;
+  --admin-sidebar-text: #94a3b8;
+
+  /* ink carries the primary actions, exactly like the site's pill buttons */
+  --admin-accent: #0f172a;
+  /* Text that sits ON the accent. A token rather than a hard-coded white,
+     because the accent becomes lime in dark mode and white on lime is
+     unreadable. */
+  --admin-accent-text: #FFFFFF;
+  --admin-accent-soft: #F4F5F2;
+  /* the one bright mark: logo tile, active stat tile, active nav pill */
+  --admin-highlight: #DFF264;
+
+  --admin-danger: #7A2C25;
+  --admin-danger-soft: #F7EAE8;
+  --admin-success: #4A5C12;
+  --admin-success-soft: #F0F7D4;
+  --admin-warning: #9A4A06;
+  --admin-warning-soft: #FDEEE0;
+
+  /* the unchecked half of a switch — grey enough to read as "off" */
+  --admin-switch-off: #CBD1CD;
+
+  /* Status pills, by role. Leads and offers share the set. */
+  --pill-fresh-bg: #F0F7D4;   --pill-fresh-fg: #4A5C12;   /* New, Live */
+  --pill-active-bg: #FDEEE0;  --pill-active-fg: #9A4A06;  /* Contacted, Sold out */
+  --pill-won-bg: #F5E7FC;     --pill-won-fg: #7B2A9E;     /* Paid */
+  --pill-done-bg: #E9EBEE;    --pill-done-fg: #0f172a;    /* Delivered, Paused */
+  --pill-lost-bg: #F7EAE8;    --pill-lost-fg: #7A2C25;    /* Cancelled, Expired */
+}
+
+/* ── Admin dark ───────────────────────────────────────────────────────
+   The storefront's own [data-theme='dark'] values: slate canvas #0f172a,
+   its surfaces and its slate-grey text.
+   The accent flips from ink to lime — a near-black button is invisible on a
+   near-black page, and lime is already the brand's high-contrast mark. */
+[data-theme='admin-dark'] {
+  --color-backdrop: #070F0E;
+  --color-canvas: #0f172a;
+  --color-ink: #f8fafc;
+  --color-muted: #94a3b8;
+  /* Same reasoning as light: the site's #64748b is 3.5:1 on these surfaces,
+     below AA for the column headers this token carries. */
+  --color-faint: #8695a8;
+  --color-line: #26332f;
+  --color-surface: #16211f;
+  --color-surface-2: #1a2622;
+
+  --admin-sidebar: #070F0E;
+  --admin-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --admin-sidebar-active: #DFF264;
+  --admin-sidebar-active-text: #0f172a;
+  --admin-sidebar-text: #94a3b8;
+
+  --admin-accent: #DFF264;
+  --admin-accent-text: #0f172a;
+  --admin-accent-soft: #1a2622;
+  --admin-highlight: #DFF264;
+
+  /* the site's own dark accents: wine lightened, orange, magenta */
+  --admin-danger: #DD8C80;
+  --admin-danger-soft: #2C1A18;
+  --admin-success: #C9DE79;
+  --admin-success-soft: #262C16;
+  --admin-warning: #EDA160;
+  --admin-warning-soft: #2C2318;
+
+  --admin-switch-off: #334155;
+
+  --pill-fresh-bg: #2A3117;   --pill-fresh-fg: #D3E77E;
+  --pill-active-bg: #33261A;  --pill-active-fg: #EDA160;
+  --pill-won-bg: #2A1E38;     --pill-won-fg: #D9A0F0;
+  --pill-done-bg: #24303F;    --pill-done-fg: #E2E8F0;
+  --pill-lost-bg: #2F1D1A;    --pill-lost-fg: #DD8C80;
+}
+
+/* Admin focus ring — visible on keyboard nav, invisible on mouse click */
+[data-theme='admin'] :focus-visible,
+[data-theme='admin-dark'] :focus-visible {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Browser-drawn UI (dropdown lists, date pickers, the colour picker) follows
+   this, otherwise a native select opens as a white sheet in dark mode. */
+[data-theme='admin'] { color-scheme: light; }
+[data-theme='admin-dark'] { color-scheme: dark; }
+
 * {
   box-sizing: border-box;
 }
 
+/* No `scroll-behavior: smooth` here on purpose.
+   Lenis (components/ui/SmoothScroll.jsx) drives the easing, and the CSS
+   property fights it — the browser and Lenis end up animating the same
+   scroll position against each other, which reads as stutter. Anchor links
+   are eased by Lenis instead. Anyone with prefers-reduced-motion gets no
+   Lenis and so plain instant jumps, which is the correct behaviour. */
 html {
-  scroll-behavior: smooth;
+  /* Lenis sets this itself while running; declared for the reduced-motion
+     case where Lenis never starts. */
+  scroll-behavior: auto;
 }
 
 body {
@@ -61,10 +187,21 @@ body {
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #9aa39f; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #6B7570; }
+/* Scrollbars hidden project-wide.
+   Only the visual bar goes — wheel, trackpad, keyboard, touch and
+   programmatic scrolling all still work, and the elements keep their
+   overflow behaviour. Applied to every element rather than just the page
+   so inner scroll areas (admin tables, drawers) match. */
+* {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* legacy Edge / IE */
+}
+
+*::-webkit-scrollbar {         /* Chrome, Safari, current Edge */
+  width: 0;
+  height: 0;
+  display: none;
+}
 
 /* floating icon chips in CategorySplit */
 @keyframes float {
