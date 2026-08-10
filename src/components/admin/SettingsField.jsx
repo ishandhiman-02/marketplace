@@ -1,8 +1,14 @@
 import * as Icons from 'lucide-react';
 import { field, labelCls, radius } from './ui';
 
-/** A titled group of settings. One card per area of the site. */
-export function SettingsGroup({ title, hint, icon, children }) {
+/**
+ * A titled group of settings. One card per area of the site.
+ *
+ * `chips` names the places on the public site this group drives, so it is
+ * obvious what a field will change before you change it. Keep the hint for
+ * guidance only — if the hint just restates the chips, drop it.
+ */
+export function SettingsGroup({ title, hint, icon, chips, children }) {
   const Icon = Icons[icon] || Icons.Settings;
   return (
     <section className="bg-surface border border-line p-6" style={{ borderRadius: radius }}>
@@ -13,9 +19,35 @@ export function SettingsGroup({ title, hint, icon, children }) {
         >
           <Icon size={17} />
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h2 className="text-[15px] font-bold text-ink leading-tight">{title}</h2>
-          {hint && <p className="text-[12px] text-muted mt-1 leading-relaxed">{hint}</p>}
+
+          {chips?.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap mt-2">
+              <span
+                className="text-[10px] font-semibold uppercase text-faint shrink-0"
+                style={{ letterSpacing: '0.1em' }}
+              >
+                Appears in
+              </span>
+              {chips.map((chip) => (
+                <span
+                  key={chip}
+                  className="inline-flex items-center gap-1.5 pl-2 pr-2.5 py-0.5 rounded-full
+                             text-[11px] font-medium text-muted bg-surface-2 border border-line"
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ background: 'var(--admin-accent)' }}
+                    aria-hidden="true"
+                  />
+                  {chip}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {hint && <p className="text-[12px] text-muted mt-2 leading-relaxed">{hint}</p>}
         </div>
       </div>
       <div className="flex flex-col gap-4">{children}</div>
