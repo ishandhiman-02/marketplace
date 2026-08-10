@@ -126,11 +126,29 @@ export default function AdminSettings() {
   const handleMissing = !form.brand.instagramHandle?.trim();
 
   return (
-    <div className="pb-24">
+    <div className="pb-10">
       <PageHeader
         title="Global Settings"
         subtitle="Text, colours and visibility for the public site. Products, offers and proofs have their own pages."
       >
+        <span className="text-[13px] text-muted mr-0.5">
+          {dirty ? 'Unsaved changes' : 'All changes saved'}
+        </span>
+        {dirty && (
+          <button type="button" onClick={() => setForm(saved)} className={btnGhost} disabled={busy}>
+            Discard
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={save}
+          disabled={busy || !dirty}
+          className={btnPrimary}
+          style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}
+        >
+          {busy ? <Icons.Loader2 size={15} className="animate-spin" /> : <Icons.Check size={15} />}
+          {busy ? 'Saving…' : 'Save changes'}
+        </button>
         <button type="button" onClick={reset} disabled={busy} className={btnGhost}>
           <Icons.RotateCcw size={15} /> Reset
         </button>
@@ -324,34 +342,6 @@ export default function AdminSettings() {
             hint="The small print at the bottom of every page."
           />
         </SettingsGroup>
-      </div>
-
-      {/* Sticky save bar — the form is long enough that a button at the
-          bottom would be missed, and it doubles as the unsaved-changes cue. */}
-      <div
-        className="fixed bottom-0 right-0 left-0 lg:left-[248px] px-4 sm:px-6 lg:px-8 py-3 border-t border-line z-40"
-        style={{ background: 'var(--color-surface)' }}
-      >
-        <div className="mx-auto w-full max-w-6xl xl:max-w-7xl 2xl:max-w-[1560px] flex items-center gap-2 sm:gap-3">
-          <span className="text-[13px] text-muted flex-1">
-            {dirty ? 'Unsaved changes' : 'All changes saved'}
-          </span>
-          {dirty && (
-            <button type="button" onClick={() => setForm(saved)} className={btnGhost} disabled={busy}>
-              Discard
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={save}
-            disabled={busy || !dirty}
-            className={btnPrimary}
-            style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}
-          >
-            {busy ? <Icons.Loader2 size={15} className="animate-spin" /> : <Icons.Check size={15} />}
-            {busy ? 'Saving…' : 'Save changes'}
-          </button>
-        </div>
       </div>
 
       <Toast toast={toast} />

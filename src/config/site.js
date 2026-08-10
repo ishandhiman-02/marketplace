@@ -19,8 +19,22 @@ export function setOrderMessagePrefix(prefix) {
 
 export const hasInstagramHandle = () => instagramHandle.length > 0;
 
-// ig.me/m/<handle> opens the DM thread directly (not the profile page)
-export const igDmUrl = () => `https://ig.me/m/${instagramHandle}`;
+/**
+ * ig.me/m/<handle> opens the DM thread directly in the Instagram app, which is
+ * what we want — but Meta does not support ig.me on Instagram Web. On desktop
+ * it forwards to instagram.com/m/<handle>, a route that does not exist, and the
+ * customer gets "Sorry, this page isn't available".
+ *
+ * So: phones get the real DM link, desktop gets the profile, where "Message" is
+ * one click away. Both land on our account either way.
+ */
+const isMobile = () =>
+  typeof navigator !== 'undefined' &&
+  /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+export const igDmUrl = () => (isMobile()
+  ? `https://ig.me/m/${instagramHandle}`
+  : `https://www.instagram.com/${instagramHandle}/`);
 
 function buildOrderText(detail) {
   if (!detail?.title) return null;
@@ -66,8 +80,8 @@ export function orderOnInstagram(detail) {
 export function completeOrder(request) {
   const text = buildOrderText(request?.detail);
 
-  // No handle set in Global Settings yet. Opening https://ig.me/m/ lands the
-  // customer on an Instagram error page, which looks like the shop is broken.
+  // No handle set in Global Settings yet. Opening the link with an empty handle
+  // lands the customer on an Instagram error page, which looks like the shop is broken.
   // Copy the order and say so instead — they can still reach us.
   if (!hasInstagramHandle()) {
     if (text && navigator.clipboard?.writeText) navigator.clipboard.writeText(text).catch(() => {});
@@ -84,8 +98,13 @@ export function completeOrder(request) {
     return;
   }
 
+  // On desktop the tab lands on the profile, not the thread, so say which one.
+  const copied = isMobile()
+    ? 'Order details copied — paste them into the Instagram DM.'
+    : 'Order details copied — tap Message on our profile and paste them in.';
+
   navigator.clipboard.writeText(text)
-    .then(() => toastListeners.forEach((fn) => fn('Order details copied — paste them into the Instagram DM.')))
+    .then(() => toastListeners.forEach((fn) => fn(copied)))
     .catch(() => { /* clipboard blocked */ })
     .finally(open);
 }
