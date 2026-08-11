@@ -2,9 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/ImagineboIcon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>imagine.bo App</title>
+
+    <!-- seo:start -->
+    <!--
+      Everything between these markers is REPLACED by the Go server, which fills
+      it in from the admin's saved settings before sending the page.
+
+      It has to happen server-side: WhatsApp, Facebook, LinkedIn and Slack fetch
+      a URL and read the HTML without ever running JavaScript, so a title or
+      og:image set from React is invisible to them. What is written here are the
+      defaults — they ship as-is in dev, and whenever settings cannot be read.
+    -->
+    <title>SubStore</title>
+    <meta name="description" content="Premium subscriptions &amp; tools" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SubStore" />
+    <meta property="og:description" content="Premium subscriptions &amp; tools" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/ImagineboIcon.svg" />
+    <!-- seo:end -->
     <script>
       // Runs before first paint. Matches the saved theme so a dark-mode visitor
       // never gets a white flash, and stamps the time the loader appeared so the
@@ -187,8 +204,8 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family='Inter',+'SF+Pro',+ui-sans-serif,+system-ui:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-By8JzLi9.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BeNK5ryy.css">
+    <script type="module" crossorigin src="/assets/index-CpgrNXXh.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Cy4WrUvk.css">
   </head>
   <body>
     <div id="root"></div>

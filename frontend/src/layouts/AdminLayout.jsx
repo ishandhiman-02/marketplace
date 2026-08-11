@@ -5,6 +5,8 @@ import { signOut } from '../services/auth';
 import { useAdminTheme } from '../context/useAdminTheme';
 import { ThemeToggle } from '../components/admin/ThemeToggle';
 import { leadStats } from '../services/leads';
+import { BrandMark } from '../components/ui/BrandMark';
+import { useSettings } from '../context/useSettings';
 
 const LINKS = [
   { to: '/admin', label: 'Dashboard', icon: 'LayoutGrid', end: true },
@@ -16,17 +18,19 @@ const LINKS = [
 ];
 
 function Brand({ compact = false }) {
+  const { brand } = useSettings();
+
   return (
     <div className="flex items-center gap-3 px-1">
-      <span
-        className="rounded-xl flex items-center justify-center shrink-0"
-        style={{ width: compact ? 30 : 38, height: compact ? 30 : 38, background: 'var(--admin-highlight)' }}
-      >
-        <Icons.Zap size={compact ? 15 : 18} color="var(--admin-sidebar-active-text)" />
-      </span>
+      <BrandMark
+        size={compact ? 30 : 38}
+        iconSize={compact ? 15 : 18}
+        background="var(--admin-highlight)"
+        iconColor="var(--admin-sidebar-active-text)"
+      />
       <div className="min-w-0">
         <div className="font-bold text-white leading-tight" style={{ fontSize: compact ? 14 : 16, letterSpacing: '-0.3px' }}>
-          SubStore
+          {brand.name}
         </div>
         {!compact && (
           <div className="text-[11px] leading-tight mt-0.5" style={{ color: 'var(--admin-sidebar-text)' }}>

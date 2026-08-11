@@ -16,6 +16,7 @@ type ProductRequest struct {
 	Color       string      `json:"color"`
 	Icon        string      `json:"icon"`
 	Image       string      `json:"image"`
+	Logo        string      `json:"logo"`
 	Variants    model.JSONB `json:"variants"`
 	IsActive    *bool       `json:"isActive"`
 	SortOrder   *int        `json:"sortOrder"`
@@ -42,6 +43,7 @@ type ProductResponse struct {
 	Color       string      `json:"color"`
 	Icon        string      `json:"icon"`
 	Image       string      `json:"image"`
+	Logo        string      `json:"logo"`
 	Variants    model.JSONB `json:"variants,omitempty"`
 	IsActive    bool        `json:"isActive"`
 	SortOrder   int         `json:"sortOrder"`
@@ -61,6 +63,7 @@ func NewProductResponse(p model.Product) ProductResponse {
 		Color:       p.Color,
 		Icon:        p.Icon,
 		Image:       p.ImageURL,
+		Logo:        p.LogoURL,
 		Variants:    p.Variants,
 		IsActive:    p.IsActive,
 		SortOrder:   p.SortOrder,

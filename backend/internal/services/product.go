@@ -36,6 +36,7 @@ func applyProductRequest(p *model.Product, req dto.ProductRequest) {
 	p.Color = req.Color
 	p.Icon = req.Icon
 	p.ImageURL = req.Image
+	p.LogoURL = req.Logo
 	p.Variants = req.Variants
 	if len(p.Variants) == 0 {
 		p.Variants = emptyVariantsJSON

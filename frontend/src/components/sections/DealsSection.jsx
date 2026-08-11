@@ -4,9 +4,10 @@ import * as Icons from 'lucide-react';
 import { orderOnInstagram } from '../../config/site';
 import { useDark } from '../../context/useDark';
 import { useCatalog } from '../../context/useCatalog';
-import { mediaUrl } from '../../lib/api';
 import { CountUp } from '../ui/CountUp';
 import { IgIcon } from '../ui/IgIcon';
+import { ProductLogo } from '../ui/ProductLogo';
+import { ProductMedia } from '../ui/ProductMedia';
 
 export function DealsSection() {
   const { dark } = useDark();
@@ -82,10 +83,11 @@ export function DealsSection() {
               >
                 {/* the image sits inset inside the card — the reference treatment */}
                 <div className="relative overflow-hidden" style={{ borderRadius: 18, aspectRatio: '4 / 3' }}>
-                  <img
-                    src={mediaUrl(course.image)}
-                    alt={course.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                  <ProductMedia
+                    product={course}
+                    dark={dark}
+                    imgClassName="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+                    className="transition-transform duration-700 group-hover:scale-[1.06]"
                   />
                   <span
                     className="absolute top-3 left-3 text-[11px] font-semibold px-2.5 py-1 rounded-full"
@@ -93,12 +95,7 @@ export function DealsSection() {
                   >
                     {course.tag}
                   </span>
-                  <div
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: '#ffffff' }}
-                  >
-                    <Icon size={15} style={{ color: course.color }} />
-                  </div>
+                  <ProductLogo product={course} size={32} className="absolute top-3 right-3" />
                 </div>
 
                 <div className="px-3 pt-4 pb-2 flex flex-col flex-1">

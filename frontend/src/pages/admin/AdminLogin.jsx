@@ -4,8 +4,11 @@ import * as Icons from 'lucide-react';
 import { signIn, getSession } from '../../services/auth';
 import { useAdminTheme } from '../../context/useAdminTheme';
 import { field, labelCls, btnPrimary, radius } from '../../components/admin/ui';
+import { BrandMark } from '../../components/ui/BrandMark';
+import { useSettings } from '../../context/useSettings';
 
 export default function AdminLogin() {
+  const { brand } = useSettings();
   const { theme } = useAdminTheme();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -41,15 +44,15 @@ export default function AdminLogin() {
     >
       <div className="w-full max-w-[380px]">
         <div className="flex items-center gap-3 mb-6 justify-center">
-          <span
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'var(--admin-sidebar-active)' }}
-          >
-            <Icons.Zap size={19} color="var(--admin-sidebar-active-text)" />
-          </span>
+          <BrandMark
+            size={40}
+            iconSize={19}
+            background="var(--admin-sidebar-active)"
+            iconColor="var(--admin-sidebar-active-text)"
+          />
           <div>
             <div className="font-bold text-white text-[17px] leading-tight" style={{ letterSpacing: '-0.3px' }}>
-              SubStore
+              {brand.name}
             </div>
             <div className="text-[11px] leading-tight" style={{ color: 'var(--admin-sidebar-text)' }}>
               Admin panel
@@ -119,7 +122,7 @@ export default function AdminLogin() {
           </button>
 
           <p className="text-[11px] text-faint mt-1 leading-relaxed text-center">
-            Admin accounts are created from the terminal — <code>npm run db:create-admin</code>.
+            Admin accounts come from the deployment&apos;s <code>ADMIN_ACCOUNTS</code> setting.
             There is no signup here.
           </p>
         </form>

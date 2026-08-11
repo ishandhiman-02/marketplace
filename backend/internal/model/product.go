@@ -15,7 +15,10 @@ type Product struct {
 	Color       string
 	Icon        string
 	ImageURL    string
-	Variants    JSONB `gorm:"type:jsonb"`
+	// The brand's own mark, shown on the card badge. Separate from ImageURL:
+	// that is the wide photo behind the card, this is the small square logo.
+	LogoURL  string
+	Variants JSONB `gorm:"type:jsonb"`
 	// No `default:true` on purpose: GORM omits zero-valued fields from an INSERT
 	// when the tag carries a default, so an explicit `false` would silently come
 	// back as `true`. The service layer supplies the default instead.

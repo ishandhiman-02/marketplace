@@ -14,7 +14,15 @@ import { mediaUrl } from '../../lib/api';
  *
  * `object-contain` keeps a wide wordmark from being cropped to a square.
  */
-export function BrandMark({ size = 28, iconSize = 14 }) {
+export function BrandMark({
+  size = 28,
+  iconSize = 14,
+  // The admin panel draws its fallback tile from its own theme tokens rather
+  // than the storefront's primary colour, so both can be overridden. An
+  // uploaded logo ignores them entirely — it replaces the tile.
+  background,
+  iconColor = '#fff',
+}) {
   const { brand } = useSettings();
 
   if (brand.logoUrl) {
@@ -30,10 +38,10 @@ export function BrandMark({ size = 28, iconSize = 14 }) {
 
   return (
     <div
-      className="rounded-lg flex items-center justify-center shrink-0"
-      style={{ width: size, height: size, background: brand.primaryColor }}
+      className="rounded-xl flex items-center justify-center shrink-0"
+      style={{ width: size, height: size, background: background ?? brand.primaryColor }}
     >
-      <Icons.Zap size={iconSize} color="#fff" />
+      <Icons.Zap size={iconSize} color={iconColor} />
     </div>
   );
 }

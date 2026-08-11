@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { CATEGORIES } from '../../data/categories';
 import { uploadProductImage } from '../../services/products';
+import { uploadLogo } from '../../services/settings';
 import { ImageField } from './SettingsField';
 import { field, labelCls, btnPrimary, btnGhost, iconBtn } from './ui';
 
@@ -11,7 +12,7 @@ const ICON_CHOICES = ['Tv', 'Play', 'Music', 'Shield', 'Brain', 'Code2', 'Palett
 const EMPTY = {
   title: '', subtitle: '', description: '', category: CATEGORIES[0]?.label || 'Streaming',
   price: '', duration: '', tag: '', tagColor: '#4f46e5', color: '#4f46e5',
-  icon: 'Tag', image: '', variants: [], isActive: true, sortOrder: 0,
+  icon: 'Tag', image: '', logo: '', variants: [], isActive: true, sortOrder: 0,
 };
 
 export function ProductForm({ product, onCancel, onSave }) {
@@ -146,6 +147,17 @@ export function ProductForm({ product, onCancel, onSave }) {
             onUpload={uploadProductImage}
             fit="cover"
             placeholder="or paste an image URL"
+            hint="The wide photo behind the card."
+          />
+
+          {/* brand logo */}
+          <ImageField
+            label="Logo"
+            value={form.logo}
+            onChange={(v) => set('logo', v)}
+            onUpload={uploadLogo}
+            placeholder="or paste a logo URL"
+            hint="The small mark on the card badge. PNG or SVG with a transparent background works best. Leave it empty and the card shows the product's initials on its brand colour."
           />
 
           {/* variants */}

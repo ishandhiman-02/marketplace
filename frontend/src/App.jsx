@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import { hideAppLoader } from './lib/appLoader';
 import { SmoothScroll } from './components/ui/SmoothScroll';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { SettingsProvider } from './context/SettingsContext';
 import { AdminThemeProvider } from './context/AdminThemeContext';
 import AdminLayout from './layouts/AdminLayout';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -48,22 +49,28 @@ export default function App() {
         {/* The theme provider wraps both admin entry points — the login screen
             is outside AdminLayout, and it should not flash the wrong theme
             before you are even signed in. */}
+        {/* SettingsProvider wraps the admin too, so the panel carries the
+            client's own logo and name rather than the shipped placeholder. */}
         <Route
           path="/admin/login"
           element={(
-            <AdminThemeProvider>
-              <AdminLogin />
-            </AdminThemeProvider>
+            <SettingsProvider>
+              <AdminThemeProvider>
+                <AdminLogin />
+              </AdminThemeProvider>
+            </SettingsProvider>
           )}
         />
         <Route
           path="/admin"
           element={(
-            <AdminThemeProvider>
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            </AdminThemeProvider>
+            <SettingsProvider>
+              <AdminThemeProvider>
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              </AdminThemeProvider>
+            </SettingsProvider>
           )}
         >
           <Route index element={<AdminDashboard />} />

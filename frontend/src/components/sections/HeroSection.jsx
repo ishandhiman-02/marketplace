@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { useCatalog } from '../../context/useCatalog';
-import { mediaUrl } from '../../lib/api';
 import { orderOnInstagram } from '../../config/site';
 import { useSettings } from '../../context/useSettings';
 import { Eyebrow } from '../ui/Eyebrow';
 import { PillButton } from '../ui/PillButton';
 import { IgIcon } from '../ui/IgIcon';
 import { FannedStack } from '../ui/FannedStack';
+import { ProductMedia } from '../ui/ProductMedia';
+import { ProductLogo } from '../ui/ProductLogo';
 
 /**
  * Six products for the fan-out.
@@ -50,22 +51,22 @@ function HeroTile({ product, compact = false }) {
         borderRadius: 22,
         aspectRatio: '3 / 4',
         boxShadow: '0 18px 40px rgba(15,23,42,0.22)',
+        // The fan overlaps these tiles, so each one needs to be opaque in its
+        // own right — otherwise the cards behind it read straight through.
+        background: '#ffffff',
       }}
     >
-      <img
-        src={mediaUrl(product.image)}
-        alt={product.title}
-        draggable={false}
-        className="w-full h-full object-cover"
+      <ProductMedia
+        product={product}
+        imgClassName="w-full h-full object-cover"
       />
-      {/* brand-colour tint — gives repeated stock images their own identity */}
+      {/* A wash at the foot of the tile, so the white price pill stays readable
+          over artwork of any brightness. */}
       <div
-        className="absolute inset-0"
-        style={{ background: `linear-gradient(185deg, transparent 30%, ${product.color}B8 125%)` }}
+        className="absolute inset-x-0 bottom-0"
+        style={{ height: '45%', background: `linear-gradient(to top, ${product.color}D9, transparent)` }}
       />
-      <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white flex items-center justify-center">
-        <Icon size={15} style={{ color: product.color }} />
-      </div>
+      <ProductLogo product={product} size={32} className="absolute top-3 right-3" />
       <div
         className="absolute bottom-3 left-3 rounded-full px-3 py-1.5 font-semibold"
         style={{ background: 'rgba(255,255,255,0.94)', color: '#0f172a', fontSize: compact ? 11 : 12 }}
