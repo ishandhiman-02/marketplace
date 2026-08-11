@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import {
   listDailyOffers, createDailyOffer, updateDailyOffer,
-  duplicateDailyOffer, deleteDailyOffer, offerStatus, STATUS_STYLE,
+  duplicateDailyOffer, deleteDailyOffer, setOfferArchived, offerStatus, STATUS_STYLE,
 } from '../../services/offers';
 import { CountUp } from '../../components/ui/CountUp';
 import { PageHeader } from '../../components/admin/PageHeader';
@@ -19,17 +19,50 @@ import { field, labelCls, btnPrimary, btnGhost, btnSmall, iconBtn, radius } from
 const EMPTY = {
   emoji: '🔥', title: '', subtitle: '', description: '',
   originalPrice: '', dealPrice: '', tag: '', tagColor: '#e50914',
-  slots: 5, slotsLeft: 5, expiresAt: '', isActive: true,
+  // New offers start paused on purpose: the admin publishes deliberately
+  // rather than everything going live the moment it is created.
+  slots: 5, slotsLeft: 5, expiresAt: '', isActive: false, isArchived: false,
 };
 
-/** datetime-local inputs need ISO in and ISO out */
-const toLocalInput = (iso) => (iso ? new Date(iso).toISOString().slice(0, 16) : '');
+/**
+ * datetime-local inputs need ISO in and ISO out.
+ *
+ * Both directions have to tolerate a date the browser cannot represent. A typo
+ * in the year — "32027" instead of "2027" — produces an Invalid Date, and
+ * calling .toISOString() on one throws a RangeError. Thrown from inside the
+ * submit handler that meant the save died with nothing shown at all.
+ *
+ * Beyond year 9999 JavaScript also switches to an expanded form
+ * ("+032027-02-20T…"), which is not RFC 3339 and which the API rejects, so
+ * anything out of range is treated as no expiry rather than guessed at.
+ */
+const MAX_INPUT = '9999-12-31T23:59';
+
+const isValidDate = (d) => d instanceof Date && !Number.isNaN(d.getTime());
+
+const toLocalInput = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (!isValidDate(d) || d.getFullYear() > 9999) return '';
+  // Render in local time so the picker shows what the admin actually set.
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+/** Returns an ISO string, null for "no expiry", or undefined when unusable. */
+const toISO = (localValue) => {
+  if (!localValue) return null;
+  const d = new Date(localValue);
+  if (!isValidDate(d) || d.getFullYear() > 9999) return undefined;
+  return d.toISOString();
+};
 
 function OfferForm({ offer, onCancel, onSave }) {
   const [form, setForm] = useState(() => (
     offer ? { ...EMPTY, ...offer, expiresAt: toLocalInput(offer.expiresAt) } : EMPTY
   ));
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const savings = (Number(form.originalPrice) || 0) - (Number(form.dealPrice) || 0);
@@ -43,6 +76,16 @@ function OfferForm({ offer, onCancel, onSave }) {
 
   const submit = async (e) => {
     e.preventDefault();
+
+    // Validate before touching the network, and say so — an unusable date used
+    // to throw here and the form simply did nothing.
+    const expiresAt = toISO(form.expiresAt);
+    if (expiresAt === undefined) {
+      setError('That expiry date is not valid. Use a date up to the year 9999, or clear it for no expiry.');
+      return;
+    }
+
+    setError(null);
     setBusy(true);
     try {
       await onSave({
@@ -51,8 +94,12 @@ function OfferForm({ offer, onCancel, onSave }) {
         dealPrice: Number(form.dealPrice),
         slots: Number(form.slots) || 0,
         slotsLeft: Number(form.slotsLeft) || 0,
-        expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : null,
+        expiresAt,
       });
+    } catch (err) {
+      // onSave reports its own failures, but a throw here must never leave the
+      // form looking like nothing happened.
+      setError(err?.message || 'Could not save the offer.');
     } finally {
       setBusy(false);
     }
@@ -145,7 +192,7 @@ function OfferForm({ offer, onCancel, onSave }) {
 
           <label className="flex flex-col gap-1.5">
             <span className={labelCls}>Expires at</span>
-            <input type="datetime-local" value={form.expiresAt || ''} onChange={(e) => set('expiresAt', e.target.value)} className={field} />
+            <input type="datetime-local" max={MAX_INPUT} value={form.expiresAt || ''} onChange={(e) => set('expiresAt', e.target.value)} className={field} />
             <span className="text-[11px] text-faint">Leave empty and the offer never expires.</span>
           </label>
 
@@ -154,6 +201,17 @@ function OfferForm({ offer, onCancel, onSave }) {
             <span className="text-[13px] text-ink font-medium">Show live on the site</span>
           </label>
         </div>
+
+        {error && (
+          <div
+            role="alert"
+            className="mx-6 mb-2 flex items-start gap-2.5 text-[13px] px-3.5 py-2.5 rounded-xl"
+            style={{ background: 'var(--admin-danger-soft)', color: 'var(--admin-danger)' }}
+          >
+            <Icons.AlertCircle size={15} className="shrink-0 mt-0.5" />
+            {error}
+          </div>
+        )}
 
         <div className="sticky bottom-0 flex items-center gap-3 px-6 py-4 bg-surface border-t border-line">
           <button type="submit" disabled={busy} className={btnPrimary} style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}>
@@ -186,10 +244,17 @@ export default function AdminOffers() {
   useEffect(load, []);
 
   const liveCount = useMemo(() => offers.filter((o) => offerStatus(o) === 'live').length, [offers]);
+  const archivedCount = useMemo(() => offers.filter((o) => offerStatus(o) === 'archived').length, [offers]);
+  const activeCount = offers.length - archivedCount;
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     return offers.filter((o) => {
-      const okTab = tab !== 'live' || offerStatus(o) === 'live';
+      // "All" means all working offers — archived ones live behind their own
+      // tab so they stop cluttering the day-to-day list.
+      const archived = offerStatus(o) === 'archived';
+      const okTab = tab === 'archived' ? archived
+        : tab === 'live' ? offerStatus(o) === 'live'
+          : !archived;
       const okText = !q
         || (o.subtitle || '').toLowerCase().includes(q)
         || (o.title || '').toLowerCase().includes(q)
@@ -199,6 +264,14 @@ export default function AdminOffers() {
   }, [offers, tab, search]);
 
   const paged = usePagination(visible, 12, `${tab}|${search}`);
+
+  const archive = async (o) => {
+    try {
+      const updated = await setOfferArchived(o, !o.isArchived);
+      setOffers((l) => l.map((x) => (x.id === o.id ? updated : x)));
+      show(o.isArchived ? 'Restored — it is paused, go live when ready' : 'Archived');
+    } catch (e) { show(e.message, 'error'); }
+  };
 
   const save = async (data) => {
     try {
@@ -271,8 +344,9 @@ export default function AdminOffers() {
             value={tab}
             onChange={setTab}
             options={[
-              { value: 'all', label: 'All', count: offers.length },
+              { value: 'all', label: 'All', count: activeCount },
               { value: 'live', label: 'Live', count: liveCount },
+              { value: 'archived', label: 'Archived', count: archivedCount },
             ]}
           />
         </div>
@@ -358,9 +432,16 @@ export default function AdminOffers() {
                 <button type="button" onClick={() => duplicate(o)} className={btnSmall}>
                   <Icons.Copy size={12} /> Duplicate
                 </button>
-                <button type="button" onClick={() => toggle(o)} className={btnSmall}>
-                  {o.isActive ? <Icons.Pause size={12} /> : <Icons.Play size={12} />}
-                  {o.isActive ? 'Pause' : 'Go live'}
+                {/* An archived offer has no "go live" — restore it first. */}
+                {!o.isArchived && (
+                  <button type="button" onClick={() => toggle(o)} className={btnSmall}>
+                    {o.isActive ? <Icons.Pause size={12} /> : <Icons.Play size={12} />}
+                    {o.isActive ? 'Pause' : 'Go live'}
+                  </button>
+                )}
+                <button type="button" onClick={() => archive(o)} className={btnSmall}>
+                  {o.isArchived ? <Icons.ArchiveRestore size={12} /> : <Icons.Archive size={12} />}
+                  {o.isArchived ? 'Restore' : 'Archive'}
                 </button>
                 <button
                   type="button"

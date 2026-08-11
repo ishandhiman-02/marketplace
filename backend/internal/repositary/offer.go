@@ -13,6 +13,7 @@ func ListLiveOffers() ([]model.DailyOffer, error) {
 	var offers []model.DailyOffer
 	err := db.DB.
 		Where("is_active = ?", true).
+		Where("is_archived = ?", false).
 		Where("slots_left > ?", 0).
 		Where("expires_at IS NULL OR expires_at > ?", time.Now()).
 		Order("created_at desc").

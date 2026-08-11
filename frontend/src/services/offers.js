@@ -24,6 +24,9 @@ export function deleteDailyOffer(id) {
 
 /** Status pill for the list view */
 export function offerStatus(offer) {
+  // Archived wins over everything: an archived offer is out of circulation
+  // regardless of whether it is active, sold out or expired.
+  if (offer.isArchived) return 'archived';
   if (!offer.isActive) return 'paused';
   if (offer.slotsLeft <= 0) return 'sold-out';
   if (offer.expiresAt && new Date(offer.expiresAt).getTime() <= Date.now()) return 'expired';
@@ -36,4 +39,16 @@ export const STATUS_STYLE = {
   paused: { label: 'Paused', bg: 'var(--pill-done-bg)', fg: 'var(--pill-done-fg)' },
   expired: { label: 'Expired', bg: 'var(--pill-lost-bg)', fg: 'var(--pill-lost-fg)' },
   'sold-out': { label: 'Sold out', bg: 'var(--pill-active-bg)', fg: 'var(--pill-active-fg)' },
+  archived: { label: 'Archived', bg: 'var(--pill-done-bg)', fg: 'var(--pill-done-fg)' },
 };
+
+/** Put an offer away, or bring it back. Archiving also takes it off the site. */
+export function setOfferArchived(offer, isArchived) {
+  return updateDailyOffer(offer.id, {
+    ...offer,
+    isArchived,
+    // Paused either way. Archiving takes it off the site; restoring brings it
+    // back as a draft rather than silently republishing it to the storefront.
+    isActive: false,
+  });
+}

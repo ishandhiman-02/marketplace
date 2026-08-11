@@ -19,6 +19,7 @@ type OfferRequest struct {
 	SlotsLeft     *int       `json:"slotsLeft"`
 	ExpiresAt     *time.Time `json:"expiresAt"`
 	IsActive      *bool      `json:"isActive"`
+	IsArchived    *bool      `json:"isArchived"`
 }
 
 type OfferResponse struct {
@@ -37,6 +38,7 @@ type OfferResponse struct {
 	SlotsLeft     int        `json:"slotsLeft"`
 	ExpiresAt     *time.Time `json:"expiresAt"`
 	IsActive      bool       `json:"isActive"`
+	IsArchived    bool       `json:"isArchived"`
 }
 
 func NewOfferResponse(o model.DailyOffer) OfferResponse {
@@ -59,6 +61,7 @@ func NewOfferResponse(o model.DailyOffer) OfferResponse {
 		SlotsLeft:     o.SlotsLeft,
 		ExpiresAt:     o.ExpiresAt,
 		IsActive:      o.IsActive,
+		IsArchived:    o.IsArchived,
 	}
 }
 

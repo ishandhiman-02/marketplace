@@ -52,6 +52,10 @@ func applyOfferRequest(o *model.DailyOffer, req dto.OfferRequest) {
 	if req.IsActive != nil {
 		o.IsActive = *req.IsActive
 	}
+	o.IsArchived = false
+	if req.IsArchived != nil {
+		o.IsArchived = *req.IsArchived
+	}
 }
 
 func CreateOffer(req dto.OfferRequest) (*dto.OfferResponse, error) {
