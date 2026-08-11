@@ -58,6 +58,7 @@ func main() {
 	log.Println("All models migrated successfully")
 
 	seedSettings()
+	seedCatalog()
 	bootstrapAdmin()
 }
 
@@ -77,6 +78,24 @@ func seedSettings() {
 		return
 	}
 	log.Println("Seeded the site_settings row.")
+}
+
+// seedCatalog fills an empty shop with the starter catalogue. Without it a fresh
+// deploy serves `[]`, the storefront swaps its bundled fallback for nothing, and
+// the hero cards appear for one frame and then disappear.
+//
+// Not fatal: a shop with no products is still a working site, and crash-looping
+// the container over seed data would take the whole deploy down.
+func seedCatalog() {
+	products, offers, err := services.SeedCatalog()
+	if err != nil {
+		log.Printf("WARNING: could not seed the catalogue: %v", err)
+		return
+	}
+	if products == 0 && offers == 0 {
+		return
+	}
+	log.Printf("Seeded the starter catalogue: %d product(s), %d offer(s).", products, offers)
 }
 
 // bootstrapAdmin creates the first admin account, because there is no public signup

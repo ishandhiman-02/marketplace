@@ -38,8 +38,14 @@ export function CatalogProvider({ children }) {
 
       // Each half falls back on its own — a broken offers endpoint should not
       // take the product grid down with it.
-      if (p.status === 'fulfilled') setProducts(p.value);
-      if (d.status === 'fulfilled') setDailyDeals(d.value);
+      //
+      // The Array check is not paranoia: a 200 that is not JSON (an API base
+      // pointing at the preview origin returns the SPA's own index.html) parses
+      // to null here, and `null` would replace the catalogue and then throw on
+      // the first iteration. An empty array is still honoured — deleting every
+      // product is a legitimate thing for the admin to do.
+      if (p.status === 'fulfilled' && Array.isArray(p.value)) setProducts(p.value);
+      if (d.status === 'fulfilled' && Array.isArray(d.value)) setDailyDeals(d.value);
 
       setOffline(p.status === 'rejected' && d.status === 'rejected');
       setLoading(false);

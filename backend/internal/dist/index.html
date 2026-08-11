@@ -5,7 +5,98 @@
     <link rel="icon" type="image/svg+xml" href="/ImagineboIcon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>imagine.bo App</title>
+    <script>
+      // Runs before first paint. Matches the saved theme so a dark-mode visitor
+      // never gets a white flash, and stamps the time the loader appeared so the
+      // fade-out can enforce a minimum on-screen duration.
+      (function () {
+        try {
+          if (localStorage.getItem('substore-dark') === 'true') {
+            document.documentElement.classList.add('boot-dark');
+          }
+        } catch (e) { /* private mode — light is a fine default */ }
+        // On the element rather than on window: it is the loader's own state,
+        // and dataset keeps it typed for the module that reads it back.
+        document.documentElement.dataset.loaderShownAt = String(Date.now());
+      })();
+    </script>
     <style>
+      /* ── First-paint loader ──────────────────────────────────────────────
+         Deliberately plain HTML rather than a React component: it has to be on
+         screen the moment the document parses, which is before the bundle has
+         downloaded and long before React mounts. A loader living inside the app
+         cannot cover the very gap it exists for.
+
+         React fades it out through hideAppLoader() once the first route has its
+         data; the safety timer at the bottom of <body> removes it regardless, so
+         a failed bundle can never strand someone on a splash screen. */
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: #e7e8e4;
+        transition: opacity 0.45s ease;
+      }
+      html.boot-dark #app-loader {
+        background: #070f0e;
+      }
+      #app-loader.is-hiding {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .app-loader__mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6366f1, #4338ca);
+        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.35);
+        animation: app-loader-breathe 1.6s ease-in-out infinite;
+      }
+
+      .app-loader__track {
+        width: 132px;
+        height: 2px;
+        border-radius: 2px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.12);
+      }
+      html.boot-dark .app-loader__track {
+        background: rgba(248, 250, 252, 0.16);
+      }
+      .app-loader__track span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 2px;
+        background: #4f46e5;
+        animation: app-loader-sweep 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+
+      @keyframes app-loader-breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+      }
+      @keyframes app-loader-sweep {
+        0% { transform: translateX(-110%); }
+        100% { transform: translateX(340%); }
+      }
+
+      /* Motion is decoration here; the loader still reads as "busy" without it. */
+      @media (prefers-reduced-motion: reduce) {
+        #app-loader { transition: none; }
+        .app-loader__mark { animation: none; }
+        .app-loader__track span { animation: none; width: 100%; opacity: 0.55; }
+      }
+
       .watermark {
         position: fixed;
         bottom: 24px;
@@ -96,11 +187,20 @@
       <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family='Inter',+'SF+Pro',+ui-sans-serif,+system-ui:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-DqpTy2BG.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BFmrePNa.css">
+    <script type="module" crossorigin src="/assets/index-By8JzLi9.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BeNK5ryy.css">
   </head>
   <body>
     <div id="root"></div>
+
+    <div id="app-loader" role="status" aria-label="Loading">
+      <div class="app-loader__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+          <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+        </svg>
+      </div>
+      <div class="app-loader__track" aria-hidden="true"><span></span></div>
+    </div>
 
     <!-- Imagine.bo Watermark -->
     <div id="watermark" class="watermark">
@@ -136,6 +236,17 @@
       </div>
     </div>
 
+
+    <script>
+      // Safety net. If the bundle 404s, or throws before it can hide the loader,
+      // drop the splash anyway — a stuck loader is worse than an unstyled page.
+      setTimeout(function () {
+        var el = document.getElementById('app-loader');
+        if (!el) return;
+        el.classList.add('is-hiding');
+        setTimeout(function () { el.remove(); }, 500);
+      }, 8000);
+    </script>
 
     <script>
       (function () {

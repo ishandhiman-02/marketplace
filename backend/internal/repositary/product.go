@@ -19,8 +19,22 @@ func FindProduct(id uint) (*model.Product, error) {
 	return findByID[model.Product](id)
 }
 
+func CountProducts() (int64, error) {
+	var n int64
+	err := db.DB.Model(&model.Product{}).Count(&n).Error
+	return n, err
+}
+
 func CreateProduct(p *model.Product) error {
 	return db.DB.Create(p).Error
+}
+
+// CreateProducts inserts a batch as a single multi-row INSERT.
+func CreateProducts(products []model.Product) error {
+	if len(products) == 0 {
+		return nil
+	}
+	return db.DB.Create(&products).Error
 }
 
 // SaveProduct writes every column, including zero values — Select("*") is required

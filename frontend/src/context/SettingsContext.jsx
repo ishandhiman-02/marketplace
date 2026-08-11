@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getSettings } from '../services/settings';
 import { mergeSettings } from '../config/defaults';
 import { setInstagramHandle, setOrderMessagePrefix } from '../config/site';
@@ -13,6 +13,9 @@ import { SettingsContext } from './settingsContextObject';
  */
 export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(() => mergeSettings(null));
+  // "The request has settled", not "it succeeded" — a failed fetch leaves the
+  // defaults in place and the site is just as ready to show.
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -26,12 +29,15 @@ export function SettingsProvider({ children }) {
         setInstagramHandle(merged.brand.instagramHandle);
         setOrderMessagePrefix(merged.order.messagePrefix);
       })
-      .catch(() => { /* defaults are already in place */ });
+      .catch(() => { /* defaults are already in place */ })
+      .finally(() => { if (alive) setReady(true); });
     return () => { alive = false; };
   }, []);
 
+  const value = useMemo(() => ({ ...settings, ready }), [settings, ready]);
+
   return (
-    <SettingsContext.Provider value={settings}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );

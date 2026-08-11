@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import { DarkModeProvider } from '../context/DarkModeContext';
 import { SettingsProvider } from '../context/SettingsContext';
 import { CatalogProvider } from '../context/CatalogContext';
 import { useDark } from '../context/useDark';
 import { useSettings } from '../context/useSettings';
+import { useCatalog } from '../context/useCatalog';
+import { hideAppLoader } from '../lib/appLoader';
 import { Navbar } from '../components/sections/Navbar';
 import { HeroSection } from '../components/sections/HeroSection';
 import { DealCarousel } from '../components/sections/DealCarousel';
@@ -19,6 +22,24 @@ import { OrderToast } from '../components/sections/OrderToast';
 import { ProofsSection } from '../components/sections/ProofsSection';
 import { OrderModal } from '../components/OrderModal';
 
+/**
+ * Holds the first-paint loader until the storefront has something real to show.
+ *
+ * Both providers render immediately with fallbacks, so without this gate the
+ * visitor would watch the default brand and the bundled catalogue get replaced
+ * by the live ones a moment later. Waiting costs nothing and removes the pop.
+ */
+function SiteReady() {
+  const { ready } = useSettings();
+  const { loading } = useCatalog();
+
+  useEffect(() => {
+    if (ready && !loading) hideAppLoader();
+  }, [ready, loading]);
+
+  return null;
+}
+
 function HomeInner() {
   const { dark } = useDark();
   const { sections } = useSettings();
@@ -33,6 +54,8 @@ function HomeInner() {
         transition: 'background 0.3s',
       }}
     >
+      <SiteReady />
+
       {/* inset canvas — the whole site sits inside one rounded card.
           keep overflow: clip — hidden breaks the sticky navbar */}
       <div
