@@ -56,11 +56,33 @@ Ensure you have the following installed on your local machine:
 
 ### Running Locally
 
-To start the development server:
+This is a monorepo: a React frontend and a Go backend. Both need to be running —
+Vite proxies `/api` to the Go server, so the frontend alone has no data.
+
 ```bash
-npm run dev
+# terminal 1 — API on :8080 (see backend/.env.example for the variables)
+cd backend && go run ./cmd/migration   # creates the schema, seeds, prints the first admin password
+cd backend && go run ./cmd/server
+
+# terminal 2 — app on :8084
+cd frontend && npm install && npm run dev
 ```
-The application will be available at `http://localhost:5173`.
+
+The application will be available at `http://localhost:8084`.
+
+### Deploying
+
+The Go binary serves the built SPA from `//go:embed all:dist`, reading
+`backend/internal/dist/` **out of the git checkout** — the frontend is never built
+at deploy time. So rebuilding and committing it is part of every frontend change:
+
+```bash
+cd frontend && npm run build
+rm -rf ../backend/internal/dist && cp -r dist ../backend/internal/dist
+cd .. && git add -A backend/internal/dist
+```
+
+Skip this and the deploy keeps serving the previous build.
 
 ## 📜 Available Scripts
 
@@ -78,14 +100,28 @@ frontend/
 ├── public/               # Static assets (SVGs, favicon)
 ├── src/                  # Application source code
 │   ├── components/       # Reusable React components (Header, HeroSection, etc.)
-│   ├── config/           # API configurations
-│   ├── pages/            # Page-level components (LandingPage, etc.)
+│   ├── lib/api.ts        # The one HTTP client. `BASE` is a plain literal on purpose.
+│   ├── services/         # One module per entity, wrapping lib/api
+│   ├── pages/            # Page-level components (LandingPage, admin screens)
 │   ├── App.jsx           # Root application component
 │   ├── index.css         # Global Tailwind CSS styles
 │   └── main.jsx          # Application entry point
 ├── eslint.config.js      # ESLint configuration
-├── vite.config.js        # Vite configuration
+├── vite.config.js        # Vite configuration (proxies /api to :8080)
 └── package.json          # Project dependencies and scripts
+
+backend/                  # Go API + embedded SPA (module imagine_backend)
+├── cmd/migration/        # Creates the schema, migrates, seeds — runs before the server
+├── cmd/server/           # HTTP entrypoint
+├── internal/
+│   ├── dist/             # The built SPA, git-TRACKED and embedded in the binary
+│   ├── handler/          # HTTP layer  ─┐
+│   ├── services/         # business    ─┤ handler → services → repositary → db/model
+│   ├── repositary/       # GORM queries ┘ (only this layer may import internal/db)
+│   ├── dto/ model/       # request/response shapes, GORM structs
+│   └── middleware/       # CORS, auth, rate limiting, error handling
+├── Dockerfile            # Builds BOTH binaries — the deploy pins this, not railpack
+└── start.sh              # migration, then exec the server
 ```
 
 ## 🤝 Contributing

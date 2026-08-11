@@ -1,7 +1,11 @@
-node_modules/
-dist/
+node_modules
+frontend/dist
+# NOTE: backend/internal/dist is intentionally TRACKED — the Go server embeds it via
+# //go:embed all:dist, so it MUST exist in the backend/ build context. Do NOT ignore it.
+# A bare `dist` here matches at any depth and silently swallows it.
 .env
-.env.local
+.env.*
+!.env.example
 .DS_Store
 *.log
-server/uploads/
+.vite

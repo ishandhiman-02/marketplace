@@ -1,0 +1,13 @@
+# Build context is backend/. Keep secrets and local build output out of the image.
+.env
+.env.*
+!.env.example
+bin
+.git
+.gitignore
+node_modules
+*.log
+
+# NOTE: internal/dist is deliberately NOT ignored. The Go binary embeds it via
+# //go:embed all:dist and the SPA is never built at deploy time — excluding it
+# here would embed nothing and serve a blank page on every non-API route.
