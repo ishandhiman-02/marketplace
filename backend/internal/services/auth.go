@@ -66,3 +66,48 @@ func EnsureAdmin(email, password string) (bool, error) {
 	}
 	return true, nil
 }
+
+// AdminSpec is one account the deployment wants to exist.
+type AdminSpec struct {
+	Email    string
+	Password string
+}
+
+// EnsureAdmins creates each account that does not exist yet, keyed on email.
+//
+// Existing accounts are left strictly alone: a redeploy must never reset a
+// password someone has since changed, and it must never silently re-enable an
+// account that was removed on purpose. Keying on email rather than on "is the
+// table empty" is what lets a second admin be added to a live site.
+//
+// Returns the emails actually created, so the caller can log them without ever
+// logging the passwords.
+func EnsureAdmins(specs []AdminSpec) ([]string, error) {
+	created := make([]string, 0, len(specs))
+
+	for _, spec := range specs {
+		email := strings.ToLower(strings.TrimSpace(spec.Email))
+		if email == "" || spec.Password == "" {
+			continue
+		}
+
+		existing, err := repositary.FindAdminByEmail(email)
+		if err != nil {
+			return created, err
+		}
+		if existing != nil {
+			continue
+		}
+
+		hash, err := HashPassword(spec.Password)
+		if err != nil {
+			return created, err
+		}
+		if err := repositary.CreateAdmin(&model.AdminUser{Email: email, PasswordHash: hash}); err != nil {
+			return created, err
+		}
+		created = append(created, email)
+	}
+
+	return created, nil
+}

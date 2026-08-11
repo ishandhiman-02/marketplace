@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"imagine_backend/config"
 	"imagine_backend/internal/db"
@@ -98,31 +99,42 @@ func seedCatalog() {
 	log.Printf("Seeded the starter catalogue: %d product(s), %d offer(s).", products, offers)
 }
 
-// bootstrapAdmin creates the first admin account, because there is no public signup
-// anywhere and the deploy has no way to run an interactive script.
+// bootstrapAdmin makes sure the deployment has someone who can sign in. There is
+// no public signup anywhere, and the deploy has no way to run an interactive
+// script, so accounts have to arrive through the environment.
 //
-// ADMIN_EMAIL / ADMIN_PASSWORD are honoured when present. When they are absent — the
-// normal case, since the deploy grants only the 9 standard vars — a random password
-// is generated and printed ONCE to the deploy log. Runs only while the table is
-// empty, so it is safe on every boot and never overwrites a changed password.
+// Accounts listed in ADMIN_ACCOUNTS (or ADMIN_EMAIL/ADMIN_PASSWORD) are created
+// when missing, one by one. With nothing configured, a single account with a
+// random password is created and printed once, so a fresh deploy is never locked.
 func bootstrapAdmin() {
-	email := os.Getenv("ADMIN_EMAIL")
-	if email == "" {
-		email = "admin@substore.local"
-	}
-	password := os.Getenv("ADMIN_PASSWORD")
-	generated := false
-	if password == "" {
-		buf := make([]byte, 12)
-		if _, err := rand.Read(buf); err != nil {
-			log.Printf("WARNING: could not generate an admin password: %v", err)
+	// Configured accounts win. Each is created only if that email is absent, so
+	// this is safe on every deploy and can add a colleague to a live site.
+	if specs := configuredAdmins(); len(specs) > 0 {
+		created, err := services.EnsureAdmins(specs)
+		if err != nil {
+			log.Printf("WARNING: could not create the configured admin accounts: %v", err)
 			return
 		}
-		password = hex.EncodeToString(buf)
-		generated = true
+		if len(created) == 0 {
+			log.Printf("Admin accounts already exist; left untouched.")
+			return
+		}
+		// Emails only — the passwords came from the environment and must not be
+		// copied into a log that many people can read.
+		log.Printf("Created %d admin account(s): %s", len(created), strings.Join(created, ", "))
+		return
 	}
 
-	created, err := services.EnsureAdmin(email, password)
+	// Nothing configured: fall back to one generated account so a fresh deploy is
+	// reachable at all. Only while the table is empty.
+	buf := make([]byte, 12)
+	if _, err := rand.Read(buf); err != nil {
+		log.Printf("WARNING: could not generate an admin password: %v", err)
+		return
+	}
+	password := hex.EncodeToString(buf)
+
+	created, err := services.EnsureAdmin("admin@substore.local", password)
 	if err != nil {
 		log.Printf("WARNING: could not bootstrap the admin account: %v", err)
 		return
@@ -130,10 +142,35 @@ func bootstrapAdmin() {
 	if !created {
 		return
 	}
-	if generated {
-		log.Printf("Created the first admin account: %s / %s", email, password)
-		log.Printf("This password is shown ONCE. Save it now, then change it.")
-		return
+	log.Printf("Created the first admin account: admin@substore.local / %s", password)
+	log.Printf("This password is shown ONCE. Save it now.")
+}
+
+// configuredAdmins reads the accounts the deployment wants to exist.
+//
+//	ADMIN_ACCOUNTS=a@x.com:secret1,b@y.com:secret2   (comma or newline separated)
+//	ADMIN_EMAIL / ADMIN_PASSWORD                     (single account, still honoured)
+//
+// Credentials come from the environment and never from the repository, which is
+// public. Email and password split on the FIRST colon, so a password may contain
+// colons — but not commas or newlines, which separate entries.
+func configuredAdmins() []services.AdminSpec {
+	var specs []services.AdminSpec
+
+	for _, entry := range strings.FieldsFunc(os.Getenv("ADMIN_ACCOUNTS"), func(r rune) bool {
+		return r == ',' || r == '\n' || r == '\r'
+	}) {
+		email, password, found := strings.Cut(strings.TrimSpace(entry), ":")
+		if !found {
+			log.Printf("WARNING: ignoring ADMIN_ACCOUNTS entry with no ':' separator")
+			continue
+		}
+		specs = append(specs, services.AdminSpec{Email: email, Password: password})
 	}
-	log.Printf("Created the first admin account: %s (password from ADMIN_PASSWORD)", email)
+
+	if email, password := os.Getenv("ADMIN_EMAIL"), os.Getenv("ADMIN_PASSWORD"); email != "" && password != "" {
+		specs = append(specs, services.AdminSpec{Email: email, Password: password})
+	}
+
+	return specs
 }
