@@ -73,18 +73,22 @@ type AdminSpec struct {
 	Password string
 }
 
-// EnsureAdmins creates each account that does not exist yet, keyed on email.
+// EnsureAdmins makes the admin accounts match what the environment asks for,
+// keyed on email: missing ones are created, and an existing one whose password
+// no longer matches is updated.
 //
-// Existing accounts are left strictly alone: a redeploy must never reset a
-// password someone has since changed, and it must never silently re-enable an
-// account that was removed on purpose. Keying on email rather than on "is the
-// table empty" is what lets a second admin be added to a live site.
+// Updating is deliberate. There is no change-password screen anywhere in the
+// product, so the deploy environment is the only place an admin password can
+// come from — which makes it the source of truth. Without this, a leaked or
+// mistyped password could never be rotated without hand-editing the database.
 //
-// Returns the emails actually created, so the caller can log them without ever
-// logging the passwords.
-func EnsureAdmins(specs []AdminSpec) ([]string, error) {
-	created := make([]string, 0, len(specs))
-
+// The cost is that whatever is in the environment wins on every deploy. Remove an
+// account from ADMIN_ACCOUNTS before changing it by any other means.
+//
+// Deleted accounts are NOT resurrected unless they are still listed. Returns the
+// emails created and updated, so the caller can log them without ever logging a
+// password.
+func EnsureAdmins(specs []AdminSpec) (created []string, updated []string, err error) {
 	for _, spec := range specs {
 		email := strings.ToLower(strings.TrimSpace(spec.Email))
 		if email == "" || spec.Password == "" {
@@ -93,21 +97,35 @@ func EnsureAdmins(specs []AdminSpec) ([]string, error) {
 
 		existing, err := repositary.FindAdminByEmail(email)
 		if err != nil {
-			return created, err
+			return created, updated, err
 		}
+
 		if existing != nil {
+			// Already correct — leave the row (and its hash) untouched, so a
+			// redeploy is a no-op rather than a pointless write.
+			if bcrypt.CompareHashAndPassword([]byte(existing.PasswordHash), []byte(spec.Password)) == nil {
+				continue
+			}
+			hash, err := HashPassword(spec.Password)
+			if err != nil {
+				return created, updated, err
+			}
+			if err := repositary.UpdateAdminPassword(existing.ID, hash); err != nil {
+				return created, updated, err
+			}
+			updated = append(updated, email)
 			continue
 		}
 
 		hash, err := HashPassword(spec.Password)
 		if err != nil {
-			return created, err
+			return created, updated, err
 		}
 		if err := repositary.CreateAdmin(&model.AdminUser{Email: email, PasswordHash: hash}); err != nil {
-			return created, err
+			return created, updated, err
 		}
 		created = append(created, email)
 	}
 
-	return created, nil
+	return created, updated, nil
 }

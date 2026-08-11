@@ -104,24 +104,30 @@ func seedCatalog() {
 // script, so accounts have to arrive through the environment.
 //
 // Accounts listed in ADMIN_ACCOUNTS (or ADMIN_EMAIL/ADMIN_PASSWORD) are created
-// when missing, one by one. With nothing configured, a single account with a
-// random password is created and printed once, so a fresh deploy is never locked.
+// when missing and have their password brought back in line when it differs —
+// the environment is the only place a password can be set, so it is the source
+// of truth. With nothing configured, a single account with a random password is
+// created and printed once, so a fresh deploy is never locked out.
 func bootstrapAdmin() {
 	// Configured accounts win. Each is created only if that email is absent, so
 	// this is safe on every deploy and can add a colleague to a live site.
 	if specs := configuredAdmins(); len(specs) > 0 {
-		created, err := services.EnsureAdmins(specs)
+		created, updated, err := services.EnsureAdmins(specs)
 		if err != nil {
-			log.Printf("WARNING: could not create the configured admin accounts: %v", err)
-			return
-		}
-		if len(created) == 0 {
-			log.Printf("Admin accounts already exist; left untouched.")
+			log.Printf("WARNING: could not apply the configured admin accounts: %v", err)
 			return
 		}
 		// Emails only — the passwords came from the environment and must not be
 		// copied into a log that many people can read.
-		log.Printf("Created %d admin account(s): %s", len(created), strings.Join(created, ", "))
+		if len(created) > 0 {
+			log.Printf("Created %d admin account(s): %s", len(created), strings.Join(created, ", "))
+		}
+		if len(updated) > 0 {
+			log.Printf("Updated the password for %d admin account(s): %s", len(updated), strings.Join(updated, ", "))
+		}
+		if len(created) == 0 && len(updated) == 0 {
+			log.Printf("Admin accounts already match the environment; nothing to do.")
+		}
 		return
 	}
 

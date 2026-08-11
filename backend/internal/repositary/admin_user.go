@@ -24,3 +24,8 @@ func CountAdmins() (int64, error) {
 func CreateAdmin(user *model.AdminUser) error {
 	return db.DB.Create(user).Error
 }
+
+func UpdateAdminPassword(id uint, passwordHash string) error {
+	return db.DB.Model(&model.AdminUser{}).Where("id = ?", id).
+		Update("password_hash", passwordHash).Error
+}
