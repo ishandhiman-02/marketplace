@@ -20,18 +20,25 @@ export function setOrderMessagePrefix(prefix) {
 export const hasInstagramHandle = () => instagramHandle.length > 0;
 
 /**
- * ig.me/m/<handle> opens the DM thread directly in the Instagram app, which is
- * what we want — but Meta does not support it on Instagram Web. A desktop user
- * agent gets HTTP 400 from ig.me, and instagram.com/m/<handle> — the address
- * ig.me forwards a phone to — shows "Sorry, this page isn't available" once you
- * are signed in on a computer.
+ * Both platforms open a message box rather than a profile.
  *
- * Do not be fooled by curling it: signed out, /m/<handle> answers 200 because
- * Instagram redirects to a login page carrying ?next=. That proves the redirect
- * exists, not that the destination works. It was tried, and it broke desktop.
+ * Phones get ig.me/m/<handle>, which hands over to the app and opens the chat
+ * with us directly. That one is solid.
  *
- * So: phones get the real DM link, desktop gets the profile, where "Message" is
- * one click away. Both land on our account either way.
+ * Desktop is the awkward half, because Instagram Web publishes no way to address
+ * a DM by username. Two routes have already been tried and both fail:
+ *   ig.me/m/<handle>          HTTP 400 to a desktop user agent
+ *   instagram.com/m/<handle>  "Sorry, this page isn't available" when signed in
+ * Neither can be told apart from a working link by curling it — signed out,
+ * Instagram answers 200 and redirects to a login page carrying ?next=, which
+ * proves only that the redirect exists.
+ *
+ * /direct/new/ is a real, working page: the message composer. The ?username= is
+ * best-effort — if Instagram honours it the recipient is preselected, and if it
+ * ignores it the customer is still in their inbox with the order already on the
+ * clipboard. The downside is having to pick the account; the upside is landing
+ * in messages, which is what was asked for. Switch back to
+ * `https://www.instagram.com/${instagramHandle}/` if picking proves worse.
  */
 const isMobile = () =>
   typeof navigator !== 'undefined' &&
@@ -39,7 +46,7 @@ const isMobile = () =>
 
 export const igDmUrl = () => (isMobile()
   ? `https://ig.me/m/${instagramHandle}`
-  : `https://www.instagram.com/${instagramHandle}/`);
+  : `https://www.instagram.com/direct/new/?username=${encodeURIComponent(instagramHandle)}`);
 
 function buildOrderText(detail) {
   if (!detail?.title) return null;
@@ -112,10 +119,9 @@ export function completeOrder(request) {
   const writing = navigator.clipboard.writeText(text);
   open();
 
-  // Desktop lands on the profile, not the thread, so say which one.
   const copied = isMobile()
     ? 'Order details copied — paste them into the Instagram DM.'
-    : 'Order details copied — tap Message on our profile and paste them in.';
+    : `Order details copied — paste them in the message box to @${instagramHandle}.`;
 
   writing
     .then(() => toastListeners.forEach((fn) => fn(copied)))
