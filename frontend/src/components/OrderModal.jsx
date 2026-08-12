@@ -46,7 +46,15 @@ export function OrderModal() {
 
   const close = () => { setItem(null); setHandOff(false); };
 
-  /** Mobile can open the chat itself; desktop shows the scan step. */
+  /**
+   * The single exit from this modal. Mobile opens the chat itself; desktop shows
+   * the scan step instead.
+   *
+   * Both paths out — submitting the form and the "just DM instead" link — must
+   * come through here. They did not at first: submit() called completeOrder()
+   * directly, so the customer who actually filled the form, the one we most want
+   * in the chat, was the only one who never saw the QR.
+   */
   const finish = () => {
     if (!isMobileDevice() && hasInstagramHandle()) {
       copyOrderText(item);
@@ -72,12 +80,11 @@ export function OrderModal() {
       try {
         localStorage.setItem(REMEMBER_KEY, JSON.stringify({ name, username, phone }));
       } catch { /* private mode */ }
-      completeOrder(item);
-      close();
+      finish();
     } catch (err) {
       // even if the lead fails to save, never block the customer
       setError(`${err.message} — opening Instagram anyway.`);
-      setTimeout(() => { completeOrder(item); close(); }, 1400);
+      setTimeout(finish, 1400);
     } finally {
       setBusy(false);
     }
