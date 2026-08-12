@@ -29,24 +29,29 @@ describe('igDmUrl — the order link must open a chat, not a profile', () => {
     expect(igDmUrl()).toBe(`https://ig.me/m/${HANDLE}`);
   });
 
-  it('opens the message composer on desktop, carrying the handle', () => {
+  it('opens the profile on desktop — every DM shortcut is broken there', () => {
     useAgent(DESKTOP);
     const url = igDmUrl();
-    expect(url).toBe(`https://www.instagram.com/direct/new/?username=${HANDLE}`);
+    expect(url).toBe(`https://www.instagram.com/${HANDLE}/`);
 
-    // The two routes that were tried and that fail for a signed-in desktop user:
-    //   ig.me/m/<handle>            -> HTTP 400
-    //   instagram.com/m/<handle>    -> "Sorry, this page isn't available."
-    // Both answer 200 to curl, because a signed-out request is redirected to a
-    // login page. Do not let that evidence bring either of them back.
+    // All three have been tried on a signed-in desktop browser and all failed:
+    //   ig.me/m/<handle>                 HTTP 400
+    //   instagram.com/m/<handle>         "Sorry, this page isn't available."
+    //   /direct/new/?username=<handle>   username ignored — opens the visitor's
+    //                                    OWN inbox, so the order never arrives.
+    // Each answers 200 to curl because a signed-out request is redirected to a
+    // login page. That evidence is worthless; do not let it bring them back.
     expect(url).not.toContain('ig.me');
     expect(url).not.toMatch(/instagram\.com\/m\//);
+    expect(url).not.toContain('/direct/');
   });
 
-  it('escapes anything odd in the handle before putting it in a query string', () => {
-    setInstagramHandle('a b&c');
+  it('always points at the configured handle, never a fixed account', () => {
     useAgent(DESKTOP);
-    expect(igDmUrl()).toBe('https://www.instagram.com/direct/new/?username=a%20b%26c');
+    setInstagramHandle('someone.else');
+    expect(igDmUrl()).toBe('https://www.instagram.com/someone.else/');
+    setInstagramHandle('@Third_Party ');
+    expect(igDmUrl()).toBe('https://www.instagram.com/Third_Party/');
   });
 
   it('strips a leading @ from whatever the admin typed', () => {
