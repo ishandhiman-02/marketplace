@@ -1,3 +1,4 @@
+/** @vitest-environment jsdom */
 import { describe, it, expect } from 'vitest';
 
 describe('probe: querySelector with a user-supplied nav id', () => {

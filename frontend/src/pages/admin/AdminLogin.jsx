@@ -6,6 +6,7 @@ import { useAdminTheme } from '../../context/useAdminTheme';
 import { field, labelCls, btnPrimary, radius } from '../../components/admin/ui';
 import { BrandMark } from '../../components/ui/BrandMark';
 import { useSettings } from '../../context/useSettings';
+import { hideAppLoader } from '../../lib/appLoader';
 
 export default function AdminLogin() {
   const { brand } = useSettings();
@@ -19,7 +20,11 @@ export default function AdminLogin() {
 
   // already signed in — go straight to the dashboard
   useEffect(() => {
-    getSession().then((s) => { if (s) navigate('/admin', { replace: true }); });
+    getSession()
+      .then((s) => { if (s) navigate('/admin', { replace: true }); })
+      // Keep the splash up until we know whether to redirect, so an already
+      // signed-in admin never sees the login form flash past.
+      .finally(hideAppLoader);
   }, [navigate]);
 
   const submit = async (e) => {

@@ -1,0 +1,95 @@
+/** @vitest-environment jsdom */
+import {
+  describe, it, expect, vi, beforeEach, afterEach,
+} from 'vitest';
+import {
+  igDmUrl, completeOrder, setInstagramHandle, onOrderToast,
+} from './site';
+
+/**
+ * These cover the two things that decide whether an order actually reaches the
+ * seller: the link has to land in the message thread, and the tab has to open at
+ * all. Both were wrong before, and neither is visible from a passing build.
+ */
+
+const HANDLE = 'substore.test';
+
+const useAgent = (ua) => {
+  Object.defineProperty(window.navigator, 'userAgent', { value: ua, configurable: true });
+};
+
+const DESKTOP = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Chrome/120 Safari/537.36';
+const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Mobile/15E148 Safari/604.1';
+
+describe('igDmUrl — the order link must open a chat, not a profile', () => {
+  beforeEach(() => setInstagramHandle(HANDLE));
+
+  it('uses the app deep link on a phone', () => {
+    useAgent(IPHONE);
+    expect(igDmUrl()).toBe(`https://ig.me/m/${HANDLE}`);
+  });
+
+  it('uses the web DM route on desktop, never the profile', () => {
+    useAgent(DESKTOP);
+    const url = igDmUrl();
+    expect(url).toBe(`https://www.instagram.com/m/${HANDLE}`);
+    // The old behaviour — the bare profile page — must not come back.
+    expect(url).not.toBe(`https://www.instagram.com/${HANDLE}/`);
+    // ig.me answers HTTP 400 to a desktop user agent, so it must not be used here.
+    expect(url).not.toContain('ig.me');
+  });
+
+  it('strips a leading @ from whatever the admin typed', () => {
+    setInstagramHandle('@Someone ');
+    useAgent(IPHONE);
+    expect(igDmUrl()).toBe('https://ig.me/m/Someone');
+  });
+});
+
+describe('completeOrder — opening the chat must survive a popup blocker', () => {
+  let opened;
+  let resolveClipboard;
+
+  beforeEach(() => {
+    setInstagramHandle(HANDLE);
+    useAgent(IPHONE);
+    opened = [];
+    vi.stubGlobal('open', (...args) => { opened.push(args); return null; });
+    // A clipboard write that never settles on its own, so the test can prove the
+    // tab does not wait for it.
+    Object.defineProperty(window.navigator, 'clipboard', {
+      value: { writeText: () => new Promise((res) => { resolveClipboard = res; }) },
+      configurable: true,
+    });
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('opens the tab synchronously, before the clipboard write settles', () => {
+    completeOrder({ detail: { title: 'Netflix', variant: '1 Month', price: 199 } });
+
+    // The whole point: the window is open already, while the copy is pending.
+    expect(opened).toHaveLength(1);
+    expect(opened[0][0]).toBe(`https://ig.me/m/${HANDLE}`);
+    expect(opened[0][1]).toBe('_blank');
+
+    resolveClipboard();
+  });
+
+  it('still opens the chat when there is nothing to copy', () => {
+    completeOrder({ detail: {} });
+    expect(opened).toHaveLength(1);
+  });
+
+  it('does not open a broken link when no handle is configured', async () => {
+    setInstagramHandle('');
+    const messages = [];
+    const off = onOrderToast((m) => messages.push(m));
+
+    completeOrder({ detail: { title: 'Netflix', price: 199 } });
+
+    expect(opened).toHaveLength(0);
+    expect(messages[0]).toMatch(/not set up/i);
+    off();
+  });
+});

@@ -31,7 +31,8 @@ async function check() {
   if (inFlight || !isVisible() || subscribers.size === 0) return;
   inFlight = true;
   try {
-    const { revision } = await api.get('/version');
+    // silent: this poll must never light up the progress bar.
+    const { revision } = await api.get('/version', { silent: true });
     if (revision == null) return;
     // First read only establishes the baseline — it is not a change.
     if (lastSeen !== null && revision !== lastSeen) {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { getSession } from '../services/auth';
+import { hideAppLoader } from '../lib/appLoader';
 
 export function ProtectedRoute({ children }) {
   // undefined = still checking, null = logged out, object = logged in
@@ -8,21 +9,18 @@ export function ProtectedRoute({ children }) {
 
   useEffect(() => {
     let alive = true;
-    getSession().then((s) => { if (alive) setSession(s); });
+    getSession()
+      .then((s) => { if (alive) setSession(s); })
+      // Only now is it safe to drop the splash: either the panel is about to
+      // render or we are about to redirect. Hiding it earlier showed a spinner,
+      // and sometimes a flash of the login form, before the redirect landed.
+      .finally(hideAppLoader);
     return () => { alive = false; };
   }, []);
 
-  // show loading until the check finishes — otherwise the login page flashes briefly
-  if (session === undefined) {
-    return (
-      <div data-theme="admin" className="min-h-screen flex items-center justify-center bg-canvas">
-        <div className="flex items-center gap-3 text-sm text-muted">
-          <span className="w-4 h-4 rounded-full border-2 border-line border-t-[var(--admin-accent)] animate-spin" />
-          Checking session…
-        </div>
-      </div>
-    );
-  }
+  // The first-paint loader is still covering the screen while this resolves, so
+  // rendering a second spinner underneath it would only cause a visible swap.
+  if (session === undefined) return null;
 
   if (!session) return <Navigate to="/admin/login" replace />;
 

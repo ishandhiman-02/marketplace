@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import { hideAppLoader } from './lib/appLoader';
+import { TopProgress } from './components/ui/TopProgress';
 import { SmoothScroll } from './components/ui/SmoothScroll';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { SettingsProvider } from './context/SettingsContext';
@@ -16,18 +17,24 @@ import AdminLeads from './pages/admin/AdminLeads';
 import AdminSettings from './pages/admin/AdminSettings';
 
 /**
- * Dismisses the first-paint loader for every route except the storefront.
+ * Fallback dismissal of the first-paint loader.
  *
- * The storefront hides it itself, once its settings and catalogue land — see
- * SiteReady in pages/Home. Every admin screen already has its own skeletons and
- * a sign-in redirect, so holding a splash over them would only delay the thing
- * that is about to render anyway.
+ * The two routes that matter hand it off themselves, so the splash lifts only
+ * when there is something finished to show:
+ *   /        — SiteReady, once settings and the catalogue have landed;
+ *   /admin*  — the session check, so no spinner and no flash of the login form.
+ *
+ * Anything else has nothing to wait for and drops it on arrival. The timer in
+ * index.html is still the backstop if a route ever forgets.
  */
 function AppLoaderController() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (pathname !== '/') hideAppLoader();
+    // The storefront hides it when its data lands (SiteReady), and the admin
+    // when its session check settles. Anything else has nothing to wait for.
+    const owned = pathname === '/' || pathname.startsWith('/admin');
+    if (!owned) hideAppLoader();
   }, [pathname]);
 
   return null;
@@ -37,6 +44,7 @@ export default function App() {
   return (
     <>
       <AppLoaderController />
+      <TopProgress />
 
       {/* Mounted above the router so scrolling stays smooth across
           navigations instead of being torn down and rebuilt each time. */}

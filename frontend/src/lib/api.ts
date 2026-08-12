@@ -3,6 +3,8 @@
 // this to import.meta.env / ?? / || / a template literal.
 // BASE already carries /api — every request path below must be relative to it,
 // with no leading /api, or requests hit /api/api/...
+import { startRequest, endRequest } from './pending';
+
 const BASE = '/api';
 
 /**
@@ -38,9 +40,11 @@ type RequestOptions = {
   auth?: boolean;
   /** Send the body as-is — the browser sets its own multipart boundary. */
   raw?: boolean;
+  /** Keep this request out of the global progress bar (used by the revision poll). */
+  silent?: boolean;
 };
 
-async function request(path: string, { method = 'GET', body, auth = false, raw = false }: RequestOptions = {}) {
+async function request(path: string, { method = 'GET', body, auth = false, raw = false, silent = false }: RequestOptions = {}) {
   const headers: Record<string, string> = {};
   if (auth) {
     const token = getToken();
@@ -48,6 +52,7 @@ async function request(path: string, { method = 'GET', body, auth = false, raw =
   }
   if (body && !raw) headers['Content-Type'] = 'application/json';
 
+  if (!silent) startRequest();
   let res: Response;
   try {
     res = await fetch(`${BASE}${path}`, {
@@ -56,8 +61,10 @@ async function request(path: string, { method = 'GET', body, auth = false, raw =
       body: raw ? (body as BodyInit) : body ? JSON.stringify(body) : undefined,
     });
   } catch {
+    if (!silent) endRequest();
     throw new Error('Could not reach the server. Is the API running?');
   }
+  if (!silent) endRequest();
 
   // token expired — send the admin back to sign in
   if (res.status === 401 && auth) {
