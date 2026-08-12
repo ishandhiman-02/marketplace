@@ -51,6 +51,32 @@ export const igDmUrl = () => (isMobile()
   ? `https://ig.me/m/${instagramHandle}`
   : `https://www.instagram.com/${instagramHandle}/`);
 
+/** True on a phone or tablet, where the chat link actually opens the chat. */
+export const isMobileDevice = () => isMobile();
+
+/**
+ * The chat link, regardless of the current device.
+ *
+ * Desktop puts this in a QR code rather than following it: a phone scanning it
+ * hands straight over to the Instagram app and opens the conversation, which is
+ * the one route to a first message that a computer cannot take itself.
+ */
+export const igChatLink = () => `https://ig.me/m/${instagramHandle}`;
+
+/** Our profile — the desktop fallback, one click from Message. */
+export const igProfileUrl = () => `https://www.instagram.com/${instagramHandle}/`;
+
+export const instagramHandleValue = () => instagramHandle;
+
+/** Copies the order without opening anything, for the desktop hand-off. */
+export function copyOrderText(request) {
+  const text = buildOrderText(request?.detail);
+  if (text && navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).catch(() => { /* clipboard blocked */ });
+  }
+  return text;
+}
+
 function buildOrderText(detail) {
   if (!detail?.title) return null;
   const parts = [detail.title, detail.variant, detail.price != null ? `Rs.${detail.price}` : null]

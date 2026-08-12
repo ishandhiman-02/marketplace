@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { createLead } from '../services/leads';
-import { onOrderRequest, completeOrder } from '../config/site';
+import {
+  onOrderRequest, completeOrder, isMobileDevice, hasInstagramHandle,
+  copyOrderText, igChatLink, igProfileUrl, instagramHandleValue,
+} from '../config/site';
+import { ChatQr } from './ui/ChatQr';
 import { useSettings } from '../context/useSettings';
 import { IgIcon } from './ui/IgIcon';
 
@@ -35,7 +39,23 @@ export function OrderModal() {
     setItem(requested);
   }), []);
 
-  const close = () => setItem(null);
+  // Desktop cannot open an Instagram chat from a link, so after the details are
+  // captured it hands over to the customer's phone instead of just dumping them
+  // on our profile.
+  const [handOff, setHandOff] = useState(false);
+
+  const close = () => { setItem(null); setHandOff(false); };
+
+  /** Mobile can open the chat itself; desktop shows the scan step. */
+  const finish = () => {
+    if (!isMobileDevice() && hasInstagramHandle()) {
+      copyOrderText(item);
+      setHandOff(true);
+      return;
+    }
+    completeOrder(item);
+    close();
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -63,7 +83,7 @@ export function OrderModal() {
     }
   };
 
-  const skip = () => { completeOrder(item); close(); };
+  const skip = () => finish();
 
   return (
     <AnimatePresence>
@@ -74,6 +94,36 @@ export function OrderModal() {
             className="absolute inset-0" style={{ background: 'rgba(15,23,42,0.5)' }}
             onClick={close}
           />
+          {handOff ? (
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              className="relative w-full max-w-sm bg-surface border border-line p-6 flex flex-col items-center gap-4 text-center"
+              style={{ borderRadius: 26 }}
+            >
+              <button type="button" onClick={close} aria-label="Close" className="absolute top-4 right-4 text-muted hover:text-ink cursor-pointer">
+                <Icons.X size={19} />
+              </button>
+              <h2 className="text-lg font-bold text-ink" style={{ letterSpacing: '-0.4px' }}>Scan to open the chat</h2>
+              <p className="text-[13px] text-muted -mt-2 leading-relaxed">
+                Instagram only opens a new chat from a phone. Point your camera at this and
+                the conversation opens in the app — your order is already copied, just paste it.
+              </p>
+              <ChatQr url={igChatLink()} size={172} />
+              <div className="text-[12px] text-faint">@{instagramHandleValue()}</div>
+              <a
+                href={igProfileUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={close}
+                className="text-[12px] font-semibold text-muted hover:text-ink underline underline-offset-2"
+              >
+                Or open our profile on this computer
+              </a>
+            </motion.div>
+          ) : (
+
           <motion.form
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -137,6 +187,7 @@ export function OrderModal() {
               Rather not fill this in? Just DM instead
             </button>
           </motion.form>
+          )}
         </div>
       )}
     </AnimatePresence>
