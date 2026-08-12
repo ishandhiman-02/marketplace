@@ -29,14 +29,18 @@ describe('igDmUrl — the order link must open a chat, not a profile', () => {
     expect(igDmUrl()).toBe(`https://ig.me/m/${HANDLE}`);
   });
 
-  it('uses the web DM route on desktop, never the profile', () => {
+  it('uses the profile on desktop — the DM routes are broken there', () => {
     useAgent(DESKTOP);
     const url = igDmUrl();
-    expect(url).toBe(`https://www.instagram.com/m/${HANDLE}`);
-    // The old behaviour — the bare profile page — must not come back.
-    expect(url).not.toBe(`https://www.instagram.com/${HANDLE}/`);
-    // ig.me answers HTTP 400 to a desktop user agent, so it must not be used here.
+    expect(url).toBe(`https://www.instagram.com/${HANDLE}/`);
+
+    // Both DM routes have been tried on desktop and both fail for a real user:
+    //   ig.me/m/<handle>            -> HTTP 400
+    //   instagram.com/m/<handle>    -> "Sorry, this page isn't available."
+    // The second one answers 200 to curl only because a signed-out request is
+    // redirected to a login page. Do not let that evidence bring it back.
     expect(url).not.toContain('ig.me');
+    expect(url).not.toContain('/m/');
   });
 
   it('strips a leading @ from whatever the admin typed', () => {

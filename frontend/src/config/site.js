@@ -20,17 +20,18 @@ export function setOrderMessagePrefix(prefix) {
 export const hasInstagramHandle = () => instagramHandle.length > 0;
 
 /**
- * Both platforms now land in the message thread rather than on the profile.
+ * ig.me/m/<handle> opens the DM thread directly in the Instagram app, which is
+ * what we want — but Meta does not support it on Instagram Web. A desktop user
+ * agent gets HTTP 400 from ig.me, and instagram.com/m/<handle> — the address
+ * ig.me forwards a phone to — shows "Sorry, this page isn't available" once you
+ * are signed in on a computer.
  *
- * ig.me/m/<handle> is the link Meta publishes for opening a DM, and on a phone
- * it hands straight over to the app. It is not usable on desktop though — with a
- * desktop user agent it answers HTTP 400 outright.
+ * Do not be fooled by curling it: signed out, /m/<handle> answers 200 because
+ * Instagram redirects to a login page carrying ?next=. That proves the redirect
+ * exists, not that the destination works. It was tried, and it broke desktop.
  *
- * The web equivalent is instagram.com/m/<handle>, which is where ig.me forwards
- * a phone browser anyway. It is a real route: signed in, it opens the thread;
- * signed out, Instagram sends the customer through login and then on to the same
- * place, carried in ?next=. That is one step better than the profile page, where
- * they still had to find and press "Message".
+ * So: phones get the real DM link, desktop gets the profile, where "Message" is
+ * one click away. Both land on our account either way.
  */
 const isMobile = () =>
   typeof navigator !== 'undefined' &&
@@ -38,7 +39,7 @@ const isMobile = () =>
 
 export const igDmUrl = () => (isMobile()
   ? `https://ig.me/m/${instagramHandle}`
-  : `https://www.instagram.com/m/${instagramHandle}`);
+  : `https://www.instagram.com/${instagramHandle}/`);
 
 function buildOrderText(detail) {
   if (!detail?.title) return null;
@@ -111,9 +112,12 @@ export function completeOrder(request) {
   const writing = navigator.clipboard.writeText(text);
   open();
 
+  // Desktop lands on the profile, not the thread, so say which one.
+  const copied = isMobile()
+    ? 'Order details copied — paste them into the Instagram DM.'
+    : 'Order details copied — tap Message on our profile and paste them in.';
+
   writing
-    .then(() => toastListeners.forEach((fn) => fn(
-      'Order details copied — paste them into the chat.',
-    )))
-    .catch(() => { /* clipboard blocked; the DM is open either way */ });
+    .then(() => toastListeners.forEach((fn) => fn(copied)))
+    .catch(() => { /* clipboard blocked; the page is open either way */ });
 }
