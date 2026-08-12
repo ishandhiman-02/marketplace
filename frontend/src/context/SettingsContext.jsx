@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getSettings } from '../services/settings';
 import { mergeSettings } from '../config/defaults';
 import { setInstagramHandle, setOrderMessagePrefix } from '../config/site';
 import { mediaUrl } from '../lib/api';
+import { useLiveRefresh } from '../hooks/useLiveRefresh';
 import { SettingsContext } from './settingsContextObject';
 
 /**
@@ -18,7 +19,7 @@ export function SettingsProvider({ children }) {
   // defaults in place and the site is just as ready to show.
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let alive = true;
     getSettings()
       .then((res) => {
@@ -34,6 +35,11 @@ export function SettingsProvider({ children }) {
       .finally(() => { if (alive) setReady(true); });
     return () => { alive = false; };
   }, []);
+
+  useEffect(load, [load]);
+
+  // Brand, colours and section visibility follow the admin without a reload.
+  useLiveRefresh(load);
 
   // Keep the browser tab in step with the brand.
   //

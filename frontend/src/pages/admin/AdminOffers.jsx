@@ -15,6 +15,7 @@ import { Panel, EmptyState, ErrorBar } from '../../components/admin/Panel';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
 import { field, labelCls, btnPrimary, btnGhost, btnSmall, iconBtn, radius } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 const EMPTY = {
   emoji: '🔥', title: '', subtitle: '', description: '',
@@ -242,6 +243,9 @@ export default function AdminOffers() {
   };
 
   useEffect(load, []);
+
+  // Another admin's edit (or your own in a second tab) lands here on its own.
+  useLiveRefresh(load);
 
   const liveCount = useMemo(() => offers.filter((o) => offerStatus(o) === 'live').length, [offers]);
   const archivedCount = useMemo(() => offers.filter((o) => offerStatus(o) === 'archived').length, [offers]);

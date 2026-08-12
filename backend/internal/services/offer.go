@@ -67,6 +67,7 @@ func CreateOffer(req dto.OfferRequest) (*dto.OfferResponse, error) {
 	if err := repositary.CreateOffer(&o); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	res := dto.NewOfferResponse(o)
 	return &res, nil
 }
@@ -83,6 +84,7 @@ func UpdateOffer(id uint, req dto.OfferRequest) (*dto.OfferResponse, error) {
 	if err := repositary.SaveOffer(existing); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	res := dto.NewOfferResponse(*existing)
 	return &res, nil
 }
@@ -115,6 +117,7 @@ func DuplicateOffer(id uint) (*dto.OfferResponse, error) {
 	if err := repositary.CreateOffer(&copied); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	res := dto.NewOfferResponse(copied)
 	return &res, nil
 }
@@ -127,5 +130,6 @@ func DeleteOffer(id uint) error {
 	if !ok {
 		return ErrOfferNotFound
 	}
+	BumpRevision()
 	return nil
 }

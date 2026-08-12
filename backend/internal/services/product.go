@@ -60,6 +60,7 @@ func CreateProduct(req dto.ProductRequest) (*dto.ProductResponse, error) {
 	if err := repositary.CreateProduct(&p); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	res := dto.NewProductResponse(p)
 	return &res, nil
 }
@@ -76,6 +77,7 @@ func UpdateProduct(id uint, req dto.ProductRequest) (*dto.ProductResponse, error
 	if err := repositary.SaveProduct(existing); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	res := dto.NewProductResponse(*existing)
 	return &res, nil
 }
@@ -100,6 +102,7 @@ func PatchProduct(id uint, patch dto.ProductPatch) (*dto.ProductResponse, error)
 	if err := repositary.UpdateProductFields(id, fields); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 
 	updated, err := repositary.FindProduct(id)
 	if err != nil {
@@ -120,5 +123,6 @@ func DeleteProduct(id uint) error {
 	if !ok {
 		return ErrProductNotFound
 	}
+	BumpRevision()
 	return nil
 }

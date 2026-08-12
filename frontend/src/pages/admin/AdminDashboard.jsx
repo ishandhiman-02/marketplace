@@ -10,6 +10,7 @@ import { StatusSelect } from '../../components/admin/StatusSelect';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
 import { th, td } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 const CLOSED = ['delivered', 'cancelled'];
 
@@ -30,6 +31,9 @@ export default function AdminDashboard() {
   };
 
   useEffect(load, []);
+
+  // Another admin's edit (or your own in a second tab) lands here on its own.
+  useLiveRefresh(load);
 
   const { active, closed } = useMemo(() => ({
     active: leads.filter((l) => !CLOSED.includes(l.status)),

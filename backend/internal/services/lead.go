@@ -41,6 +41,7 @@ func CreateLead(req dto.LeadRequest) (*dto.LeadCreatedResponse, error) {
 	if err := repositary.CreateLead(&lead); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	return &dto.LeadCreatedResponse{ID: lead.ID}, nil
 }
 
@@ -75,6 +76,7 @@ func PatchLead(id uint, patch dto.LeadPatch) (*dto.LeadResponse, error) {
 	if err := repositary.UpdateLeadFields(id, fields); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 
 	updated, err := repositary.FindLead(id)
 	if err != nil {
@@ -95,5 +97,6 @@ func DeleteLead(id uint) error {
 	if !ok {
 		return ErrLeadNotFound
 	}
+	BumpRevision()
 	return nil
 }

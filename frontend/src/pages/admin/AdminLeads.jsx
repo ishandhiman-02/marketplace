@@ -13,6 +13,7 @@ import { StatusSelect } from '../../components/admin/StatusSelect';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
 import { field, btnGhost, iconBtn, th, td } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 const RANGES = [
   { value: 1, label: 'Today' },
@@ -39,6 +40,10 @@ export default function AdminLeads() {
   };
 
   useEffect(load, [status, days]);
+
+  // Leads arrive from the public site, so this list is the one that most wants
+  // to update on its own.
+  useLiveRefresh(load);
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();

@@ -39,6 +39,7 @@ func SaveSettings(data model.JSONB) (dto.SettingsResponse, error) {
 	if err != nil {
 		return dto.SettingsResponse{}, err
 	}
+	BumpRevision()
 	updated := s.UpdatedAt
 	return dto.SettingsResponse{Data: s.Data, UpdatedAt: &updated}, nil
 }

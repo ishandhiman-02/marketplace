@@ -52,6 +52,7 @@ func CreateProofs(files []FileInput, caption, productName string) ([]dto.ProofRe
 	if err := repositary.CreateProofs(proofs); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 	return dto.NewProofResponses(proofs), nil
 }
 
@@ -77,6 +78,7 @@ func PatchProof(id uint, patch dto.ProofPatch) (*dto.ProofResponse, error) {
 	if err := repositary.UpdateProofFields(id, fields); err != nil {
 		return nil, err
 	}
+	BumpRevision()
 
 	updated, err := repositary.FindProof(id)
 	if err != nil {
@@ -102,6 +104,7 @@ func DeleteProof(id uint) error {
 	if _, err := repositary.DeleteProof(id); err != nil {
 		return err
 	}
+	BumpRevision()
 	if err := RemoveUpload(existing.ImageURL); err != nil {
 		log.Printf("proof %d deleted but its image %q could not be removed: %v", id, existing.ImageURL, err)
 	}

@@ -10,6 +10,7 @@ import { Panel, EmptyState, ErrorBar } from '../../components/admin/Panel';
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
 import { btnSmall, iconBtn, radius } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 const field = 'px-3 py-2 rounded-lg border border-line bg-surface text-ink text-[13px] '
   + 'outline-none focus:border-[var(--admin-accent)] transition-colors w-full placeholder:text-faint';
@@ -33,6 +34,9 @@ export default function AdminProofs() {
   };
 
   useEffect(load, []);
+
+  // Another admin's edit (or your own in a second tab) lands here on its own.
+  useLiveRefresh(load);
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();

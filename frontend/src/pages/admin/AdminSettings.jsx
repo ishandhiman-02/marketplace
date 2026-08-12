@@ -11,6 +11,7 @@ import {
   SettingsGroup, TextField, ImageField, ColorField, ToggleRow, RepeaterField,
 } from '../../components/admin/SettingsField';
 import { btnPrimary, btnGhost, radius } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 /** Jump chips at the top. Same order as the cards below. */
 const NAV_SECTIONS = [
@@ -66,6 +67,10 @@ export default function AdminSettings() {
     () => JSON.stringify(form) !== JSON.stringify(saved),
     [form, saved],
   );
+
+  // Pick up a change made elsewhere — but never while this form has unsaved
+  // edits, or a background refresh would wipe out what someone is typing.
+  useLiveRefresh(load, !dirty);
 
   // Nobody should lose a form full of copy to a stray back button.
   useEffect(() => {

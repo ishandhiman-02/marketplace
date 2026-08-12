@@ -16,6 +16,10 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		api.GET("/health", handler.HealthCheck)
 
+		// Polled by every open tab so an admin's edit shows up on the storefront
+		// and in other admin screens without anyone pressing reload.
+		api.GET("/version", handler.Version)
+
 		auth := api.Group("/auth")
 		{
 			auth.POST("/login", handler.Login)

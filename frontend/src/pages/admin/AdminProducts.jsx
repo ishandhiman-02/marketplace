@@ -15,6 +15,7 @@ import { Panel, EmptyState, SkeletonRows, ErrorBar } from '../../components/admi
 import { Toast } from '../../components/admin/Toast';
 import { useToast } from '../../components/admin/useToast';
 import { field, btnPrimary, iconBtn, th, td } from '../../components/admin/ui';
+import { useLiveRefresh } from '../../hooks/useLiveRefresh';
 
 /**
  * Price cell — click, change the number, Enter to save. The client's most
@@ -97,6 +98,9 @@ export default function AdminProducts() {
   };
 
   useEffect(load, []);
+
+  // Another admin's edit (or your own in a second tab) lands here on its own.
+  useLiveRefresh(load);
 
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();

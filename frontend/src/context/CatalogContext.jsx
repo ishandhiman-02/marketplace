@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { listProducts } from '../services/products';
 import { listDailyOffers } from '../services/offers';
 import { COURSES } from '../data/products';
 import { DAILY_DEALS } from '../data/dailyOffers';
 import { CATEGORY_META } from '../data/categories';
+import { useLiveRefresh } from '../hooks/useLiveRefresh';
 import { CatalogContext } from './catalogContextObject';
 
 /**
@@ -27,7 +28,7 @@ export function CatalogProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [offline, setOffline] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     let alive = true;
 
     Promise.allSettled([
@@ -53,6 +54,11 @@ export function CatalogProvider({ children }) {
 
     return () => { alive = false; };
   }, []);
+
+  useEffect(load, [load]);
+
+  // An admin edit elsewhere should reach the storefront on its own.
+  useLiveRefresh(load);
 
   const value = useMemo(() => {
     const prices = products.flatMap((c) => (
