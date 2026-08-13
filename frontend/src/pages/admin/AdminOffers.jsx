@@ -269,11 +269,12 @@ export default function AdminOffers() {
 
   const paged = usePagination(visible, 12, `${tab}|${search}`);
 
-  const archive = async (o) => {
+  // Brings an archived offer back as a draft — never straight onto the storefront.
+  const restore = async (o) => {
     try {
-      const updated = await setOfferArchived(o, !o.isArchived);
+      const updated = await setOfferArchived(o, false);
       setOffers((l) => l.map((x) => (x.id === o.id ? updated : x)));
-      show(o.isArchived ? 'Restored — it is paused, go live when ready' : 'Archived');
+      show('Restored — it is paused, go live when ready');
     } catch (e) { show(e.message, 'error'); }
   };
 
@@ -299,12 +300,26 @@ export default function AdminOffers() {
     } catch (e) { show(e.message, 'error'); }
   };
 
+  // The trash is a two-step safety net, not a shredder. An offer still in
+  // circulation only moves to Archived, where it can be restored or duplicated
+  // for next season; destroying it for good is a second, deliberate act taken
+  // from the Archived tab. Nothing an admin clicks once can lose a record.
   const remove = async (o) => {
-    if (!window.confirm(`"${o.subtitle || o.title}" will be deleted. Are you sure?`)) return;
+    if (!o.isArchived) {
+      if (!window.confirm(`"${o.subtitle || o.title}" will move to Archived.\n\nIt comes off the site right away. You can restore it any time from the Archived tab.`)) return;
+      try {
+        const updated = await setOfferArchived(o, true);
+        setOffers((l) => l.map((x) => (x.id === o.id ? updated : x)));
+        show('Moved to Archived');
+      } catch (e) { show(e.message, 'error'); }
+      return;
+    }
+
+    if (!window.confirm(`"${o.subtitle || o.title}" will be deleted for good.\n\nThis cannot be undone. To keep it, press Cancel and leave it archived.`)) return;
     try {
       await deleteDailyOffer(o.id);
       setOffers((l) => l.filter((x) => x.id !== o.id));
-      show('Deleted');
+      show('Deleted for good');
     } catch (e) { show(e.message, 'error'); }
   };
 
@@ -443,14 +458,20 @@ export default function AdminOffers() {
                     {o.isActive ? 'Pause' : 'Go live'}
                   </button>
                 )}
-                <button type="button" onClick={() => archive(o)} className={btnSmall}>
-                  {o.isArchived ? <Icons.ArchiveRestore size={12} /> : <Icons.Archive size={12} />}
-                  {o.isArchived ? 'Restore' : 'Archive'}
-                </button>
+                {/* Putting an offer away is what the trash does now, so the only
+                    thing left to offer an archived one is the way back. */}
+                {o.isArchived && (
+                  <button type="button" onClick={() => restore(o)} className={btnSmall}>
+                    <Icons.ArchiveRestore size={12} /> Restore
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => remove(o)}
-                  aria-label={`Delete ${o.subtitle || o.title}`}
+                  aria-label={o.isArchived
+                    ? `Delete ${o.subtitle || o.title} for good`
+                    : `Move ${o.subtitle || o.title} to Archived`}
+                  title={o.isArchived ? 'Delete for good' : 'Move to Archived'}
                   className={`${iconBtn} ml-auto`}
                   style={{ color: 'var(--admin-danger)' }}
                 >
